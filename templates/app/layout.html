@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}} — Proofolio Console</title>
+  <meta name="description" content="Proofolio Engineering Console — Manage your verified proof-of-work, client inquiries, projects, and peer endorsements.">
+  
+  <link rel="icon" type="image/jpeg" href="/static/images/home-profolio-logo.jpeg">
+
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- Local HTMX -->
+  <script src="/static/js/htmx.min.js"></script>
+
+  <!-- Instant Theme Bootstrap -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('proofolio_theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body hx-boost="true">
+
+  <!-- Authenticated Workspace Topbar -->
+  <header class="site-header" style="background:var(--bg-paper); border-bottom:1px solid var(--border-stone);">
+    <div class="container header-inner" style="height:68px;">
+      
+      <!-- Logo + Workspace Tag -->
+      <div style="display:flex; align-items:center; gap:1.25rem;">
+        <a href="/dashboard" class="logo-brand">
+          <img src="/static/images/home-profolio-logo.jpeg" alt="Proofolio Logo" style="width:38px; height:38px; border-radius:var(--radius-md); object-fit:cover; border:1px solid var(--border-stone);">
+          <div>
+            <div class="logo-title" style="font-size:1.05rem;">
+              <span>Proofolio</span>
+              <span class="badge-emerald" style="font-size:0.6rem; padding:1px 6px;">Console</span>
+            </div>
+            <span class="logo-tagline" style="font-size:0.65rem;">Workspace &bull; Verified</span>
+          </div>
+        </a>
+
+        <!-- App Console Navigation Tabs -->
+        <nav class="nav-links">
+          <a href="/dashboard" class="nav-link {{if eq .ActiveNav "dashboard"}}active{{end}}">
+            📊 Console
+          </a>
+          <a href="/portfolio" class="nav-link {{if eq .ActiveNav "portfolio"}}active{{end}}">
+            👤 My Portfolio
+          </a>
+          <a href="/inquiries" class="nav-link {{if eq .ActiveNav "inquiries"}}active{{end}}">
+            📬 Inquiries Inbox
+          </a>
+          <a href="/discover" class="nav-link {{if eq .ActiveNav "discover"}}active{{end}}">
+            🌐 Directory
+          </a>
+          <a href="/discussions" class="nav-link {{if eq .ActiveNav "discussions"}}active{{end}}">
+            💬 Discussions
+          </a>
+          <a href="/opportunities" class="nav-link {{if eq .ActiveNav "opportunities"}}active{{end}}">
+            💼 Opportunities
+          </a>
+        </nav>
+      </div>
+
+      <!-- Right Action Controls -->
+      <div class="header-actions">
+        <!-- Theme Toggle -->
+        <button onclick="toggleTheme()" class="theme-toggle-btn" id="theme-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+          🌓
+        </button>
+
+        <!-- User Identity & Logout -->
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem; background:var(--bg-card); padding:4px 10px; border-radius:var(--radius-full); border:1px solid var(--border-stone);">
+            <div style="width:24px; height:24px; border-radius:var(--radius-full); background:var(--color-terracotta); color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800;">
+              {{if .User}}{{slice .User.Username 0 1}}{{else}}U{{end}}
+            </div>
+            <span style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--text-heading);">
+              @{{if .User}}{{.User.Username}}{{else}}engineer{{end}}
+            </span>
+          </div>
+
+          <button hx-post="/auth/logout" class="btn btn-secondary btn-sm" style="padding:4px 10px; font-size:0.75rem;">
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- App Workspace Content Target -->
+  <main id="main-content">
+    {{template "content" .}}
+  </main>
+
+  <!-- App Footer -->
+  <footer style="margin-top:auto; background:var(--bg-paper); border-top:1px solid var(--border-stone); padding:1.25rem 0; font-size:0.8rem; color:var(--text-muted);">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <span class="badge-emerald" style="font-size:0.62rem; padding:1px 5px;">● Connected</span>
+        <span>PostgreSQL <code>home_proofolio_db</code> &bull; Go 1.26 Engine</span>
+      </div>
+      <div>
+        <a href="/" style="color:var(--text-body); text-decoration:none; margin-right:1rem;">Platform Homepage</a>
+        <a href="/about" style="color:var(--text-body); text-decoration:none; margin-right:1rem;">About Proofolio</a>
+        <a href="/portfolio" style="color:var(--color-terracotta); text-decoration:none;">Public Portfolio View &rarr;</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('proofolio_theme', next);
+    }
+  </script>
+</body>
+</html>

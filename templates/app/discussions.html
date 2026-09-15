@@ -1,0 +1,115 @@
+{{define "content"}}
+<section class="section">
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div class="badge-terracotta" style="margin-bottom:0.4rem;">Engineering Discourse</div>
+        <h1 style="font-size:2.25rem; font-weight:800; color:var(--text-heading);">Technical Discussions</h1>
+        <p style="font-size:1rem; color:var(--text-muted); margin-top:0.25rem;">
+          Rigorous engineering threads on distributed systems, hypermedia patterns, and low-latency architecture.
+        </p>
+      </div>
+
+      {{if .User}}
+        <button onclick="document.getElementById('discussion-dialog').showModal()" class="btn btn-primary">
+          + Start Discussion
+        </button>
+      {{else}}
+        <a href="/login" class="btn btn-secondary">
+          Sign In to Post
+        </a>
+      {{end}}
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+      {{range .Discussions}}
+        <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:1.75rem; display:flex; gap:1.5rem; box-shadow:var(--shadow-card);">
+          <!-- Upvote Control -->
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:54px; padding:0.5rem; background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); cursor:pointer;"
+               hx-post="/api/discussions/{{.ID}}/upvote" hx-target="#vote-count-{{.ID}}" hx-swap="innerHTML">
+            <span style="font-size:1.1rem; color:var(--color-terracotta);">&#9650;</span>
+            <span class="vote-count" id="vote-count-{{.ID}}" style="font-family:var(--font-mono); font-weight:700; color:var(--text-heading); margin-top:0.2rem;">{{.Upvotes}}</span>
+          </div>
+
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem; flex-wrap:wrap;">
+              <span class="badge-amber" style="font-size:0.65rem;">{{.Category}}</span>
+              <span>Posted by <strong style="color:var(--text-heading);">{{.AuthorName}}</strong> ({{.AuthorRole}})</span>
+              <span>&bull;</span>
+              <span>{{.CreatedAt.Format "Jan 02, 2006"}}</span>
+            </div>
+
+            <h3 style="font-size:1.3rem; font-weight:800; color:var(--text-heading); margin-bottom:0.6rem;">{{.Title}}</h3>
+            <p style="font-size:0.92rem; color:var(--text-body); line-height:1.6; margin-bottom:1rem;">{{.Content}}</p>
+
+            <!-- Replies -->
+            {{if .Replies}}
+              <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-stone); display:flex; flex-direction:column; gap:0.75rem;">
+                <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--color-terracotta); font-weight:700;">
+                  Replies ({{len .Replies}}):
+                </div>
+                {{range .Replies}}
+                  <div style="background:var(--bg-card); border-left:3px solid var(--color-terracotta); padding:0.75rem 1rem; border-radius:4px; font-size:0.85rem;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+                      <strong style="color:var(--text-heading);">{{.AuthorName}}</strong>
+                      <span style="color:var(--text-muted); font-size:0.75rem;">{{.CreatedAt.Format "Jan 02, 15:04"}}</span>
+                    </div>
+                    <div style="color:var(--text-body); line-height:1.5;">{{.Content}}</div>
+                  </div>
+                {{end}}
+              </div>
+            {{end}}
+
+            <!-- Quick Reply Form -->
+            {{if $.User}}
+              <div style="margin-top:1rem;">
+                <form hx-post="/api/discussions/{{.ID}}/reply" hx-target="#main-content" style="display:flex; gap:0.5rem;">
+                  <input type="text" name="content" class="form-input" placeholder="Add engineering insight or solution..." style="padding:0.5rem 0.85rem; font-size:0.85rem;" required>
+                  <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap;">Reply</button>
+                </form>
+              </div>
+            {{end}}
+          </div>
+        </div>
+      {{else}}
+        <div style="text-align:center; padding:3rem; color:var(--text-muted); background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone);">
+          No technical discussions yet.
+        </div>
+      {{end}}
+    </div>
+  </div>
+</section>
+
+<!-- Discussion Dialog -->
+<dialog id="discussion-dialog">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Start Technical Discussion</h3>
+    <button class="close-btn" onclick="document.getElementById('discussion-dialog').close()">&times;</button>
+  </div>
+  <div id="discussion-form-container">
+    <form hx-post="/api/discussions" hx-target="#main-content">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Preventing write skew in PostgreSQL with advisory locks" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-select">
+          <option value="Architecture">Architecture</option>
+          <option value="Database">Database &amp; PostgreSQL</option>
+          <option value="Distributed Systems">Distributed Systems</option>
+          <option value="Hypermedia & HTMX">Hypermedia &amp; HTMX</option>
+          <option value="Security">Security &amp; Auth</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Content / Problem Dilemma</label>
+        <textarea name="content" class="form-textarea" placeholder="Detail the constraints, performance trade-offs, and design parameters..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+        Publish Discussion Thread
+      </button>
+    </form>
+  </div>
+</dialog>
+{{end}}

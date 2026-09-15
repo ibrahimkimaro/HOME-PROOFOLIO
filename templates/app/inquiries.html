@@ -1,0 +1,50 @@
+{{define "content"}}
+<section class="section">
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2.5rem;">
+      <div>
+        <div class="badge-terracotta" style="margin-bottom:0.4rem;">Contracts &amp; Proposals</div>
+        <h1 style="font-size:2.25rem; font-weight:800; color:var(--text-heading);">Incoming Client Inquiries</h1>
+        <p style="font-size:1rem; color:var(--text-muted); margin-top:0.25rem;">
+          Direct client RFP proposals submitted through your verified public portfolio.
+        </p>
+      </div>
+      <span class="badge-emerald">{{len .Inquiries}} Active Inquiries</span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+      {{range .Inquiries}}
+        <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:2rem; box-shadow:var(--shadow-card);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <h2 style="font-size:1.4rem; font-weight:800; color:var(--text-heading);">{{.Title}}</h2>
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+                Client: <strong style="color:var(--text-heading);">{{.SenderName}}</strong> &bull; <a href="mailto:{{.SenderEmail}}" style="color:var(--color-terracotta);">{{.SenderEmail}}</a>
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <span class="badge-amber">💰 {{.BudgetRange}}</span>
+              <span class="badge-emerald">{{.Status}}</span>
+            </div>
+          </div>
+
+          <p style="font-size:0.95rem; color:var(--text-body); line-height:1.65; margin-bottom:1.5rem;">
+            {{.Description}}
+          </p>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem; font-size:0.82rem; font-family:var(--font-mono);">
+            <div><span style="color:var(--text-muted);">Type:</span> <strong style="color:var(--text-heading);">{{.ProjectType}}</strong></div>
+            <div><span style="color:var(--text-muted);">Timeline:</span> <strong style="color:var(--text-heading);">{{.Timeline}}</strong></div>
+            <div><span style="color:var(--text-muted);">Received:</span> <strong style="color:var(--text-heading);">{{.CreatedAt.Format "Jan 02, 2006"}}</strong></div>
+          </div>
+        </div>
+      {{else}}
+        <div style="text-align:center; padding:3.5rem; background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); color:var(--text-muted);">
+          No client inquiries received yet. Proposals sent via your public portfolio will appear here.
+        </div>
+      {{end}}
+    </div>
+  </div>
+</section>
+{{end}}

@@ -1,0 +1,242 @@
+{{define "content"}}
+<section class="section">
+  <div class="container">
+    
+    <!-- Welcome Console Header -->
+    <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2.25rem; margin-bottom:2.5rem; box-shadow:var(--shadow-card);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.4rem;">
+            <span class="badge-terracotta">{{if .Profile}}{{.Profile.Category}}{{else}}engineer{{end}}</span>
+            <span class="badge-emerald">&#10004; Verified Profile</span>
+          </div>
+          <h1 style="font-size:2rem; font-weight:800; color:var(--text-heading); letter-spacing:-0.02em;">
+            Welcome back, {{if .Profile}}{{.Profile.DisplayName}}{{else}}{{.User.Username}}{{end}}
+          </h1>
+          <p style="font-size:0.95rem; color:var(--text-muted); margin-top:0.25rem;">
+            {{if .Profile}}{{.Profile.Headline}}{{else}}Manage your living proof of work, incoming client contract RFPs, and peer endorsements.{{end}}
+          </p>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <button onclick="document.getElementById('project-dialog').showModal()" class="btn btn-primary btn-sm">
+            + Add Project
+          </button>
+          <button onclick="document.getElementById('problem-dialog').showModal()" class="btn btn-secondary btn-sm">
+            + Add Case Study
+          </button>
+          <a href="/portfolio" class="btn btn-outline-emerald btn-sm">
+            Public View &nearr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Metrics Row -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.25rem; margin-top:2rem; padding-top:1.75rem; border-top:1px solid var(--border-stone);">
+        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
+          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Projects}}</div>
+          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--color-terracotta); font-weight:700; margin-top:0.2rem;">Verified Projects</div>
+        </div>
+
+        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
+          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Problems}}</div>
+          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--amber-tag-text); font-weight:700; margin-top:0.2rem;">4-Stage Case Studies</div>
+        </div>
+
+        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
+          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Endorsements}}</div>
+          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--emerald-proof-text); font-weight:700; margin-top:0.2rem;">Peer Endorsements</div>
+        </div>
+
+        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
+          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Inquiries}}</div>
+          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--color-terracotta); font-weight:700; margin-top:0.2rem;">Client Inquiries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Inquiries Inbox -->
+    <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2.25rem; margin-bottom:2.5rem; box-shadow:var(--shadow-card);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <div>
+          <div class="badge-terracotta" style="margin-bottom:0.3rem;">Contract Pipeline</div>
+          <h2 style="font-size:1.5rem; font-weight:800; color:var(--text-heading);">Direct Client Inquiries &amp; Proposals</h2>
+        </div>
+        <span class="badge-emerald">{{len .Inquiries}} Total Inquiries</span>
+      </div>
+
+      {{if .Inquiries}}
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          {{range .Inquiries}}
+            <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                  <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-heading);">{{.Title}}</h3>
+                  <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.15rem;">
+                    From: <strong style="color:var(--text-heading);">{{.SenderName}}</strong> &bull; <a href="mailto:{{.SenderEmail}}" style="color:var(--color-terracotta);">{{.SenderEmail}}</a>
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span class="badge-amber">💰 {{.BudgetRange}}</span>
+                  <span class="badge-emerald">{{.Status}}</span>
+                </div>
+              </div>
+
+              <p style="font-size:0.88rem; color:var(--text-body); line-height:1.55; margin-bottom:0.75rem;">
+                {{.Description}}
+              </p>
+
+              <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between; border-top:1px solid var(--border-stone); padding-top:0.5rem;">
+                <span>Type: <strong>{{.ProjectType}}</strong></span>
+                <span>Timeline: <strong>{{.Timeline}}</strong></span>
+                <span>Received: <strong>{{.CreatedAt.Format "Jan 02, 2006"}}</strong></span>
+              </div>
+            </div>
+          {{end}}
+        </div>
+      {{else}}
+        <div style="text-align:center; padding:2rem; color:var(--text-muted); background:var(--bg-card); border-radius:var(--radius-sm); border:1px solid var(--border-stone);">
+          No contract proposals received yet. Your profile inquiry form is active on your public portfolio.
+        </div>
+      {{end}}
+    </div>
+
+    <!-- Active Projects & Case Studies Summary -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
+      <!-- Projects -->
+      <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-card);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+          <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-heading);">Your Projects</h3>
+          <button onclick="document.getElementById('project-dialog').showModal()" class="btn btn-secondary btn-sm">+ Add</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          {{range .Projects}}
+            <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
+              <strong style="color:var(--text-heading); font-size:0.95rem;">{{.Title}}</strong>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">{{.Category}} &bull; {{.Headline}}</div>
+            </div>
+          {{else}}
+            <p style="font-size:0.85rem; color:var(--text-muted);">No projects added.</p>
+          {{end}}
+        </div>
+      </div>
+
+      <!-- Case Studies -->
+      <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-card);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+          <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-heading);">4-Stage Case Studies</h3>
+          <button onclick="document.getElementById('problem-dialog').showModal()" class="btn btn-secondary btn-sm">+ Add</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          {{range .Problems}}
+            <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
+              <strong style="color:var(--text-heading); font-size:0.95rem;">{{.Title}}</strong>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">{{.Domain}} &bull; 4 stages documented</div>
+            </div>
+          {{else}}
+            <p style="font-size:0.85rem; color:var(--text-muted);">No case studies added.</p>
+          {{end}}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Dialogs for Modals -->
+<dialog id="project-dialog">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Publish Verified Project</h3>
+    <button class="close-btn" onclick="document.getElementById('project-dialog').close()">&times;</button>
+  </div>
+  <div id="project-form-container">
+    <form hx-post="/api/projects" hx-target="#main-content">
+      <div class="form-group">
+        <label class="form-label">Project Title</label>
+        <input type="text" name="title" class="form-input" placeholder="Distributed Order Engine" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input type="text" name="category" class="form-input" placeholder="Distributed Systems" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Headline</label>
+        <input type="text" name="headline" class="form-input" placeholder="High-throughput messaging broker in Go" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Problem Solved</label>
+        <textarea name="problemSolved" class="form-textarea" placeholder="Eliminated order contention..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Architecture Highlights</label>
+        <textarea name="architectureNotes" class="form-textarea" placeholder="Worker pool with persistent write buffers..."></textarea>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Live URL</label>
+          <input type="url" name="liveUrl" class="form-input" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Repo URL</label>
+          <input type="url" name="repoUrl" class="form-input" placeholder="https://github.com/...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tech Stack (comma-separated)</label>
+        <input type="text" name="techStack" class="form-input" placeholder="Go, PostgreSQL, HTMX, Redis" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Measured Metrics</label>
+        <input type="text" name="metrics" class="form-input" placeholder="42% latency reduction &bull; 99.99% SLA">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+        Publish to Proofolio
+      </button>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="problem-dialog">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Publish Case Study</h3>
+    <button class="close-btn" onclick="document.getElementById('problem-dialog').close()">&times;</button>
+  </div>
+  <div id="problem-form-container">
+    <form hx-post="/api/problems" hx-target="#main-content">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-input" placeholder="Race condition under heavy concurrent write load" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Technical Domain</label>
+        <input type="text" name="domain" class="form-input" placeholder="FinTech / Concurrency" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">1. Symptoms</label>
+        <textarea name="symptoms" class="form-textarea" placeholder="Duplicate ledger records..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">2. Root Cause</label>
+        <textarea name="rootCause" class="form-textarea" placeholder="Read-committed isolation leak..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">3. Engineered Solution</label>
+        <textarea name="solution" class="form-textarea" placeholder="PostgreSQL advisory locks..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">4. Measured Outcome</label>
+        <textarea name="outcome" class="form-textarea" placeholder="Zero duplicates over 500k transactions..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tech Stack (comma-separated)</label>
+        <input type="text" name="techStack" class="form-input" placeholder="Go, PostgreSQL, Advisory Locks" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+        Publish Case Study
+      </button>
+    </form>
+  </div>
+</dialog>
+{{end}}

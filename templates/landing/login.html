@@ -1,0 +1,44 @@
+{{define "content"}}
+<section class="auth-page-wrapper">
+  <div class="auth-card">
+    <div class="auth-card-header">
+      <a href="/" style="display:inline-block; text-decoration:none;">
+        <img src="/static/images/home-profolio-logo.jpeg" alt="Proofolio Logo" style="width:56px; height:56px; border-radius:var(--radius-md); object-fit:cover; border:2px solid var(--border-stone); margin:0 auto 1rem; display:block; box-shadow:var(--shadow-card);">
+      </a>
+      <h2 class="auth-card-title">Welcome Back</h2>
+      <p class="auth-card-subtitle">Sign in to your Proofolio engineering console</p>
+    </div>
+
+    <!-- Switcher Tabs -->
+    <div class="auth-tabs">
+      <a href="/login" class="auth-tab active">Sign In</a>
+      <a href="/register" class="auth-tab">Create Account</a>
+    </div>
+
+    <div id="auth-error-box"></div>
+
+    <form hx-post="/auth/login" hx-target="#auth-error-box" class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Username or Email</label>
+        <input type="text" name="username" class="form-input" placeholder="e.g. ibrahim or email" value="ibrahim" required autofocus>
+      </div>
+
+      <div class="form-group">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+          <label class="form-label" style="margin-bottom:0;">Password</label>
+          <span style="font-size:0.75rem; color:var(--color-terracotta);">Forgot password?</span>
+        </div>
+        <input type="password" name="password" class="form-input" placeholder="••••••••" value="kimmy001" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1.5rem; padding:0.8rem;">
+        Sign In to Console &rarr;
+      </button>
+
+      <div style="margin-top:1.75rem; text-align:center; font-size:0.8rem; color:var(--text-muted); background:var(--bg-card); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-stone);">
+        💡 Demo Account Seed: <strong>ibrahim</strong> / <strong>kimmy001</strong>
+      </div>
+    </form>
+  </div>
+</section>
+{{end}}

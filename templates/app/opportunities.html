@@ -1,0 +1,153 @@
+{{define "content"}}
+<section class="section">
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div class="badge-terracotta" style="margin-bottom:0.4rem;">Marketplace</div>
+        <h1 style="font-size:2.25rem; font-weight:800; color:var(--text-heading);">Engineering Contracts &amp; Roles</h1>
+        <p style="font-size:1rem; color:var(--text-muted); margin-top:0.25rem;">
+          Verified technical contracts and full-time architecture roles with direct company contacts.
+        </p>
+      </div>
+
+      {{if .User}}
+        <button onclick="document.getElementById('post-opp-dialog').showModal()" class="btn btn-primary">
+          + Post Opportunity
+        </button>
+      {{end}}
+    </div>
+
+    <div class="services-grid" style="grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));">
+      {{range .Opportunities}}
+        <div class="service-card" style="background:var(--bg-paper);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+            <span class="badge-terracotta">{{.Category}}</span>
+            <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">📍 {{.Location}}</span>
+          </div>
+
+          <h3 style="font-size:1.3rem; font-weight:800; color:var(--text-heading); margin-bottom:0.4rem;">
+            {{.Title}}
+          </h3>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+            Posted by <strong style="color:var(--text-heading);">{{.CreatorName}}</strong> ({{.CreatorCompany}})
+          </div>
+
+          <div class="badge-amber" style="margin-bottom:1rem; align-self:flex-start;">
+            <span>💰 {{.BudgetOrSalary}}</span>
+          </div>
+
+          <p style="font-size:0.9rem; color:var(--text-body); line-height:1.6; margin-bottom:1.25rem;">
+            {{.Description}}
+          </p>
+
+          <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1.5rem;">
+            {{range .RequiredSkills}}
+              <span class="badge-emerald" style="font-size:0.65rem;">{{.}}</span>
+            {{end}}
+          </div>
+
+          <div style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--border-stone); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">
+              {{.ApplicantsCount}} Applicants
+            </span>
+            <button onclick="document.getElementById('opp-id-input').value='{{.ID}}'; document.getElementById('opp-title-span').innerText='{{.Title}}'; document.getElementById('apply-opp-dialog').showModal();" class="btn btn-primary btn-sm">
+              Apply Now &rarr;
+            </button>
+          </div>
+        </div>
+      {{else}}
+        <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted); background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone);">
+          No open opportunities listed right now.
+        </div>
+      {{end}}
+    </div>
+  </div>
+</section>
+
+<!-- Dialogs for Opportunity Apply and Post -->
+<dialog id="apply-opp-dialog">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Apply for <span id="opp-title-span" style="color:var(--color-terracotta);"></span></h3>
+    <button class="close-btn" onclick="document.getElementById('apply-opp-dialog').close()">&times;</button>
+  </div>
+  <div id="apply-form-container">
+    <form hx-post="/api/opportunities/apply" hx-target="#apply-form-container">
+      <input type="hidden" name="opportunityId" id="opp-id-input">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="displayName" class="form-input" value="{{if .Profile}}{{.Profile.DisplayName}}{{else}}Ibrahim Kimaro{{end}}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-input" value="{{if .User}}{{.User.Email}}{{else}}ibrahimkimaro01@gmail.com{{end}}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Title / Headline</label>
+        <input type="text" name="headline" class="form-input" value="{{if .Profile}}{{.Profile.Headline}}{{else}}Systems Engineer &amp; Full-Stack Architect{{end}}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Application Note / Proof of Fit</label>
+        <textarea name="message" class="form-textarea" placeholder="Detail your relevant background and availability..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+        Submit Application
+      </button>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="post-opp-dialog">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Post New Opportunity</h3>
+    <button class="close-btn" onclick="document.getElementById('post-opp-dialog').close()">&times;</button>
+  </div>
+  <div id="post-opp-container">
+    <form hx-post="/api/opportunities" hx-target="#main-content">
+      <div class="form-group">
+        <label class="form-label">Position / Contract Title</label>
+        <input type="text" name="title" class="form-input" placeholder="Senior Distributed Systems Architect" required>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-select">
+            <option value="Contract">Contract</option>
+            <option value="Full-Time">Full-Time</option>
+            <option value="Consulting">Consulting</option>
+            <option value="Security Audit">Security Audit</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input type="text" name="company" class="form-input" placeholder="Kilimo Chain Ltd." required>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Compensation / Budget</label>
+          <input type="text" name="budget" class="form-input" placeholder="$5,000 - $8,000 / month" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input type="text" name="location" class="form-input" placeholder="Remote / East Africa" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description &amp; Requirements</label>
+        <textarea name="description" class="form-textarea" placeholder="Detail the system challenges, tech stack, and goals..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Required Skills (comma-separated)</label>
+        <input type="text" name="skills" class="form-input" placeholder="Go, PostgreSQL, Redis, Event-Driven" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact Email or URL</label>
+        <input type="text" name="contact" class="form-input" placeholder="contracts@kilimochain.com" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+        Publish Opportunity
+      </button>
+    </form>
+  </div>
+</dialog>
+{{end}}

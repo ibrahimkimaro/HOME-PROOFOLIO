@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}} — Proofolio</title>
+  <meta name="description"
+    content="Proofolio — The AI-Assisted Engineering Proof-of-Work Platform. Verify code credibility, system architecture trajectories, and peer endorsements.">
+
+  <link rel="icon" type="image/jpeg" href="/static/images/home-profolio-logo.jpeg">
+
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- Local HTMX -->
+  <script src="/static/js/htmx.min.js"></script>
+
+  <!-- Instant Theme Bootstrap -->
+  <script>
+    (function () {
+      try {
+        const savedTheme = localStorage.getItem('proofolio_theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } catch (e) { }
+    })();
+  </script>
+</head>
+
+<body hx-boost="true">
+
+  <!-- Pre-Login Landing Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+
+      <!-- Brand Logo with Custom Logo Image -->
+      <a href="/" class="logo-brand">
+        <img src="/static/images/home-profolio-logo.jpeg" alt="Proofolio Logo"
+          style="width:42px; height:42px; border-radius:var(--radius-md); object-fit:cover; border:1px solid var(--border-stone); box-shadow:0 2px 10px rgba(194,89,50,0.25);">
+        <div>
+          <div class="logo-title">
+            <span>Home Proofolio</span>
+          </div>
+          <span class="logo-tagline">Build &bull; Prove &bull; Connect</span>
+        </div>
+      </a>
+
+      <!-- Landing Navigation Links -->
+      <nav class="nav-links">
+        <a href="/#about" class="nav-link">
+          About
+        </a>
+        <a href="/#categories" class="nav-link">
+          Who It's For
+        </a>
+        <a href="/#proof-sources" class="nav-link">
+          Proof Sources
+        </a>
+        <a href="/#services" class="nav-link">
+          Services
+        </a>
+        <a href="/discover" class="nav-link">
+          Talent Directory
+        </a>
+        <a href="/discussions" class="nav-link">
+          Discussions
+        </a>
+      </nav>
+
+      <!-- Right Controls -->
+      <div class="header-actions">
+        <!-- Light / Dark Mode Toggle -->
+        <button onclick="toggleTheme()" class="theme-toggle-btn" id="theme-btn" title="Toggle Light/Dark Theme"
+          aria-label="Toggle Theme">
+          🌓
+        </button>
+
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          {{if .User}}
+          <a href="/dashboard" class="btn btn-primary btn-sm">
+            Open Console &rarr;
+          </a>
+          {{else}}
+          <a href="/login" class="btn btn-secondary btn-sm">
+            Sign In
+          </a>
+          <a href="/register" class="btn btn-primary btn-sm">
+            Get Started
+          </a>
+          {{end}}
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Landing Content -->
+  <main id="main-content">
+    {{template "content" .}}
+  </main>
+
+  <!-- Landing Footer -->
+  {{template "landing_footer" .}}
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('proofolio_theme', next);
+    }
+  </script>
+</body>
+
+</html>

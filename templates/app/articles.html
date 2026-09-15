@@ -1,0 +1,102 @@
+{{define "content"}}
+<section class="section">
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div class="badge-terracotta" style="margin-bottom:0.4rem;">Engineering Whitepapers</div>
+        <h1 style="font-size:2.25rem; font-weight:800; color:var(--text-heading);">Technical Articles</h1>
+        <p style="font-size:1rem; color:var(--text-muted); margin-top:0.25rem;">
+          In-depth technical writeups, benchmarks, and production failure postmortems.
+        </p>
+      </div>
+
+      {{if .User}}
+        <button onclick="document.getElementById('article-dialog').showModal()" class="btn btn-primary">
+          + Publish Article
+        </button>
+      {{end}}
+    </div>
+
+    <div class="services-grid" style="grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));">
+      {{range .Articles}}
+        <div class="service-card" style="background:var(--bg-paper);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+            <span class="badge-terracotta">{{.Category}}</span>
+            <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">⏱ {{.ReadTime}}</span>
+          </div>
+
+          <h3 style="font-size:1.3rem; font-weight:800; color:var(--text-heading); margin-bottom:0.4rem;">
+            {{.Title}}
+          </h3>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+            By <strong style="color:var(--text-heading);">{{.AuthorName}}</strong> &bull; {{.CreatedAt.Format "Jan 02, 2006"}}
+          </div>
+
+          <p style="font-size:0.9rem; color:var(--text-body); line-height:1.6; margin-bottom:1.25rem;">
+            {{.Summary}}
+          </p>
+
+          <div style="background:var(--bg-card); border-left:3px solid var(--color-terracotta); padding:1rem; border-radius:4px; font-size:0.85rem; color:var(--text-body); line-height:1.6; max-height:140px; overflow-y:auto; margin-bottom:1.25rem;">
+            {{.Content}}
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1.25rem;">
+            {{range .Tags}}
+              <span class="badge-amber" style="font-size:0.65rem;">#{{.}}</span>
+            {{end}}
+          </div>
+
+          <div style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--border-stone); display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); cursor:pointer;"
+                 hx-post="/api/articles/{{.ID}}/upvote" hx-target="#art-vote-{{.ID}}" hx-swap="innerHTML">
+              <span style="color:var(--color-terracotta);">&#9650;</span>
+              <span id="art-vote-{{.ID}}" style="font-family:var(--font-mono); font-weight:700; color:var(--text-heading); font-size:0.85rem;">{{.Upvotes}}</span>
+            </div>
+
+            <span class="badge-emerald" style="font-size:0.75rem;">Verified Whitepaper</span>
+          </div>
+        </div>
+      {{else}}
+        <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted); background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone);">
+          No technical articles published yet.
+        </div>
+      {{end}}
+    </div>
+  </div>
+</section>
+
+<!-- Publish Article Dialog -->
+<dialog id="article-dialog">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Publish Technical Article</h3>
+    <button class="close-btn" onclick="document.getElementById('article-dialog').close()">&times;</button>
+  </div>
+  <div id="article-form-container">
+    <form hx-post="/api/articles" hx-target="#main-content">
+      <div class="form-group">
+        <label class="form-label">Article Title</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Zero-Bloat Systems: Why We Chose HTMX & Go" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input type="text" name="category" class="form-input" placeholder="Architecture / Performance" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Summary</label>
+        <textarea name="summary" class="form-textarea" placeholder="Brief abstract summarizing the core engineering findings..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Article Content</label>
+        <textarea name="content" class="form-textarea" style="min-height:160px;" placeholder="Full technical explanation, benchmarks, and architecture notes..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags (comma-separated)</label>
+        <input type="text" name="tags" class="form-input" placeholder="Go, Architecture, HTMX, PostgreSQL" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+        Publish Whitepaper
+      </button>
+    </form>
+  </div>
+</dialog>
+{{end}}

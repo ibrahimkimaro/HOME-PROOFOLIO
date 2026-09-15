@@ -1,0 +1,63 @@
+{{define "content"}}
+<section class="auth-page-wrapper">
+  <div class="auth-card">
+    <div class="auth-card-header">
+      <a href="/" style="display:inline-block; text-decoration:none;">
+        <img src="/static/images/home-profolio-logo.jpeg" alt="Proofolio Logo" style="width:56px; height:56px; border-radius:var(--radius-md); object-fit:cover; border:2px solid var(--border-stone); margin:0 auto 1rem; display:block; box-shadow:var(--shadow-card);">
+      </a>
+      <h2 class="auth-card-title">Create Proofolio</h2>
+      <p class="auth-card-subtitle">Establish your living, verifiable proof of work</p>
+    </div>
+
+    <!-- Switcher Tabs -->
+    <div class="auth-tabs">
+      <a href="/login" class="auth-tab">Sign In</a>
+      <a href="/register" class="auth-tab active">Create Account</a>
+    </div>
+
+    <div id="register-error-box"></div>
+
+    <form hx-post="/auth/register" hx-target="#register-error-box" class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="displayName" class="form-input" placeholder="e.g. Alex M. Chen" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-input" placeholder="e.g. alex_systems" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-input" placeholder="alex@engineering.io" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Specialization &amp; Discipline</label>
+        <select name="category" class="form-select">
+          <option value="engineer">💻 Software Engineers &amp; Systems Architects</option>
+          <option value="student">🎓 Students &amp; Academic Graduates</option>
+          <option value="business">💼 Entrepreneurs, Founders &amp; Business Leaders</option>
+          <option value="doctor">🩺 Medical Specialists &amp; Researchers</option>
+          <option value="coworker">🤝 Cross-Functional Teams &amp; Collaborators</option>
+          <option value="cybersecurity">🛡️ Cybersecurity &amp; Infrastructure Specialists</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-input" placeholder="At least 6 characters" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1.5rem; padding:0.8rem;">
+        Create My Verified Portfolio &rarr;
+      </button>
+
+      <div style="margin-top:1.5rem; text-align:center; font-size:0.8rem; color:var(--text-muted);">
+        By registering, you agree to public verified proof-of-work guidelines.
+      </div>
+    </form>
+  </div>
+</section>
+{{end}}
