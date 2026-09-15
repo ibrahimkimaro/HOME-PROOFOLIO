@@ -45,19 +45,22 @@ func renderLandingView(w http.ResponseWriter, r *http.Request, pageFile string, 
 	layoutPath := "templates/landing/layout.html"
 	footerPath := "templates/landing/footer.html"
 
-	if isHTMX(r) {
-		tmpl, err := template.ParseFiles(pagePath)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
-			return
-		}
-		if err := tmpl.ExecuteTemplate(w, "content", data); err != nil {
-			http.Error(w, fmt.Sprintf("Template execute error: %v", err), http.StatusInternalServerError)
-		}
+	tmpl, err := template.ParseFiles(layoutPath, footerPath, pagePath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
 		return
 	}
+	if err := tmpl.Execute(w, data); err != nil {
+		http.Error(w, fmt.Sprintf("Template execute error: %v", err), http.StatusInternalServerError)
+	}
+}
 
-	tmpl, err := template.ParseFiles(layoutPath, footerPath, pagePath)
+// Render independent standalone Auth Views (clean distraction-free layout with return-to-home button & theme toggle)
+func renderAuthView(w http.ResponseWriter, r *http.Request, pageFile string, data PageData) {
+	pagePath := "templates/landing/" + pageFile
+	layoutPath := "templates/landing/auth_layout.html"
+
+	tmpl, err := template.ParseFiles(layoutPath, pagePath)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
 		return
@@ -72,7 +75,7 @@ func renderAppView(w http.ResponseWriter, r *http.Request, pageFile string, data
 	pagePath := "templates/app/" + pageFile
 	layoutPath := "templates/app/layout.html"
 
-	if isHTMX(r) {
+	if isHTMX(r) && r.Header.Get("HX-Boosted") != "true" && r.Header.Get("HX-Target") == "main-content" {
 		tmpl, err := template.ParseFiles(pagePath)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
@@ -315,7 +318,7 @@ func HandleLoginView(w http.ResponseWriter, r *http.Request) {
 		Profile:   profile,
 	}
 
-	renderLandingView(w, r, "login.html", data)
+	renderAuthView(w, r, "login.html", data)
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -372,7 +375,7 @@ func HandleRegisterView(w http.ResponseWriter, r *http.Request) {
 		Profile:   profile,
 	}
 
-	renderLandingView(w, r, "register.html", data)
+	renderAuthView(w, r, "register.html", data)
 }
 
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
