@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"home_proofolio/internal/db"
+	"home_proofolio/internal/devreload"
 	"home_proofolio/internal/handlers"
 )
 
@@ -21,7 +22,10 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// 2. Static Asset Server (CSS, JS, Generated Visuals)
+	// 2. Live Reload SSE Endpoint for instant Hot Reload
+	mux.HandleFunc("/dev/live-reload", devreload.HandleSSE)
+
+	// 3. Static Asset Server (CSS, JS, Generated Visuals)
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 

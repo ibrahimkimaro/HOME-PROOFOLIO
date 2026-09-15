@@ -36,9 +36,11 @@
 </head>
 
 <body>
+  <!-- Scroll Reading Progress Bar -->
+  <div class="scroll-progress-bar" id="scroll-progress"></div>
 
   <!-- Pre-Login Landing Header -->
-  <header class="site-header">
+  <header class="site-header" id="main-header">
     <div class="container header-inner">
 
       <!-- Brand Logo with Custom Logo Image -->
@@ -135,7 +137,13 @@
   <!-- Landing Footer -->
   {{template "landing_footer" .}}
 
+  <!-- Floating Back To Top Button -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top" title="Back to top" onclick="scrollToTop()">
+    &uarr;
+  </button>
+
   <script>
+    /* Theme Toggle */
     function toggleTheme() {
       const current = document.documentElement.getAttribute('data-theme') || 'light';
       const next = current === 'dark' ? 'light' : 'dark';
@@ -143,6 +151,7 @@
       localStorage.setItem('proofolio_theme', next);
     }
 
+    /* Mobile Menu Drawer Toggle */
     function toggleMobileMenu() {
       const drawer = document.getElementById('mobile-nav-drawer');
       const icon = document.getElementById('menu-icon-bars');
@@ -161,6 +170,111 @@
       if (drawer) drawer.classList.remove('open');
       if (icon) icon.textContent = '☰';
     }
+
+    /* Smooth Scroll to Top */
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Smooth Scroll & Scroll-Driven Observer System */
+    (function () {
+      const header = document.getElementById('main-header');
+      const backToTopBtn = document.getElementById('back-to-top');
+      const progressBar = document.getElementById('scroll-progress');
+
+      // 1. Scroll event handler for header shrink, back-to-top button, and progress bar fallback
+      function onScroll() {
+        const scrollY = window.scrollY || document.documentElement.scrollTop;
+        const maxScroll = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+
+        // Shrinking frosted header
+        if (header) {
+          if (scrollY > 40) {
+            header.classList.add('scrolled');
+          } else {
+            header.classList.remove('scrolled');
+          }
+        }
+
+        // Back-to-top button toggle
+        if (backToTopBtn) {
+          if (scrollY > 350) {
+            backToTopBtn.classList.add('visible');
+          } else {
+            backToTopBtn.classList.remove('visible');
+          }
+        }
+
+        // Progress bar fallback (for browsers without CSS animation-timeline)
+        if (progressBar && !CSS.supports('(animation-timeline: scroll()) and (animation-range: 0% 100%)')) {
+          const percent = Math.min(1, Math.max(0, scrollY / maxScroll));
+          progressBar.style.transform = 'scaleX(' + percent + ')';
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll(); // initial trigger
+
+      // 2. IntersectionObserver for Reveal-on-Scroll animations
+      if ('IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-revealed');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          root: null,
+          rootMargin: '0px 0px -50px 0px',
+          threshold: 0.12
+        });
+
+        document.querySelectorAll('.reveal-on-scroll, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+          revealObserver.observe(el);
+        });
+      } else {
+        // Fallback: reveal immediately
+        document.querySelectorAll('.reveal-on-scroll, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+          el.classList.add('is-revealed');
+        });
+      }
+
+      // 3. Instant Hot / Live Reload SSE Client
+      if (window.EventSource) {
+        let reconnectDelay = 1000;
+        function connectLiveReload() {
+          const es = new EventSource('/dev/live-reload');
+          es.onmessage = function (e) {
+            try {
+              const data = JSON.parse(e.data);
+              if (data.type === 'css') {
+                // Hot swap stylesheets without page reload!
+                document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                  const url = new URL(link.href, window.location.origin);
+                  url.searchParams.set('_v', Date.now());
+                  link.href = url.toString();
+                });
+              } else {
+                // Smoothly refresh on template/HTML changes
+                window.location.reload();
+              }
+            } catch (err) {
+              window.location.reload();
+            }
+          };
+          es.onerror = function () {
+            es.close();
+            setTimeout(connectLiveReload, reconnectDelay);
+            reconnectDelay = Math.min(reconnectDelay * 1.5, 5000);
+          };
+          es.onopen = function () {
+            reconnectDelay = 1000;
+          };
+        }
+        connectLiveReload();
+      }
+    })();
   </script>
 </body>
 
