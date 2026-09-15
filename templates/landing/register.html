@@ -11,13 +11,16 @@
   <!-- Animated Tab Switcher Track -->
   <div class="auth-tab-track" data-active="register">
     <div class="auth-tab-pill"></div>
-    <a href="/login" class="auth-tab-btn">Sign In</a>
-    <a href="/register" class="auth-tab-btn active">Create Account</a>
+    <a href="/login{{if .Redirect}}?redirect={{.Redirect}}{{end}}" class="auth-tab-btn">Sign In</a>
+    <a href="/register{{if .Redirect}}?redirect={{.Redirect}}{{end}}" class="auth-tab-btn active">Create Account</a>
   </div>
 
   <div id="register-error-box"></div>
 
   <form hx-post="/auth/register" hx-target="#register-error-box" class="auth-form">
+    {{if .Redirect}}
+    <input type="hidden" name="redirect" value="{{.Redirect}}">
+    {{end}}
     <div class="form-group">
       <label class="form-label">Full Name</label>
       <input type="text" name="displayName" class="form-input" placeholder="e.g. Alex M. Chen" required autofocus>
@@ -30,16 +33,18 @@
 
     <div class="form-group">
       <label class="form-label">Email Address</label>
-      <input type="email" name="email" class="form-input" placeholder="alex@engineering.io" required>
+      <input type="email" name="email" class="form-input" placeholder="alex@company.io" required>
     </div>
 
     <div class="form-group">
       <label class="form-label">Specialization &amp; Discipline</label>
       <select name="category" class="form-select">
+        <option value="hr">👥 Human Resources (HR) &amp; Talent Operations</option>
+        <option value="business">📊 Business Administration, Operations &amp; Management</option>
         <option value="engineer">💻 Software Engineers &amp; Systems Architects</option>
         <option value="student">🎓 Students &amp; Academic Graduates</option>
-        <option value="business">💼 Entrepreneurs, Founders &amp; Business Leaders</option>
-        <option value="doctor">🩺 Medical Specialists &amp; Researchers</option>
+        <option value="founder">💼 Entrepreneurs, Founders &amp; Business Leaders</option>
+        <option value="doctor">🩺 Medical Specialists &amp; Healthcare Researchers</option>
         <option value="coworker">🤝 Cross-Functional Teams &amp; Collaborators</option>
         <option value="cybersecurity">🛡️ Cybersecurity &amp; Infrastructure Specialists</option>
       </select>

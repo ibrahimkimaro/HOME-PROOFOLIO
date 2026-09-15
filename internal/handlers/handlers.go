@@ -17,6 +17,7 @@ import (
 type PageData struct {
 	Title         string
 	ActiveNav     string
+	Redirect      string
 	User          *models.User
 	Profile       *models.Profile
 	Profiles      []models.Profile
@@ -50,9 +51,33 @@ func renderLandingView(w http.ResponseWriter, r *http.Request, pageFile string, 
 		http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	if err := tmpl.Execute(w, data); err != nil {
+	var buf strings.Builder
+	if err := tmpl.Execute(&buf, data); err != nil {
 		http.Error(w, fmt.Sprintf("Template execute error: %v", err), http.StatusInternalServerError)
+		return
 	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(buf.String()))
+}
+
+// Render public content pages (discussions, discover, articles) with pre-login landing header & rich footer
+func renderPublicContentView(w http.ResponseWriter, r *http.Request, appPageFile string, data PageData) {
+	pagePath := "templates/app/" + appPageFile
+	layoutPath := "templates/landing/layout.html"
+	footerPath := "templates/landing/footer.html"
+
+	tmpl, err := template.ParseFiles(layoutPath, footerPath, pagePath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
+		return
+	}
+	var buf strings.Builder
+	if err := tmpl.Execute(&buf, data); err != nil {
+		http.Error(w, fmt.Sprintf("Template execute error: %v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(buf.String()))
 }
 
 // Render independent standalone Auth Views (clean distraction-free layout with return-to-home button & theme toggle)
@@ -65,9 +90,13 @@ func renderAuthView(w http.ResponseWriter, r *http.Request, pageFile string, dat
 		http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	if err := tmpl.Execute(w, data); err != nil {
+	var buf strings.Builder
+	if err := tmpl.Execute(&buf, data); err != nil {
 		http.Error(w, fmt.Sprintf("Template execute error: %v", err), http.StatusInternalServerError)
+		return
 	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(buf.String()))
 }
 
 // Render post-login App Console Views (with workspace header & console tools)
@@ -81,9 +110,13 @@ func renderAppView(w http.ResponseWriter, r *http.Request, pageFile string, data
 			http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
 			return
 		}
-		if err := tmpl.ExecuteTemplate(w, "content", data); err != nil {
+		var buf strings.Builder
+		if err := tmpl.ExecuteTemplate(&buf, "content", data); err != nil {
 			http.Error(w, fmt.Sprintf("Template execute error: %v", err), http.StatusInternalServerError)
+			return
 		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -92,9 +125,13 @@ func renderAppView(w http.ResponseWriter, r *http.Request, pageFile string, data
 		http.Error(w, fmt.Sprintf("Template parse error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	if err := tmpl.Execute(w, data); err != nil {
+	var buf strings.Builder
+	if err := tmpl.Execute(&buf, data); err != nil {
 		http.Error(w, fmt.Sprintf("Template execute error: %v", err), http.StatusInternalServerError)
+		return
 	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(buf.String()))
 }
 
 // 1. Landing Page (Official Platform View)
@@ -229,7 +266,7 @@ func HandleDiscover(w http.ResponseWriter, r *http.Request) {
 	profiles, _ := db.GetAllProfiles()
 
 	data := PageData{
-		Title:     "Discover Verified Engineers & Specialists",
+		Title:     "Discover Verified Professionals & Specialists",
 		ActiveNav: "discover",
 		User:      user,
 		Profile:   profile,
@@ -239,7 +276,7 @@ func HandleDiscover(w http.ResponseWriter, r *http.Request) {
 	if user != nil {
 		renderAppView(w, r, "discover.html", data)
 	} else {
-		renderLandingView(w, r, "discover.html", data)
+		renderPublicContentView(w, r, "discover.html", data)
 	}
 }
 
@@ -249,7 +286,7 @@ func HandleDiscussions(w http.ResponseWriter, r *http.Request) {
 	discussions, _ := db.GetAllDiscussions()
 
 	data := PageData{
-		Title:       "Technical Discussions & Architecture Dilemmas",
+		Title:       "Technical Discussions & Problem Solving",
 		ActiveNav:   "discussions",
 		User:        user,
 		Profile:     profile,
@@ -259,7 +296,7 @@ func HandleDiscussions(w http.ResponseWriter, r *http.Request) {
 	if user != nil {
 		renderAppView(w, r, "discussions.html", data)
 	} else {
-		renderLandingView(w, r, "discussions.html", data)
+		renderPublicContentView(w, r, "discussions.html", data)
 	}
 }
 
@@ -269,7 +306,7 @@ func HandleArticles(w http.ResponseWriter, r *http.Request) {
 	articles, _ := db.GetAllArticles()
 
 	data := PageData{
-		Title:     "Technical Articles & Whitepapers",
+		Title:     "Articles, Case Studies & Whitepapers",
 		ActiveNav: "articles",
 		User:      user,
 		Profile:   profile,
@@ -279,7 +316,7 @@ func HandleArticles(w http.ResponseWriter, r *http.Request) {
 	if user != nil {
 		renderAppView(w, r, "articles.html", data)
 	} else {
-		renderLandingView(w, r, "articles.html", data)
+		renderPublicContentView(w, r, "articles.html", data)
 	}
 }
 
@@ -289,7 +326,7 @@ func HandleOpportunities(w http.ResponseWriter, r *http.Request) {
 	opportunities, _ := db.GetAllOpportunities()
 
 	data := PageData{
-		Title:         "Engineering Contracts & High-Impact Roles",
+		Title:         "Contracts, Engagements & High-Impact Roles",
 		ActiveNav:     "opportunities",
 		User:          user,
 		Profile:       profile,
@@ -299,21 +336,28 @@ func HandleOpportunities(w http.ResponseWriter, r *http.Request) {
 	if user != nil {
 		renderAppView(w, r, "opportunities.html", data)
 	} else {
-		renderLandingView(w, r, "opportunities.html", data)
+		renderPublicContentView(w, r, "opportunities.html", data)
 	}
 }
 
 // 10. Login View & Action
 func HandleLoginView(w http.ResponseWriter, r *http.Request) {
 	user, profile := auth.GetUserFromRequest(r)
+	redirect := strings.TrimSpace(r.URL.Query().Get("redirect"))
+	target := redirect
+	if target == "" || !strings.HasPrefix(target, "/") {
+		target = "/dashboard"
+	}
+
 	if user != nil {
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, target, http.StatusSeeOther)
 		return
 	}
 
 	data := PageData{
 		Title:     "Sign In to Console",
 		ActiveNav: "login",
+		Redirect:  redirect,
 		User:      user,
 		Profile:   profile,
 	}
@@ -329,6 +373,10 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	usernameOrEmail := strings.TrimSpace(r.FormValue("username"))
 	password := r.FormValue("password")
+	redirect := strings.TrimSpace(r.FormValue("redirect"))
+	if redirect == "" || !strings.HasPrefix(redirect, "/") {
+		redirect = "/dashboard"
+	}
 
 	var user *models.User
 	var err error
@@ -352,25 +400,32 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	auth.SetSessionCookie(w, token, expiresAt)
 
 	if isHTMX(r) {
-		w.Header().Set("HX-Redirect", "/dashboard")
+		w.Header().Set("HX-Redirect", redirect)
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, redirect, http.StatusSeeOther)
 }
 
 // 11. Register View & Action
 func HandleRegisterView(w http.ResponseWriter, r *http.Request) {
 	user, profile := auth.GetUserFromRequest(r)
+	redirect := strings.TrimSpace(r.URL.Query().Get("redirect"))
+	target := redirect
+	if target == "" || !strings.HasPrefix(target, "/") {
+		target = "/dashboard"
+	}
+
 	if user != nil {
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, target, http.StatusSeeOther)
 		return
 	}
 
 	data := PageData{
 		Title:     "Create Your Proofolio",
 		ActiveNav: "register",
+		Redirect:  redirect,
 		User:      user,
 		Profile:   profile,
 	}
@@ -460,13 +515,18 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	_ = db.CreateSession(token, userID, expiresAt)
 	auth.SetSessionCookie(w, token, expiresAt)
 
+	redirect := strings.TrimSpace(r.FormValue("redirect"))
+	if redirect == "" || !strings.HasPrefix(redirect, "/") {
+		redirect = "/dashboard"
+	}
+
 	if isHTMX(r) {
-		w.Header().Set("HX-Redirect", "/dashboard")
+		w.Header().Set("HX-Redirect", redirect)
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, redirect, http.StatusSeeOther)
 }
 
 func HandleLogout(w http.ResponseWriter, r *http.Request) {
@@ -601,12 +661,17 @@ func HandleCreateProblem(w http.ResponseWriter, r *http.Request) {
 func HandleCreateDiscussion(w http.ResponseWriter, r *http.Request) {
 	user, profile := auth.GetUserFromRequest(r)
 	if user == nil {
-		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		if isHTMX(r) {
+			w.Header().Set("HX-Redirect", "/login?redirect=/discussions")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		http.Redirect(w, r, "/login?redirect=/discussions", http.StatusSeeOther)
 		return
 	}
 
 	authorName := user.Username
-	authorRole := "Engineer"
+	authorRole := "Professional Specialist"
 	if profile != nil {
 		authorName = profile.DisplayName
 		authorRole = profile.Headline
@@ -631,17 +696,30 @@ func HandleCreateDiscussion(w http.ResponseWriter, r *http.Request) {
 
 func HandleReplyDiscussion(w http.ResponseWriter, r *http.Request) {
 	user, profile := auth.GetUserFromRequest(r)
+	pathParts := strings.Split(r.URL.Path, "/")
+	discussionID := ""
+	if len(pathParts) >= 4 {
+		discussionID = pathParts[3]
+	}
+
 	if user == nil {
-		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		target := "/login?redirect=/discussions"
+		if discussionID != "" {
+			target = fmt.Sprintf("/login?redirect=/discussions%%23disc-%s", discussionID)
+		}
+		if isHTMX(r) {
+			w.Header().Set("HX-Redirect", target)
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		http.Redirect(w, r, target, http.StatusSeeOther)
 		return
 	}
 
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) < 4 {
+	if discussionID == "" {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
-	discussionID := pathParts[3]
 
 	authorName := user.Username
 	authorRole := "Engineer"

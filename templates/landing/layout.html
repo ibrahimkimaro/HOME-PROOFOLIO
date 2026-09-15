@@ -83,7 +83,7 @@
           🌓
         </button>
 
-        <div style="display:flex; align-items:center; gap:0.6rem;">
+        <div class="header-auth-group">
           {{if .User}}
           <a href="/dashboard" class="btn btn-primary btn-sm">
             Open Console &rarr;
@@ -97,8 +97,33 @@
           </a>
           {{end}}
         </div>
+
+        <!-- Mobile Navigation Hamburger Toggle -->
+        <button class="mobile-menu-toggle" id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu">
+          <span id="menu-icon-bars">☰</span>
+        </button>
       </div>
 
+    </div>
+
+    <!-- Mobile Slide-Down Navigation Drawer -->
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer">
+      <div class="mobile-nav-links">
+        <a href="/#about" class="mobile-nav-link" onclick="closeMobileMenu()">✦ About Platform</a>
+        <a href="/#categories" class="mobile-nav-link" onclick="closeMobileMenu()">👥 Who It's For (All Disciplines)</a>
+        <a href="/#proof-sources" class="mobile-nav-link" onclick="closeMobileMenu()">📊 Proof Sources</a>
+        <a href="/#services" class="mobile-nav-link" onclick="closeMobileMenu()">⚡ Platform Services</a>
+        <a href="/discussions" class="mobile-nav-link" onclick="closeMobileMenu()">💬 Discussions Forum</a>
+        <a href="/discover" class="mobile-nav-link" onclick="closeMobileMenu()">🌐 Talent Directory</a>
+      </div>
+      <div class="mobile-nav-actions">
+        {{if .User}}
+        <a href="/dashboard" class="btn btn-primary" style="width:100%; text-align:center;">Open Console &rarr;</a>
+        {{else}}
+        <a href="/login" class="btn btn-secondary" style="flex:1; text-align:center; padding:0.6rem;">Sign In</a>
+        <a href="/register" class="btn btn-primary" style="flex:1; text-align:center; padding:0.6rem;">Get Started</a>
+        {{end}}
+      </div>
     </div>
   </header>
 
@@ -116,6 +141,25 @@
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('proofolio_theme', next);
+    }
+
+    function toggleMobileMenu() {
+      const drawer = document.getElementById('mobile-nav-drawer');
+      const icon = document.getElementById('menu-icon-bars');
+      if (!drawer) return;
+      drawer.classList.toggle('open');
+      if (drawer.classList.contains('open')) {
+        icon.textContent = '✕';
+      } else {
+        icon.textContent = '☰';
+      }
+    }
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById('mobile-nav-drawer');
+      const icon = document.getElementById('menu-icon-bars');
+      if (drawer) drawer.classList.remove('open');
+      if (icon) icon.textContent = '☰';
     }
   </script>
 </body>

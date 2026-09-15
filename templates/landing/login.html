@@ -11,13 +11,16 @@
   <!-- Animated Tab Switcher Track -->
   <div class="auth-tab-track" data-active="login">
     <div class="auth-tab-pill"></div>
-    <a href="/login" class="auth-tab-btn active">Sign In</a>
-    <a href="/register" class="auth-tab-btn">Create Account</a>
+    <a href="/login{{if .Redirect}}?redirect={{.Redirect}}{{end}}" class="auth-tab-btn active">Sign In</a>
+    <a href="/register{{if .Redirect}}?redirect={{.Redirect}}{{end}}" class="auth-tab-btn">Create Account</a>
   </div>
 
   <div id="auth-error-box"></div>
 
   <form hx-post="/auth/login" hx-target="#auth-error-box" class="auth-form">
+    {{if .Redirect}}
+    <input type="hidden" name="redirect" value="{{.Redirect}}">
+    {{end}}
     <div class="form-group">
       <label class="form-label">Username or Email</label>
       <input type="text" name="username" class="form-input" placeholder="e.g. ibrahim or email" value="ibrahim" required autofocus>
