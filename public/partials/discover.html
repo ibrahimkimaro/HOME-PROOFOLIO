@@ -1,0 +1,63 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fade-in">
+  
+  <!-- Discovery Header Banner -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-4 shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-[#FAF7F2] border border-[#C4BCB2] text-[#8C8378]">
+          <span class="w-2 h-2 rounded-full bg-amber-600"></span>
+          <span>Proofolio Public Discovery &bull; Stage 1</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-serif font-bold text-[#2B2A28]">
+          Discover Builders, Learners &amp; Researchers
+        </h1>
+        <p class="text-xs sm:text-sm font-mono text-[#8C8378] max-w-2xl">
+          Explore public professional portfolios across software, cybersecurity, industrial design, agricultural research, engineering, and entrepreneurship.
+        </p>
+      </div>
+
+      <!-- Quick Action -->
+      <div id="discover-cta-container">
+        <button
+          onclick="openAuthModal('register')"
+          class="px-4 py-2.5 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+        >
+          Create Your Portfolio &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="pt-4 border-t border-[#C4BCB2] flex flex-col md:flex-row gap-3">
+      <div class="relative flex-1">
+        <input
+          type="text"
+          id="discover-search-input"
+          oninput="handleDiscoverSearch()"
+          placeholder="Search by name, username, skill, or location..."
+          class="w-full pl-9 pr-4 py-2.5 rounded-xl text-xs font-mono bg-[#FAF7F2] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+        />
+        <svg class="w-4 h-4 text-[#8C8378] absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-mono">
+        <button onclick="setDiscoverCategory('all')" id="cat-all" class="px-3 py-1.5 rounded-lg bg-[#2B2A28] text-[#FAF7F2] font-bold cursor-pointer whitespace-nowrap">All</button>
+        <button onclick="setDiscoverCategory('cybersecurity')" id="cat-cybersecurity" class="px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer whitespace-nowrap">Cybersecurity</button>
+        <button onclick="setDiscoverCategory('developer')" id="cat-developer" class="px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer whitespace-nowrap">Developers</button>
+        <button onclick="setDiscoverCategory('designer')" id="cat-designer" class="px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer whitespace-nowrap">Designers</button>
+        <button onclick="setDiscoverCategory('researcher')" id="cat-researcher" class="px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer whitespace-nowrap">Researchers</button>
+        <button onclick="setDiscoverCategory('engineer')" id="cat-engineer" class="px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer whitespace-nowrap">Engineers</button>
+        <button onclick="setDiscoverCategory('entrepreneur')" id="cat-entrepreneur" class="px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer whitespace-nowrap">Entrepreneurs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profiles Grid -->
+  <div id="discover-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="col-span-full p-8 text-center text-xs font-mono text-[#8C8378]">
+      Loading public profiles...
+    </div>
+  </div>
+
+</div>

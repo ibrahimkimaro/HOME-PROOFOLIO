@@ -1,0 +1,324 @@
+<div class="fixed inset-0 z-50 bg-[#2B2A28]/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+  <div class="w-full max-w-xl rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    
+    <!-- Modal Header -->
+    <div class="p-6 bg-[#F0EBE3] border-b border-[#C4BCB2] flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-[#2B2A28] text-[#FAF7F2] flex items-center justify-center text-lg font-bold shadow-xs">
+          🎨
+        </div>
+        <div>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-[#8C8378] font-bold">
+            Stage 5 &bull; Aesthetic Customization Engine
+          </div>
+          <h3 class="text-xl font-serif font-bold text-[#2B2A28] leading-none mt-1">
+            Theme &amp; Typography Studio
+          </h3>
+        </div>
+      </div>
+      <button 
+        onclick="closeModal()"
+        class="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] flex items-center justify-center text-sm font-bold text-[#8C8378] hover:text-[#2B2A28] hover:bg-[#E8E1D6] transition-colors cursor-pointer"
+        aria-label="Close"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+      
+      <!-- Section 1: Visual Theme Palettes -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <label class="block font-mono uppercase font-bold text-[11px] text-[#2B2A28] tracking-wider">
+            1. Canvas &amp; Surface Theme
+          </label>
+          <span class="text-[10px] font-mono text-[#8C8378]">Instant live preview</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <!-- Editorial Paper -->
+          <button
+            type="button"
+            onclick="previewAndSelectTheme('editorial')"
+            id="theme-btn-editorial"
+            class="p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-24 bg-[#FAF7F2] border-[#2B2A28] shadow-xs"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-serif font-bold text-[#2B2A28] text-xs">Editorial</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#2B2A28]"></span>
+            </div>
+            <div class="flex items-center gap-1.5 pt-2">
+              <div class="w-4 h-4 rounded bg-[#FAF7F2] border border-[#C4BCB2]"></div>
+              <div class="w-4 h-4 rounded bg-[#F0EBE3] border border-[#C4BCB2]"></div>
+              <div class="w-4 h-4 rounded bg-[#2B2A28]"></div>
+            </div>
+            <span class="text-[10px] text-[#8C8378] font-mono">Warm stone paper</span>
+          </button>
+
+          <!-- Minimalist Clean -->
+          <button
+            type="button"
+            onclick="previewAndSelectTheme('minimalist')"
+            id="theme-btn-minimalist"
+            class="p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-24 bg-white border-[#E2E8F0] hover:border-[#0F172A]"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-sans font-bold text-slate-900 text-xs">Minimalist</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            </div>
+            <div class="flex items-center gap-1.5 pt-2">
+              <div class="w-4 h-4 rounded bg-white border border-slate-200"></div>
+              <div class="w-4 h-4 rounded bg-slate-100 border border-slate-200"></div>
+              <div class="w-4 h-4 rounded bg-slate-900"></div>
+            </div>
+            <span class="text-[10px] text-slate-500 font-mono">Crisp white studio</span>
+          </button>
+
+          <!-- Cyber Obsidian Dark -->
+          <button
+            type="button"
+            onclick="previewAndSelectTheme('cyber')"
+            id="theme-btn-cyber"
+            class="p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-24 bg-[#0D0E11] border-[#282C37] hover:border-emerald-500"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-mono font-bold text-emerald-400 text-xs">Cyber</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            </div>
+            <div class="flex items-center gap-1.5 pt-2">
+              <div class="w-4 h-4 rounded bg-[#0D0E11] border border-[#282C37]"></div>
+              <div class="w-4 h-4 rounded bg-[#15171C] border border-[#282C37]"></div>
+              <div class="w-4 h-4 rounded bg-emerald-500"></div>
+            </div>
+            <span class="text-[10px] text-zinc-400 font-mono">Terminal obsidian</span>
+          </button>
+
+          <!-- Nordic Frost -->
+          <button
+            type="button"
+            onclick="previewAndSelectTheme('nord')"
+            id="theme-btn-nord"
+            class="p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-24 bg-[#0F172A] border-[#334155] hover:border-sky-400"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-sans font-bold text-sky-400 text-xs">Nordic Frost</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+            </div>
+            <div class="flex items-center gap-1.5 pt-2">
+              <div class="w-4 h-4 rounded bg-[#0F172A] border border-[#334155]"></div>
+              <div class="w-4 h-4 rounded bg-[#1E293B] border border-[#334155]"></div>
+              <div class="w-4 h-4 rounded bg-sky-400"></div>
+            </div>
+            <span class="text-[10px] text-slate-400 font-mono">Deep arctic slate</span>
+          </button>
+
+          <!-- Sepia Archive -->
+          <button
+            type="button"
+            onclick="previewAndSelectTheme('sepia')"
+            id="theme-btn-sepia"
+            class="p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-24 bg-[#F5EFEB] border-[#C8BEB0] hover:border-[#854D0E]"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-serif font-bold text-[#854D0E] text-xs">Sepia</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#854D0E]"></span>
+            </div>
+            <div class="flex items-center gap-1.5 pt-2">
+              <div class="w-4 h-4 rounded bg-[#F5EFEB] border border-[#C8BEB0]"></div>
+              <div class="w-4 h-4 rounded bg-[#EAE2D8] border border-[#C8BEB0]"></div>
+              <div class="w-4 h-4 rounded bg-[#854D0E]"></div>
+            </div>
+            <span class="text-[10px] text-[#84756B] font-mono">Vintage book linen</span>
+          </button>
+
+          <!-- Contrast Monochrome -->
+          <button
+            type="button"
+            onclick="previewAndSelectTheme('contrast')"
+            id="theme-btn-contrast"
+            class="p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-24 bg-[#FAF9F6] border-[#18181B] hover:border-red-600"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-mono font-bold text-black text-xs">Contrast</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+            </div>
+            <div class="flex items-center gap-1.5 pt-2">
+              <div class="w-4 h-4 rounded bg-[#FAF9F6] border border-black"></div>
+              <div class="w-4 h-4 rounded bg-[#F3EFE6] border border-black"></div>
+              <div class="w-4 h-4 rounded bg-black"></div>
+            </div>
+            <span class="text-[10px] text-zinc-600 font-mono">High-ink press</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 2: Typography Presets -->
+      <div class="space-y-3 pt-4 border-t border-[#C4BCB2]">
+        <div class="flex items-center justify-between">
+          <label class="block font-mono uppercase font-bold text-[11px] text-[#2B2A28] tracking-wider">
+            2. Typography &amp; Font Voice
+          </label>
+          <span class="text-[10px] font-mono text-[#8C8378]">Pairing &amp; optical weights</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Serif Literary -->
+          <button
+            type="button"
+            onclick="previewAndSelectFont('serif')"
+            id="font-btn-serif"
+            class="p-3 rounded-xl border-2 text-left transition-all cursor-pointer bg-[#F0EBE3] border-[#2B2A28]"
+          >
+            <div class="flex items-center justify-between">
+              <div class="font-serif font-bold text-sm text-[#2B2A28]">Literary Serif</div>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2]">Newsreader</span>
+            </div>
+            <p class="text-[11px] text-[#55504A] mt-1 font-serif">
+              Timeless editorial headings paired with Plus Jakarta Sans body.
+            </p>
+          </button>
+
+          <!-- Modern Sans -->
+          <button
+            type="button"
+            onclick="previewAndSelectFont('sans')"
+            id="font-btn-sans"
+            class="p-3 rounded-xl border-2 text-left transition-all cursor-pointer bg-[#F0EBE3] border-[#C4BCB2] hover:border-[#2B2A28]"
+          >
+            <div class="flex items-center justify-between">
+              <div class="font-sans font-bold text-sm text-[#2B2A28]">Modern Neo-Grotesque</div>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2]">Jakarta Sans</span>
+            </div>
+            <p class="text-[11px] text-[#55504A] mt-1 font-sans">
+              Crisp Scandinavian tech aesthetic for modern systems engineering.
+            </p>
+          </button>
+
+          <!-- Terminal Hacker Mono -->
+          <button
+            type="button"
+            onclick="previewAndSelectFont('mono')"
+            id="font-btn-mono"
+            class="p-3 rounded-xl border-2 text-left transition-all cursor-pointer bg-[#F0EBE3] border-[#C4BCB2] hover:border-[#2B2A28]"
+          >
+            <div class="flex items-center justify-between">
+              <div class="font-mono font-bold text-sm text-[#2B2A28]">Hacker Monospace</div>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2]">JetBrains Mono</span>
+            </div>
+            <p class="text-[11px] text-[#55504A] mt-1 font-mono">
+              Pure command-line code aesthetic across all interface headings.
+            </p>
+          </button>
+
+          <!-- Classical Fraunces -->
+          <button
+            type="button"
+            onclick="previewAndSelectFont('classical')"
+            id="font-btn-classical"
+            class="p-3 rounded-xl border-2 text-left transition-all cursor-pointer bg-[#F0EBE3] border-[#C4BCB2] hover:border-[#2B2A28]"
+          >
+            <div class="flex items-center justify-between">
+              <div class="font-serif font-bold text-sm text-[#2B2A28] italic">Classical Display</div>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2]">Fraunces</span>
+            </div>
+            <p class="text-[11px] text-[#55504A] mt-1 font-serif">
+              High-contrast warm editorial typography reminiscent of 20th-century monographs.
+            </p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 3: Accent Highlights -->
+      <div class="space-y-3 pt-4 border-t border-[#C4BCB2]">
+        <label class="block font-mono uppercase font-bold text-[11px] text-[#2B2A28] tracking-wider">
+          3. Brand Accent Tint
+        </label>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onclick="previewAndSelectAccent('#2B2A28')"
+            class="px-3 py-1.5 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#F0EBE3] flex items-center gap-1.5 cursor-pointer font-mono text-xs"
+          >
+            <span class="w-3 h-3 rounded-full bg-[#2B2A28]"></span>
+            <span>Charcoal</span>
+          </button>
+          <button
+            type="button"
+            onclick="previewAndSelectAccent('#059669')"
+            class="px-3 py-1.5 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#F0EBE3] flex items-center gap-1.5 cursor-pointer font-mono text-xs"
+          >
+            <span class="w-3 h-3 rounded-full bg-[#059669]"></span>
+            <span>Emerald</span>
+          </button>
+          <button
+            type="button"
+            onclick="previewAndSelectAccent('#4F46E5')"
+            class="px-3 py-1.5 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#F0EBE3] flex items-center gap-1.5 cursor-pointer font-mono text-xs"
+          >
+            <span class="w-3 h-3 rounded-full bg-[#4F46E5]"></span>
+            <span>Indigo</span>
+          </button>
+          <button
+            type="button"
+            onclick="previewAndSelectAccent('#D97706')"
+            class="px-3 py-1.5 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#F0EBE3] flex items-center gap-1.5 cursor-pointer font-mono text-xs"
+          >
+            <span class="w-3 h-3 rounded-full bg-[#D97706]"></span>
+            <span>Amber</span>
+          </button>
+          <button
+            type="button"
+            onclick="previewAndSelectAccent('#E11D48')"
+            class="px-3 py-1.5 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#F0EBE3] flex items-center gap-1.5 cursor-pointer font-mono text-xs"
+          >
+            <span class="w-3 h-3 rounded-full bg-[#E11D48]"></span>
+            <span>Rose</span>
+          </button>
+          <button
+            type="button"
+            onclick="previewAndSelectAccent('#0891B2')"
+            class="px-3 py-1.5 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#F0EBE3] flex items-center gap-1.5 cursor-pointer font-mono text-xs"
+          >
+            <span class="w-3 h-3 rounded-full bg-[#0891B2]"></span>
+            <span>Cyan</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="p-4 bg-[#F0EBE3] border-t border-[#C4BCB2] flex items-center justify-between">
+      <button
+        type="button"
+        onclick="resetThemeToDefault()"
+        class="px-3.5 py-2 rounded-xl text-xs font-mono text-[#8C8378] hover:text-[#2B2A28] transition-colors cursor-pointer"
+      >
+        Reset to Default
+      </button>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          onclick="closeModal()"
+          class="px-4 py-2 rounded-xl text-xs font-mono bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#E8E1D6] transition-colors cursor-pointer"
+        >
+          Keep for Session
+        </button>
+
+        <button
+          type="button"
+          id="theme-save-profile-btn"
+          onclick="saveThemeToProfile()"
+          class="px-5 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
+        >
+          <span>Save as Portfolio Default</span>
+          <span>&check;</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

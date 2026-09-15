@@ -1,0 +1,123 @@
+<!-- Endorse Engineer & Proof Modal -->
+<div class="fixed inset-0 z-50 bg-[#2B2A28]/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+  <div class="w-full max-w-lg rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
+    
+    <!-- Modal Header -->
+    <div class="p-6 bg-[#F0EBE3] border-b border-[#C4BCB2] flex items-center justify-between">
+      <div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-emerald-800 font-bold">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          <span>Proofolio &bull; Peer Endorsement</span>
+        </div>
+        <h3 class="text-xl font-serif font-bold text-[#2B2A28] mt-0.5">
+          Endorse <span id="endorse-target-name">Engineer</span>
+        </h3>
+      </div>
+      <button
+        onclick="closeModal()"
+        class="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] flex items-center justify-center text-sm font-bold text-[#8C8378] hover:text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer transition-colors"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Modal Form -->
+    <form onsubmit="handleEndorsementSubmit(event)" class="p-6 overflow-y-auto space-y-4 text-xs font-mono">
+      <input type="hidden" id="endorse-target-user-id" value="" />
+      <input type="hidden" id="endorse-target-username" value="" />
+
+      <!-- Scope / Type -->
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          What are you endorsing? *
+        </label>
+        <select
+          id="endorse-type"
+          onchange="updateEndorseTargetFields()"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        >
+          <option value="general">Overall Professional &amp; Engineering Caliber</option>
+          <option value="project">Specific Project / System Build</option>
+          <option value="problem">Problem Resolution &amp; Architecture</option>
+          <option value="skill">Specific Core Technical Skill</option>
+        </select>
+      </div>
+
+      <!-- Specific Target Title (if Project, Problem or Skill) -->
+      <div id="endorse-specific-target-wrapper">
+        <label id="endorse-specific-label" class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Target Title / Specific Skill
+        </label>
+        <input
+          id="endorse-target-title"
+          type="text"
+          placeholder="e.g. Panga na Kupangisha, M-Pesa Concurrency, or Go"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        />
+      </div>
+
+      <!-- Professional Relationship -->
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Professional Relationship *
+        </label>
+        <select
+          id="endorse-relationship"
+          required
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        >
+          <option value="Colleague">Colleague / Teammate</option>
+          <option value="Code Reviewer">Code Reviewer / Technical Evaluator</option>
+          <option value="Collaborator">Open-Source / Project Collaborator</option>
+          <option value="Team Lead">Team Lead / Engineering Manager</option>
+          <option value="Client">Client / Product Stakeholder</option>
+          <option value="Mentor">Mentor / Technical Advisor</option>
+        </select>
+      </div>
+
+      <!-- Endorsement Statement -->
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Testimonial &amp; Verifiable Impact *
+        </label>
+        <textarea
+          id="endorse-content"
+          rows="4"
+          required
+          minlength="8"
+          placeholder="Explain the technical collaboration, how this engineer solved problems, architectural choices, and verifiable outcomes..."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28] leading-relaxed"
+        ></textarea>
+        <p class="text-[10px] text-[#8C8378] mt-1">
+          Peer endorsements are published with your verified Proofolio profile credentials.
+        </p>
+      </div>
+
+      <!-- Verification Notice -->
+      <div class="p-3 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-[11px] text-[#2B2A28]/80 leading-relaxed flex items-start gap-2">
+        <svg class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <span>
+          Endorsements on Proofolio act as verified proof of reputation and will be displayed on their public profile and formatted PDF resume.
+        </span>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button
+          type="button"
+          onclick="closeModal()"
+          class="px-4 py-2 rounded-xl text-xs font-mono text-[#2B2A28] border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#E7E0D6] cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-5 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs"
+        >
+          Submit Verified Endorsement
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

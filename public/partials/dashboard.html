@@ -1,0 +1,334 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fade-in">
+  
+  <!-- Dashboard Welcome Banner -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-[#FAF7F2] border border-[#C4BCB2] text-[#8C8378]">
+        <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+        <span>Authenticated Session &bull; Private Dashboard</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-[#2B2A28]">
+        Welcome back, <span id="dash-display-name">...</span>
+      </h1>
+      <p class="text-xs sm:text-sm font-mono text-[#8C8378]">
+        Proofolio Identity: <strong class="text-[#2B2A28]">@<span id="dash-username">...</span></strong> &bull;
+        <span id="dash-category-badge" class="capitalize font-bold text-emerald-800">...</span> &bull;
+        Visibility: <span id="dash-visibility-badge" class="uppercase font-bold text-[#2B2A28]">...</span>
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2.5">
+      <button
+        onclick="openEditProfileModal()"
+        class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+      >
+        <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span>Edit My Profile</span>
+      </button>
+
+      <button
+        id="dash-view-public-btn"
+        onclick="viewMyPublicProfile()"
+        class="px-4 py-2 rounded-xl text-xs font-mono font-medium bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+      >
+        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        <span>View Public Profile</span>
+      </button>
+
+      <button
+        onclick="openMyResume()"
+        class="px-4 py-2 rounded-xl text-xs font-mono font-medium bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+      >
+        <svg class="w-3.5 h-3.5 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        <span>My Resume (PDF)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic Profile Completion & Recommendation Card -->
+  <div class="p-6 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-4 shadow-xs">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div>
+        <div class="text-xs font-mono uppercase tracking-wider text-[#8C8378] font-bold">
+          Profile Strength &bull; Dynamic Calculation
+        </div>
+        <div class="text-lg font-serif font-bold text-[#2B2A28] mt-0.5">
+          Your profile is <span id="dash-completion-pct" class="text-emerald-700">0%</span> complete
+        </div>
+      </div>
+      <div class="text-xs font-mono text-[#8C8378]">
+        Public Link: <a id="dash-public-url" href="#" target="_blank" class="font-bold text-[#2B2A28] underline">...</a>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full h-3 rounded-full bg-[#E7E0D6] overflow-hidden p-0.5 border border-[#C4BCB2]">
+      <div id="dash-completion-bar" class="h-full rounded-full bg-emerald-700 transition-all duration-500" style="width: 0%"></div>
+    </div>
+
+    <!-- Recommendation Box -->
+    <div class="p-3.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs font-mono flex items-start gap-3">
+      <span class="p-1 rounded-md bg-[#FAF7F2] border border-[#C4BCB2] text-amber-700 font-bold shrink-0">NEXT</span>
+      <div>
+        <span class="font-bold text-[#2B2A28]">Recommended action:</span>
+        <span id="dash-recommendation-text" class="text-[#8C8378] ml-1">Loading recommendation...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metric Summary Cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+    
+    <div class="p-4 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1">
+      <div class="text-[10px] font-mono text-[#8C8378] uppercase tracking-wider">Followers</div>
+      <div id="dash-stat-followers" class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28]">0</div>
+      <div class="text-[10px] font-mono text-[#8C8378]">Tracking you</div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1">
+      <div class="text-[10px] font-mono text-[#8C8378] uppercase tracking-wider">Projects</div>
+      <div id="dash-stat-projects" class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28]">0</div>
+      <div class="text-[10px] font-mono text-emerald-700 font-bold">Proof of Work</div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1">
+      <div class="text-[10px] font-mono text-[#8C8378] uppercase tracking-wider">Problems</div>
+      <div id="dash-stat-problems" class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28]">0</div>
+      <div class="text-[10px] font-mono text-amber-700 font-bold">Case Studies</div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1">
+      <div class="text-[10px] font-mono text-emerald-800 uppercase tracking-wider font-bold">Endorsements</div>
+      <div id="dash-stat-endorsements" class="text-xl sm:text-2xl font-serif font-bold text-emerald-800">0</div>
+      <div class="text-[10px] font-mono text-emerald-800">Verified Peer</div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1">
+      <div class="text-[10px] font-mono text-amber-900 uppercase tracking-wider font-bold">Inquiries</div>
+      <div id="dash-stat-inquiries" class="text-xl sm:text-2xl font-serif font-bold text-amber-900">0</div>
+      <div class="text-[10px] font-mono text-amber-800 font-bold">Stage 4 Engagements</div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1">
+      <div class="text-[10px] font-mono text-[#8C8378] uppercase tracking-wider">Role</div>
+      <div id="dash-stat-role" class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28] uppercase">User</div>
+      <div class="text-[10px] font-mono text-[#8C8378]">Verified</div>
+    </div>
+
+  </div>
+
+  <!-- Stage 2: Projects & Proof of Work Management Section -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#C4BCB2] pb-4">
+      <div>
+        <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-[#8C8378]">
+          Stage 2 &bull; Proof of Work
+        </div>
+        <h2 class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28]">
+          My Published Projects &amp; Proof of Work
+        </h2>
+        <p class="text-xs font-mono text-[#8C8378] mt-0.5">
+          Showcase the systems you built, the problems they solved, live deployments, and measurable metrics.
+        </p>
+      </div>
+
+      <button
+        onclick="openAddProjectModal()"
+        class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+      >
+        <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>+ Add New Project</span>
+      </button>
+    </div>
+
+    <!-- Container for Project Cards -->
+    <div id="dash-projects-list" class="space-y-4">
+      <div class="p-6 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] text-center text-xs font-mono text-[#8C8378]">
+        Loading your projects...
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 2: Problem-Solving Case Studies Section -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-6 shadow-2xs">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#C4BCB2] pb-4">
+      <div>
+        <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-amber-700">
+          Stage 2 &bull; Proof of Resolution
+        </div>
+        <h2 class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28]">
+          Problems &amp; Solutions I Have Solved
+        </h2>
+        <p class="text-xs font-mono text-[#8C8378] mt-0.5">
+          Document difficult real-world bugs, concurrency anomalies, or security challenges and how you resolved them.
+        </p>
+      </div>
+
+      <button
+        onclick="openAddProblemModal()"
+        class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+      >
+        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>+ Document Problem</span>
+      </button>
+    </div>
+
+    <!-- Container for Problem Cards -->
+    <div id="dash-problems-list" class="space-y-4">
+      <div class="p-6 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] text-center text-xs font-mono text-[#8C8378]">
+        Loading problem cases...
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 3: Verified Peer Endorsements Received -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#C4BCB2] pb-4">
+      <div>
+        <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-emerald-800 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+          <span>Stage 3 &bull; Reputation &amp; Social Validation</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28]">
+          Verified Peer Endorsements Received
+        </h2>
+        <p class="text-xs font-mono text-[#8C8378] mt-0.5">
+          Recommendations and verifications provided by teammates, code reviewers, and clients on your projects and skills.
+        </p>
+      </div>
+
+      <div class="text-xs font-mono text-[#8C8378]">
+        Auto-integrated with public portfolio &amp; CV export
+      </div>
+    </div>
+
+    <!-- Container for Endorsement Cards in Dashboard -->
+    <div id="dash-endorsements-list" class="space-y-4">
+      <div class="p-6 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] text-center text-xs font-mono text-[#8C8378]">
+        Loading endorsements...
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 4: Client Inquiries & Contract Engagements Section -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-6 shadow-2xs">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#C4BCB2] pb-4">
+      <div>
+        <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-amber-900 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+          <span>Stage 4 &bull; Client Proposals &amp; Verified Engagements</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-serif font-bold text-[#2B2A28]">
+          Client Inquiries &amp; Contract Engagements
+        </h2>
+        <p class="text-xs font-mono text-[#8C8378] mt-0.5">
+          Direct consulting requests, system RFPs, and contract engagements submitted to your profile.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          onclick="openOpportunitiesView()"
+          class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+        >
+          <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>Opportunities Board</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Container for Inquiries in Dashboard -->
+    <div id="dash-inquiries-list" class="space-y-4">
+      <div class="p-6 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] text-center text-xs font-mono text-[#8C8378]">
+        Loading your client inquiries and contract engagements...
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Preview & Recent Activity Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left: Profile Snapshot Preview -->
+    <div class="lg:col-span-7 p-6 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-6">
+      <div class="flex items-center justify-between border-b border-[#C4BCB2] pb-4">
+        <div>
+          <div class="text-xs font-mono uppercase tracking-wider text-[#8C8378] font-bold">
+            Public Card Preview
+          </div>
+          <div class="text-sm font-serif font-bold text-[#2B2A28]">How others see you on Proofolio</div>
+        </div>
+        <button
+          onclick="openEditProfileModal()"
+          class="text-xs font-mono font-bold text-emerald-800 hover:underline cursor-pointer"
+        >
+          Edit &rarr;
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-4">
+          <div id="dash-avatar-circle" class="w-14 h-14 rounded-2xl bg-[#2B2A28] text-[#FAF7F2] flex items-center justify-center font-serif font-bold text-xl shrink-0">
+            ?
+          </div>
+          <div class="space-y-1">
+            <h3 id="dash-preview-name" class="text-xl font-serif font-bold text-[#2B2A28]">...</h3>
+            <p id="dash-preview-headline" class="text-xs font-mono text-[#8C8378]">...</p>
+            <div id="dash-preview-location" class="text-[11px] font-mono text-[#8C8378]">📍 ...</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-2 text-xs">
+          <div class="font-mono font-bold text-[#8C8378] uppercase text-[11px]">Biography</div>
+          <p id="dash-preview-bio" class="text-[#2B2A28] leading-relaxed italic text-xs sm:text-sm">No biography added yet.</p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-mono font-bold text-[#8C8378] uppercase text-[11px]">Skills &amp; Proficiencies</div>
+          <div id="dash-preview-skills" class="flex flex-wrap gap-1.5 text-xs font-mono text-[#2B2A28]">
+            <span class="text-xs text-[#8C8378] italic">No skills listed yet. Click 'Edit My Profile' to add some.</span>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-mono font-bold text-[#8C8378] uppercase text-[11px]">Verified Web &amp; Social Links</div>
+          <div id="dash-preview-links" class="flex flex-wrap gap-2 text-xs font-mono">
+            <span class="text-xs text-[#8C8378] italic">No external links connected yet.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Activity Foundation Stream -->
+    <div class="lg:col-span-5 p-6 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-4">
+      <div class="border-b border-[#C4BCB2] pb-4">
+        <div class="text-xs font-mono uppercase tracking-wider text-[#8C8378] font-bold">
+          Activity Foundation &bull; Audit Trail
+        </div>
+        <div class="text-sm font-serif font-bold text-[#2B2A28]">Recent Account &amp; Social Events</div>
+      </div>
+
+      <div id="dash-activity-list" class="space-y-3 text-xs font-mono">
+        <div class="p-3 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-[#8C8378] text-center">
+          Loading recent activities...
+        </div>
+      </div>
+
+      <!-- Quick Action: Discover People -->
+      <div class="p-4 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs font-mono space-y-2">
+        <div class="font-bold text-[#2B2A28]">Grow Your Proofolio Network</div>
+        <p class="text-[11px] text-[#8C8378]">
+          Explore peer engineers, cybersecurity analysts, and designers showcasing their work.
+        </p>
+        <button
+          onclick="openDiscoverView()"
+          class="inline-block font-bold text-emerald-800 hover:underline"
+        >
+          Browse Discover Directory &rarr;
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

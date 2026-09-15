@@ -1,0 +1,188 @@
+<!-- Stage 4: Engineering Consultation & Project Proposal Modal -->
+<div class="fixed inset-0 z-50 bg-[#2B2A28]/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+  <div class="w-full max-w-xl rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[94vh]">
+    
+    <!-- Modal Header -->
+    <div class="p-6 bg-[#F0EBE3] border-b border-[#C4BCB2] flex items-center justify-between">
+      <div>
+        <div class="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-amber-900 font-bold">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+          <span>Stage 4 &bull; Client Proposal &amp; Engineering Consultation</span>
+        </div>
+        <h3 class="text-xl font-serif font-bold text-[#2B2A28] mt-0.5">
+          Commission <span id="inquiry-target-name">Ibrahim Kimaro</span>
+        </h3>
+        <p class="text-xs font-mono text-[#8C8378] mt-0.5">
+          Direct system commissioning, architectural audit, or production consultation request.
+        </p>
+      </div>
+      <button
+        onclick="closeModal()"
+        class="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] flex items-center justify-center text-sm font-bold text-[#8C8378] hover:text-[#2B2A28] hover:border-[#2B2A28] cursor-pointer transition-colors"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Modal Form -->
+    <form onsubmit="handleInquirySubmit(event)" class="p-6 overflow-y-auto space-y-4 text-xs font-mono">
+      <input type="hidden" id="inquiry-target-user-id" value="" />
+      <input type="hidden" id="inquiry-target-username" value="" />
+
+      <!-- Sender Info -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Your Name / Organization *
+          </label>
+          <input
+            id="inquiry-sender-name"
+            type="text"
+            required
+            placeholder="e.g. Daudi Mrema (Mwamba Logistics)"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Email Address *
+          </label>
+          <input
+            id="inquiry-sender-email"
+            type="email"
+            required
+            placeholder="name@company.com"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Phone / WhatsApp Number
+          </label>
+          <input
+            id="inquiry-sender-phone"
+            type="tel"
+            placeholder="+255 754 000 000"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+          <p class="text-[10px] text-[#8C8378] mt-0.5">Enables fast WhatsApp status discussions</p>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Project Architecture / Type *
+          </label>
+          <select
+            id="inquiry-project-type"
+            required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          >
+            <option value="Web System">Web Platform &amp; Custom ERP</option>
+            <option value="M-Pesa / FinTech">M-Pesa / FinTech Automated Billing</option>
+            <option value="Database / RLS">Database RLS &amp; High-Throughput SQL</option>
+            <option value="Edge / Logistics">Transit Logistics &amp; Low-Bandwidth Edge</option>
+            <option value="Security Audit">Network &amp; Application Security Audit</option>
+            <option value="Code Review">Architecture Review &amp; Mentorship</option>
+            <option value="Other">Other Custom Engineering</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Budget Range & Timeline -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Budget Estimate *
+          </label>
+          <select
+            id="inquiry-budget-range"
+            required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          >
+            <option value="500k - 1.5M TZS">500k - 1.5M TZS (Standard System)</option>
+            <option value="1.5M - 3.5M TZS">1.5M - 3.5M TZS (Multi-Tenant / ERP)</option>
+            <option value="3.5M - 7M TZS">3.5M - 7M TZS (High-Scale Infrastructure)</option>
+            <option value="$1,000 - $3,000 USD">$1,000 - $3,000 USD (International Fixed)</option>
+            <option value="Hourly / Retainer">Hourly / Ongoing Retainer</option>
+            <option value="Flexible">To Be Discussed</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Target Delivery Timeline *
+          </label>
+          <select
+            id="inquiry-timeline"
+            required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          >
+            <option value="Immediate (< 2 weeks)">Immediate (&lt; 2 weeks MVP)</option>
+            <option value="1 Month">1 Month</option>
+            <option value="2 - 3 Months">2 - 3 Months</option>
+            <option value="Exploratory / Flexible">Exploratory / Flexible</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Project Title -->
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Project / Problem Title *
+        </label>
+        <input
+          id="inquiry-title"
+          type="text"
+          required
+          placeholder="e.g. Automated M-Pesa Escrow Ledger for Cooperatives"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        />
+      </div>
+
+      <!-- Project Scope & Requirements -->
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Technical Scope &amp; Deliverables *
+        </label>
+        <textarea
+          id="inquiry-description"
+          rows="4"
+          required
+          placeholder="Describe your current system bottlenecks, target tech stack preferences, user volumes, required integrations, or security objectives..."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28] leading-relaxed"
+        ></textarea>
+      </div>
+
+      <!-- Direct SLAs and Guarantees Notice -->
+      <div class="p-3.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-[11px] text-[#2B2A28]/85 space-y-1">
+        <div class="font-bold flex items-center gap-1.5 text-amber-900">
+          <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Direct Response &amp; Stage 4 Engagement SLA</span>
+        </div>
+        <p class="leading-relaxed">
+          Your inquiry will be logged directly to the engineer's private engagement queue. You will receive an email confirmation and can follow up via WhatsApp for instantaneous architecture scoping.
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-2 flex items-center justify-end gap-2.5">
+        <button
+          type="button"
+          onclick="closeModal()"
+          class="px-4 py-2.5 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] text-[#2B2A28] font-bold hover:bg-[#E7E0D6] cursor-pointer transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-6 py-2.5 rounded-xl bg-[#2B2A28] text-[#FAF7F2] font-bold hover:bg-[#8C8378] cursor-pointer transition-colors flex items-center gap-1.5 shadow-sm"
+        >
+          <span>Submit Project Inquiry</span>
+          <span>&rarr;</span>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

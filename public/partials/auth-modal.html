@@ -1,0 +1,206 @@
+<div id="auth-modal-backdrop" class="fixed inset-0 z-50 bg-[#2B2A28]/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+  <div class="w-full max-w-md rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
+    
+    <!-- Modal Header -->
+    <div class="p-4 bg-[#F0EBE3] border-b border-[#C4BCB2] flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-[#2B2A28] text-[#FAF7F2] flex items-center justify-center font-serif font-bold text-xs">
+          PF
+        </div>
+        <div>
+          <div class="text-xs font-serif font-bold text-[#2B2A28]">Proofolio Account</div>
+          <div class="text-[10px] font-mono text-[#8C8378]">Build &bull; Prove &bull; Connect</div>
+        </div>
+      </div>
+      <button onclick="closeModal()" class="w-7 h-7 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-[#8C8378] hover:text-[#2B2A28] hover:bg-[#E7E0D6] flex items-center justify-center text-xs font-mono cursor-pointer transition-colors">
+        ✕
+      </button>
+    </div>
+
+    <!-- Context Banner (if triggered by a follow/action) -->
+    <div id="auth-context-banner" class="hidden px-4 py-2.5 bg-amber-50 border-b border-amber-200 text-amber-900 text-xs font-mono flex items-center gap-2">
+      <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span id="auth-context-text">An account is required to participate in this action.</span>
+    </div>
+
+    <!-- Tabs: Login vs Register -->
+    <div class="flex border-b border-[#C4BCB2] bg-[#F0EBE3]/50 text-xs font-mono">
+      <button
+        id="tab-btn-login"
+        onclick="switchAuthTab('login')"
+        class="flex-1 py-3 text-center font-bold border-b-2 border-[#2B2A28] text-[#2B2A28] bg-[#FAF7F2] transition-colors cursor-pointer"
+      >
+        Sign In
+      </button>
+      <button
+        id="tab-btn-register"
+        onclick="switchAuthTab('register')"
+        class="flex-1 py-3 text-center font-bold border-b-2 border-transparent text-[#8C8378] hover:text-[#2B2A28] transition-colors cursor-pointer"
+      >
+        Create Account
+      </button>
+    </div>
+
+    <!-- Body Area -->
+    <div class="p-6 overflow-y-auto space-y-4">
+      
+      <!-- Error / Feedback Alert -->
+      <div id="auth-alert" class="hidden p-3 rounded-xl text-xs font-mono border"></div>
+
+      <!-- SIGN IN FORM -->
+      <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-mono text-[#8C8378] uppercase tracking-wider mb-1">
+            Username or Email
+          </label>
+          <input
+            type="text"
+            id="login-identifier"
+            required
+            placeholder="e.g. tamim or tamim@example.com"
+            class="w-full px-3.5 py-2.5 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-mono text-[#8C8378] uppercase tracking-wider">
+              Password
+            </label>
+          </div>
+          <input
+            type="password"
+            id="login-password"
+            required
+            placeholder="••••••••"
+            class="w-full px-3.5 py-2.5 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+          />
+        </div>
+
+        <!-- Demo Credentials Hint -->
+        <div class="p-3 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-[11px] font-mono text-[#8C8378] space-y-1">
+          <div class="font-bold text-[#2B2A28]">Demo Accounts (password: <code class="text-emerald-700">proofolio123</code>):</div>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button type="button" onclick="fillLogin('ibrahim')" class="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2] hover:border-[#2B2A28] cursor-pointer text-[#2B2A28]">@ibrahim (Admin)</button>
+            <button type="button" onclick="fillLogin('tamim')" class="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2] hover:border-[#2B2A28] cursor-pointer text-[#2B2A28]">@tamim (Cybersec)</button>
+            <button type="button" onclick="fillLogin('sarah_ux')" class="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2] hover:border-[#2B2A28] cursor-pointer text-[#2B2A28]">@sarah_ux (Design)</button>
+            <button type="button" onclick="fillLogin('daudi_agri')" class="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#C4BCB2] hover:border-[#2B2A28] cursor-pointer text-[#2B2A28]">@daudi_agri (Research)</button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          id="login-submit-btn"
+          class="w-full py-3 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-2"
+        >
+          <span>Sign In to Proofolio</span>
+          <span>&rarr;</span>
+        </button>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="register-form" onsubmit="handleRegisterSubmit(event)" class="space-y-3.5 hidden">
+        <div>
+          <label class="block text-xs font-mono text-[#8C8378] uppercase tracking-wider mb-1">
+            Display Name
+          </label>
+          <input
+            type="text"
+            id="reg-display-name"
+            required
+            placeholder="e.g. Tamim Al-Mansoor"
+            class="w-full px-3.5 py-2 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-mono text-[#8C8378] uppercase tracking-wider mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              id="reg-username"
+              required
+              placeholder="e.g. tamim"
+              class="w-full px-3 py-2 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono text-[#8C8378] uppercase tracking-wider mb-1">
+              Primary Role / Field
+            </label>
+            <select
+              id="reg-category"
+              class="w-full px-2.5 py-2 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+            >
+              <option value="developer">Developer</option>
+              <option value="cybersecurity">Cybersecurity</option>
+              <option value="designer">Designer</option>
+              <option value="student">Student</option>
+              <option value="researcher">Researcher</option>
+              <option value="engineer">Engineer</option>
+              <option value="entrepreneur">Entrepreneur</option>
+              <option value="other">Other Field</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono text-[#8C8378] uppercase tracking-wider mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="reg-email"
+            required
+            placeholder="tamim@example.com"
+            class="w-full px-3.5 py-2 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono text-[#8C8378] uppercase tracking-wider mb-1">
+            Password (min 6 characters)
+          </label>
+          <input
+            type="password"
+            id="reg-password"
+            required
+            minlength="6"
+            placeholder="••••••••"
+            class="w-full px-3.5 py-2 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono text-[#8C8378] uppercase tracking-wider mb-1">
+            Headline (Optional)
+          </label>
+          <input
+            type="text"
+            id="reg-headline"
+            placeholder="e.g. Cybersecurity Learner & Network Analyst"
+            class="w-full px-3.5 py-2 rounded-xl text-xs font-mono bg-[#F0EBE3] border border-[#C4BCB2] focus:border-[#2B2A28] focus:outline-none text-[#2B2A28]"
+          />
+        </div>
+
+        <button
+          type="submit"
+          id="reg-submit-btn"
+          class="w-full py-3 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-2 mt-2"
+        >
+          <span>Create My Proofolio &rarr;</span>
+        </button>
+      </form>
+
+    </div>
+
+    <!-- Footer note -->
+    <div class="p-3 bg-[#F0EBE3] border-t border-[#C4BCB2] text-center text-[11px] font-mono text-[#8C8378]">
+      Proofolio &bull; Open to developers, learners, researchers &amp; builders
+    </div>
+
+  </div>
+</div>

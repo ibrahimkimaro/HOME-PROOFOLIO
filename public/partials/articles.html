@@ -1,0 +1,308 @@
+<!-- Community Articles & Knowledge Hub Partial -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fade-in">
+  
+  <!-- Header -->
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-[#C4BCB2]">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-medium tracking-wide uppercase bg-[#F0EBE3] border border-[#C4BCB2] text-[#8C8378]">
+        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Knowledge Hub &bull; Community Articles &amp; Writeups</span>
+      </div>
+
+      <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#2B2A28]">
+        Engineering Articles &amp; Case Studies
+      </h1>
+
+      <p class="mt-2 text-sm sm:text-base text-[#2B2A28]/85 max-w-2xl leading-relaxed">
+        In-depth technical writeups, field guides, and problem analysis. Read articles written by Ibrahim Kimaro and community members, or assign and publish your own article.
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        onclick="toggleElement('publish-article-form')"
+        class="px-5 py-3 rounded-xl font-mono text-xs font-bold text-[#FAF7F2] bg-[#2B2A28] hover:bg-[#8C8378] transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+      >
+        <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span>Write / Assign New Article</span>
+      </button>
+
+      <button
+        hx-get="/partials/portfolio.html"
+        hx-target="#main-content"
+        hx-swap="innerHTML"
+        class="px-4 py-3 rounded-xl font-mono text-xs text-[#2B2A28] bg-[#F0EBE3] border border-[#C4BCB2] hover:bg-[#E7E0D6] transition-colors cursor-pointer"
+      >
+        &larr; Back to Portfolio
+      </button>
+    </div>
+  </div>
+
+  <!-- Collapsible: Publish Article Form -->
+  <div id="publish-article-form" class="hidden p-6 sm:p-8 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] shadow-sm space-y-6">
+    <div class="flex items-center justify-between pb-3 border-b border-[#C4BCB2]">
+      <h3 class="text-xl font-serif font-bold text-[#2B2A28]">
+        Publish Your Article or Case Analysis
+      </h3>
+      <button onclick="toggleElement('publish-article-form')" class="text-xs font-mono text-[#8C8378] hover:text-[#2B2A28]">
+        Close &times;
+      </button>
+    </div>
+
+    <form onsubmit="handleArticleSubmit(event)" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Author Name *
+          </label>
+          <input
+            id="art-author"
+            type="text"
+            required
+            placeholder="e.g. Ibrahim Kimaro"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Author Role / Title
+          </label>
+          <input
+            id="art-role"
+            type="text"
+            placeholder="e.g. Lead Systems Engineer"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Topic Category
+          </label>
+          <select
+            id="art-category"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          >
+            <option value="Architecture">System Architecture &amp; HTMX</option>
+            <option value="Performance">Web Speed &amp; Network Resilience</option>
+            <option value="Database">Database Design &amp; Security</option>
+            <option value="Business">Digital Solutions &amp; SaaS</option>
+            <option value="Security">Cybersecurity &amp; Cryptography</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="sm:col-span-2">
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Article Headline / Title *
+          </label>
+          <input
+            id="art-title"
+            type="text"
+            required
+            placeholder="e.g. How We Reduced Database Latency from 850ms to 4ms in Production"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Tags (comma-separated)
+          </label>
+          <input
+            id="art-tags"
+            type="text"
+            placeholder="e.g. PostgreSQL, Redis, Performance"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Brief Abstract / Executive Summary *
+        </label>
+        <input
+          id="art-summary"
+          type="text"
+          required
+          placeholder="One-sentence executive summary of the core findings or architecture."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        />
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Article Body Content *
+        </label>
+        <textarea
+          id="art-content"
+          rows="6"
+          required
+          placeholder="Write your article paragraphs here. Share the problem statement, code architecture, results, and lessons learned..."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        ></textarea>
+      </div>
+
+      <!-- STAGE 5: ARTICLE CUSTOMIZATION & ATMOSPHERE STYLING -->
+      <div class="p-4 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-4">
+        <div class="flex items-center justify-between border-b border-[#C4BCB2] pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">🎨</span>
+            <span class="font-mono uppercase font-bold text-[11px] text-[#2B2A28] tracking-wider">
+              Stage 5: Article Reader Customization &amp; Atmosphere
+            </span>
+          </div>
+          <span class="text-[10px] font-mono text-[#8C8378]">Theme &amp; reader settings</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Reading Theme
+            </label>
+            <select
+              id="art-theme"
+              class="w-full px-3 py-2 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28]"
+            >
+              <option value="paper">Classic Warm Paper</option>
+              <option value="dark">Dark Night Reader (Obsidian)</option>
+              <option value="sepia">Sepia Classical Archive</option>
+              <option value="minimal">Minimal Slate White</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Article Typography
+            </label>
+            <select
+              id="art-font"
+              class="w-full px-3 py-2 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28]"
+            >
+              <option value="serif">Literary Serif (Newsreader)</option>
+              <option value="sans">Modern Sans (Jakarta Sans)</option>
+              <option value="mono">Hacker Monospace (JetBrains Mono)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Header Banner / Mesh
+            </label>
+            <select
+              id="art-banner-style"
+              class="w-full px-3 py-2 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28]"
+            >
+              <option value="none">Clean Subtle Header</option>
+              <option value="emerald">Emerald Mesh Gradient</option>
+              <option value="indigo">Indigo Systems Gradient</option>
+              <option value="amber">Amber Performance Gradient</option>
+              <option value="rose">Rose Security Gradient</option>
+              <option value="cyan">Cyan Modern Gradient</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Header Image URL (Optional)
+            </label>
+            <input
+              id="art-banner-img"
+              type="url"
+              placeholder="https://images.unsplash.com/... or custom banner URL"
+              class="w-full px-3 py-2 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Key Technical Takeaways (Comma-separated)
+            </label>
+            <input
+              id="art-takeaways"
+              type="text"
+              placeholder="e.g. Cache invalidation strategy, 99.4% hit rate, zero lock contention"
+              class="w-full px-3 py-2 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Custom Discussion / Engagement Callout (Optional)
+          </label>
+          <input
+            id="art-prompt"
+            type="text"
+            placeholder="e.g. Have you scaled PostgreSQL connections under high concurrency? Let's discuss in the community!"
+            class="w-full px-3 py-2 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-2">
+        <button
+          type="button"
+          onclick="toggleElement('publish-article-form')"
+          class="px-4 py-2 rounded-xl text-xs font-mono text-[#2B2A28] border border-[#C4BCB2] bg-[#FAF7F2] hover:bg-[#E7E0D6] cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-6 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs"
+        >
+          Publish Article
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Article Filters & Search Bar -->
+  <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#C4BCB2]">
+    <div class="flex flex-wrap items-center gap-2">
+      <button onclick="filterArticles('all')" class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] shadow-2xs art-filter-btn" data-cat="all">
+        All Articles
+      </button>
+      <button onclick="filterArticles('Architecture')" class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] art-filter-btn" data-cat="Architecture">
+        Architecture
+      </button>
+      <button onclick="filterArticles('Performance')" class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] art-filter-btn" data-cat="Performance">
+        Performance
+      </button>
+      <button onclick="filterArticles('Database')" class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] art-filter-btn" data-cat="Database">
+        Databases
+      </button>
+      <button onclick="filterArticles('Business')" class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] art-filter-btn" data-cat="Business">
+        Solutions
+      </button>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="w-48 sm:w-64">
+        <input
+          type="text"
+          id="art-search-input"
+          oninput="handleArticleSearch(this.value)"
+          placeholder="Search articles..."
+          class="w-full px-3 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] font-mono focus:outline-none focus:border-[#2B2A28]"
+        />
+      </div>
+      <div class="text-xs font-mono text-[#8C8378]" id="art-count">
+        Articles
+      </div>
+    </div>
+  </div>
+
+  <!-- Articles Grid -->
+  <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Populated dynamically and initialized with foundational articles -->
+  </div>
+
+</div>

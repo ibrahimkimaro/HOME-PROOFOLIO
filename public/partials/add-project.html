@@ -1,0 +1,282 @@
+<!-- Add Project / Proof of Work Modal Partial -->
+<div class="fixed inset-0 z-50 bg-[#2B2A28]/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+  <div class="w-full max-w-2xl p-6 sm:p-8 rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] shadow-2xl space-y-6 my-auto max-h-[95vh] overflow-y-auto">
+    
+    <div class="flex items-center justify-between pb-4 border-b border-[#C4BCB2]">
+      <div>
+        <div class="text-[10px] font-mono uppercase tracking-wider text-[#8C8378] font-bold">
+          Proofolio &bull; Stage 2 Proof of Work
+        </div>
+        <h3 class="text-2xl font-serif font-bold text-[#2B2A28]">
+          Publish a Project / Proof of Work
+        </h3>
+      </div>
+      <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-[#F0EBE3] border border-[#C4BCB2] flex items-center justify-center text-sm font-bold text-[#8C8378] hover:text-[#2B2A28] cursor-pointer">
+        &times;
+      </button>
+    </div>
+
+    <form onsubmit="handleProjectModalSubmit(event)" class="space-y-4">
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Project Title *
+          </label>
+          <input
+            id="new-proj-title"
+            type="text"
+            required
+            placeholder="e.g. Panga na Kupangisha"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Category / Discipline *
+          </label>
+          <input
+            id="new-proj-category"
+            type="text"
+            required
+            placeholder="e.g. FinTech, Systems, Cybersecurity, AI/ML, Design"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Headline / Punchy Summary *
+        </label>
+        <input
+          id="new-proj-headline"
+          type="text"
+          required
+          placeholder="e.g. Multi-tenant property platform with PostgreSQL Row-Level Security"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        />
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          What Real-World Problem Does This Solve? *
+        </label>
+        <textarea
+          id="new-proj-problem"
+          rows="3"
+          required
+          placeholder="Explain the actual bottleneck, user pain point, or security flaw this project was built to address and solve..."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+          Architecture &amp; Engineering Notes (Optional)
+        </label>
+        <textarea
+          id="new-proj-arch"
+          rows="2"
+          placeholder="Key architectural choices, concurrency models, schemas, or design patterns used..."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        ></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Live Website / Deployment URL
+          </label>
+          <input
+            id="new-proj-url"
+            type="url"
+            placeholder="https://example.com"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Source Code / Repository URL
+          </label>
+          <input
+            id="new-proj-repo"
+            type="url"
+            placeholder="https://github.com/username/repo"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Tech Stack Tags (Comma-separated)
+          </label>
+          <input
+            id="new-proj-tech"
+            type="text"
+            placeholder="e.g. Go, HTMX, PostgreSQL, Tailwind, Docker"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Quantifiable Metrics / Evidence (Optional)
+          </label>
+          <input
+            id="new-proj-metrics"
+            type="text"
+            placeholder="e.g. 450+ Active Tenants • <35ms Latency • 99.98% Uptime"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2]">
+        <div class="flex items-center gap-2">
+          <input
+            id="new-proj-featured"
+            type="checkbox"
+            checked
+            class="w-4 h-4 rounded text-[#2B2A28] focus:ring-0 cursor-pointer"
+          />
+          <label for="new-proj-featured" class="text-xs font-mono text-[#2B2A28] cursor-pointer">
+            Pin as Featured Proof on public profile
+          </label>
+        </div>
+
+        <select
+          id="new-proj-status"
+          class="px-2.5 py-1 rounded-lg bg-[#FAF7F2] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28]"
+        >
+          <option value="completed">Completed &amp; Verified</option>
+          <option value="in_progress">In Active Development</option>
+          <option value="concept">Concept / Research</option>
+        </select>
+      </div>
+
+      <!-- STAGE 5: VISUAL CUSTOMIZATION & THEME STYLING FOR THIS PROJECT -->
+      <div class="p-4 rounded-2xl bg-[#F0EBE3]/90 border border-[#C4BCB2] space-y-4">
+        <div class="flex items-center justify-between border-b border-[#C4BCB2] pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">🎨</span>
+            <span class="font-mono uppercase font-bold text-[11px] text-[#2B2A28] tracking-wider">
+              Stage 5: Visual Customization &amp; Text Styling
+            </span>
+          </div>
+          <span class="text-[10px] font-mono text-[#8C8378]">Custom display styling</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Accent Tone
+            </label>
+            <select
+              id="new-proj-accent"
+              class="w-full px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28]"
+            >
+              <option value="charcoal">Charcoal Ink (Default)</option>
+              <option value="emerald">Emerald Architecture</option>
+              <option value="indigo">Royal Indigo</option>
+              <option value="amber">Amber Gold</option>
+              <option value="rose">Crimson Rose</option>
+              <option value="cyan">Cyan Systems</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Headline Font Style
+            </label>
+            <select
+              id="new-proj-font"
+              class="w-full px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28]"
+            >
+              <option value="serif">Literary Serif (Newsreader)</option>
+              <option value="sans">Modern Sans (Jakarta Sans)</option>
+              <option value="mono">Hacker Monospace (JetBrains Mono)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Card Banner Preset
+            </label>
+            <select
+              id="new-proj-banner"
+              class="w-full px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28]"
+            >
+              <option value="none">Clean Paper (No banner)</option>
+              <option value="emerald">Emerald Mesh Gradient</option>
+              <option value="indigo">Indigo Depth Gradient</option>
+              <option value="amber">Amber Warmth Gradient</option>
+              <option value="rose">Rose Focus Gradient</option>
+              <option value="cyan">Cyan Electric Gradient</option>
+              <option value="midnight">Midnight Horizon</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Custom Banner Image URL (Optional)
+            </label>
+            <input
+              id="new-proj-banner-url"
+              type="url"
+              placeholder="https://images.unsplash.com/... or /custom-banner.png"
+              class="w-full px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+              Key Deliverables Highlights (Comma-separated)
+            </label>
+            <input
+              id="new-proj-highlights"
+              type="text"
+              placeholder="e.g. 100% Test Coverage, Zero-Downtime, Sub-10ms P99"
+              class="w-full px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C8378] mb-1">
+            Architecture / Concurrency Code Snippet (Optional)
+          </label>
+          <textarea
+            id="new-proj-arch-code"
+            rows="2"
+            placeholder="// Paste an architectural pattern, SQL schema, or concurrency flow snippet to render in the card's code ledger..."
+            class="w-full px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28] focus:outline-none focus:border-[#2B2A28] resize-y"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#C4BCB2]">
+        <button
+          type="button"
+          onclick="closeModal()"
+          class="px-4 py-2.5 rounded-xl text-xs font-mono text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#F0EBE3] cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-6 py-2.5 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs"
+        >
+          Publish Proof of Work
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

@@ -1,0 +1,208 @@
+<!-- Dynamic Resume & PDF Export View / Modal -->
+<div class="fixed inset-0 z-50 bg-[#2B2A28]/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-fade-in">
+  
+  <!-- Outer Card Container -->
+  <div class="w-full max-w-4xl rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[95vh]">
+    
+    <!-- Top Action & Style Selection Bar (Hidden during Print) -->
+    <div class="p-3.5 sm:p-5 bg-[#F0EBE3] border-b border-[#C4BCB2] flex flex-wrap items-center justify-between gap-3 no-print">
+      <div class="flex items-center gap-3">
+        <div id="resume-avatar-badge" class="w-9 h-9 rounded-xl bg-[#2B2A28] text-[#FAF7F2] flex items-center justify-center font-serif font-bold text-sm shadow-2xs">
+          PF
+        </div>
+        <div>
+          <h2 id="resume-top-title" class="text-sm sm:text-base font-serif font-bold text-[#2B2A28] leading-none">
+            Curriculum Vitae &bull; Proof of Work
+          </h2>
+          <span class="text-[10px] font-mono text-[#8C8378]">Official Proofolio Verified Resume &bull; A4 PDF Formatted</span>
+        </div>
+      </div>
+
+      <!-- Controls & Actions -->
+      <div class="flex flex-wrap items-center gap-2">
+        
+        <!-- Style / Typography Switcher -->
+        <div class="flex items-center bg-[#FAF7F2] rounded-xl border border-[#C4BCB2] p-1 text-[11px] font-mono">
+          <button
+            id="style-serif-btn"
+            onclick="setResumeStyle('editorial')"
+            class="px-2.5 py-1 rounded-lg font-bold bg-[#2B2A28] text-[#FAF7F2] transition-colors cursor-pointer"
+            title="Newsreader Serif Headers + Plus Jakarta Sans Body"
+          >
+            Editorial
+          </button>
+          <button
+            id="style-modern-btn"
+            onclick="setResumeStyle('modern')"
+            class="px-2.5 py-1 rounded-lg text-[#2B2A28] hover:bg-[#F0EBE3] transition-colors cursor-pointer"
+            title="Clean Sans-serif layout"
+          >
+            Modern
+          </button>
+          <button
+            id="style-ledger-btn"
+            onclick="setResumeStyle('ledger')"
+            class="px-2.5 py-1 rounded-lg text-[#2B2A28] hover:bg-[#F0EBE3] transition-colors cursor-pointer"
+            title="Dense Technical Monospace Layout"
+          >
+            Ledger
+          </button>
+        </div>
+
+        <!-- Print / Save as PDF Button -->
+        <button
+          onclick="window.print()"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+          title="Print or Save as A4 PDF"
+        >
+          <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          <span>Save as PDF / Print</span>
+        </button>
+
+        <!-- Copy Plain Text Resume Button -->
+        <button
+          onclick="copyResumePlainText()"
+          class="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-mono bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#E7E0D6] transition-colors items-center gap-1 cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-[#8C8378]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+          <span id="copy-btn-label">Copy ATS Text</span>
+        </button>
+
+        <!-- Close Modal Button -->
+        <button
+          onclick="closeModal()"
+          class="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] flex items-center justify-center text-sm font-bold text-[#8C8378] hover:text-[#2B2A28] cursor-pointer"
+          title="Close"
+        >
+          &times;
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Resume Paper Area -->
+    <div class="p-6 sm:p-10 overflow-y-auto flex-1 bg-white text-[#1A1918]">
+      
+      <!-- Printable Document Surface -->
+      <div id="printable-resume" class="max-w-3xl mx-auto space-y-7 font-sans print-surface">
+        
+        <!-- Document Header -->
+        <header class="border-b-2 border-[#1A1918] pb-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+            <div>
+              <h1 id="cv-display-name" class="text-3xl sm:text-4xl font-serif font-bold text-[#1A1918] tracking-tight">
+                Loading...
+              </h1>
+              <p id="cv-headline" class="text-sm sm:text-base font-mono font-medium text-[#55504A] mt-0.5">
+                ...
+              </p>
+            </div>
+            <div id="cv-contact-info" class="text-xs font-mono text-[#55504A] sm:text-right space-y-0.5">
+              <div id="cv-location">📍 Dar es Salaam, Tanzania</div>
+              <div id="cv-email">📧 Loading contact...</div>
+              <div id="cv-proofolio-tag" class="text-emerald-800 font-bold">proofolio.dev/u/...</div>
+            </div>
+          </div>
+
+          <!-- Live Portfolio & Verified Links -->
+          <div id="cv-verified-links" class="pt-2 flex flex-wrap items-center gap-2.5 text-xs font-mono border-t border-[#E5E0D8]">
+            <span class="text-[#776F65] uppercase tracking-wider text-[10px] font-bold">Verified Links:</span>
+            <span class="text-[#55504A]">Loading verified URLs...</span>
+          </div>
+        </header>
+
+        <!-- Executive Profile -->
+        <section class="space-y-2">
+          <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#776F65] border-b border-[#E5E0D8] pb-1">
+            Executive Summary
+          </h2>
+          <p id="cv-bio" class="text-xs sm:text-sm text-[#2B2A28] leading-relaxed">
+            ...
+          </p>
+        </section>
+
+        <!-- Technical Competencies & Toolchain -->
+        <section class="space-y-2.5">
+          <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#776F65] border-b border-[#E5E0D8] pb-1">
+            Core Competencies &amp; Technical Toolchain
+          </h2>
+          <div id="cv-skills-grid" class="flex flex-wrap gap-2 text-xs font-mono">
+            <!-- Rendered dynamically -->
+          </div>
+        </section>
+
+        <!-- Verified Projects & Proof of Work -->
+        <section class="space-y-4">
+          <div class="flex items-baseline justify-between border-b border-[#E5E0D8] pb-1">
+            <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#776F65]">
+              Featured Proof of Work &amp; Shipped Systems
+            </h2>
+            <span class="text-[10px] font-mono text-[#776F65]">Peer-reviewed &bull; Verifiable URLs</span>
+          </div>
+
+          <div id="cv-projects-list" class="space-y-4">
+            <!-- Projects injected dynamically -->
+          </div>
+        </section>
+
+        <!-- Problem Solving & Incident Case Studies (Optional if user has documented problems) -->
+        <section id="cv-problems-section" class="space-y-3">
+          <div class="flex items-baseline justify-between border-b border-[#E5E0D8] pb-1">
+            <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#776F65]">
+              Problem-Solving Case Studies &amp; Defensive Architecture
+            </h2>
+            <span class="text-[10px] font-mono text-[#776F65]">Real-world resolution proof</span>
+          </div>
+
+          <div id="cv-problems-list" class="space-y-3">
+            <!-- Problems injected dynamically -->
+          </div>
+        </section>
+
+        <!-- Professional Background & Education -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-[#E5E0D8]">
+          <div class="space-y-1.5">
+            <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#776F65]">
+              Professional Experience
+            </h2>
+            <p id="cv-experience" class="text-xs text-[#2B2A28] leading-relaxed">
+              ...
+            </p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#776F65]">
+              Education &amp; Credentials
+            </h2>
+            <p id="cv-education" class="text-xs text-[#2B2A28] leading-relaxed">
+              ...
+            </p>
+          </div>
+        </section>
+
+        <!-- Verified Peer Endorsements (Stage 3) -->
+        <section id="cv-endorsements-section" class="space-y-3 pt-2 border-t border-[#E5E0D8]">
+          <div class="flex items-center justify-between border-b border-[#E5E0D8] pb-1">
+            <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-emerald-800 flex items-center gap-1.5">
+              <span>Verified Peer Endorsements &amp; Recommendations</span>
+            </h2>
+            <span class="text-[10px] font-mono text-[#776F65]">Stage 3 Social Proof</span>
+          </div>
+
+          <div id="cv-endorsements-list" class="space-y-2.5">
+            <!-- Endorsements injected dynamically -->
+          </div>
+        </section>
+
+        <!-- Document Footer -->
+        <footer class="pt-4 border-t border-[#E5E0D8] flex flex-wrap items-center justify-between text-[10px] font-mono text-[#8C8378]">
+          <div>Generated by Proofolio &bull; Build. Prove. Connect.</div>
+          <div id="cv-timestamp">Validated &bull; 2026</div>
+        </footer>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

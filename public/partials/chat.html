@@ -1,0 +1,72 @@
+<!-- Consultation & Discussion Chat Modal Partial -->
+<div class="fixed inset-0 z-50 bg-[#2B2A28]/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+  <div class="w-full max-w-lg rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    
+    <!-- Chat Header -->
+    <div class="p-5 bg-[#F0EBE3] border-b border-[#C4BCB2] flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#2B2A28] text-[#FAF7F2] flex items-center justify-center font-serif font-bold text-sm">
+          IK
+        </div>
+        <div>
+          <div class="font-serif font-bold text-base text-[#2B2A28]">Ibrahim Kimaro</div>
+          <div class="text-[11px] font-mono text-emerald-700 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Online &bull; 0628726374</span>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] flex items-center justify-center text-sm font-bold text-[#8C8378] hover:text-[#2B2A28] cursor-pointer">
+        &times;
+      </button>
+    </div>
+
+    <!-- Message History -->
+    <div id="chat-messages-container" class="p-5 overflow-y-auto space-y-4 flex-1 text-xs">
+      <div class="flex gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-[#2B2A28] text-[#FAF7F2] flex items-center justify-center font-mono font-bold text-[10px] shrink-0">
+          IK
+        </div>
+        <div class="p-3 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] text-[#2B2A28] max-w-[82%] leading-relaxed space-y-2">
+          <p>Hello! Welcome to the systems discussion room. How can I help you today?</p>
+          <p class="text-[11px] text-[#8C8378]">You can ask about engineering pricing, website turnaround times, mobile payment integration, or reach me directly on WhatsApp at <strong class="text-[#2B2A28]">0628726374</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Prompt Chips -->
+    <div class="px-5 py-2 bg-[#F0EBE3] border-t border-[#C4BCB2] flex flex-wrap gap-1.5 text-[10px] font-mono">
+      <button onclick="sendQuickChatMessage('How much does a custom business website cost in Tanzania?')" class="px-2.5 py-1 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:bg-[#2B2A28] hover:text-[#FAF7F2] transition-colors cursor-pointer">
+        Website Pricing?
+      </button>
+      <button onclick="sendQuickChatMessage('Can you integrate automated M-Pesa payment receipts?')" class="px-2.5 py-1 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:bg-[#2B2A28] hover:text-[#FAF7F2] transition-colors cursor-pointer">
+        M-Pesa Integration?
+      </button>
+      <button onclick="sendQuickChatMessage('How fast can you deploy a production system with HTMX?')" class="px-2.5 py-1 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28] hover:bg-[#2B2A28] hover:text-[#FAF7F2] transition-colors cursor-pointer">
+        Delivery Timeline?
+      </button>
+      <button type="button" onclick="openInquiryModal('ibrahim', 'Ibrahim Kimaro')" class="px-2.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 font-bold hover:bg-amber-200 transition-colors cursor-pointer">
+        📝 Request Formal Quote (Stage 4)
+      </button>
+    </div>
+
+    <!-- Input Bar -->
+    <form onsubmit="handleChatMessageSubmit(event)" class="p-4 bg-[#FAF7F2] border-t border-[#C4BCB2] flex gap-2">
+      <input
+        id="chat-input"
+        type="text"
+        required
+        placeholder="Type a question or message..."
+        class="flex-1 px-4 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+      />
+      <button
+        type="submit"
+        class="px-5 py-2.5 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer shadow-xs"
+      >
+        Send
+      </button>
+    </form>
+
+  </div>
+</div>

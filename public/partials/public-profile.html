@@ -1,0 +1,296 @@
+<!-- Public Profile Partial (Dynamic Stage 1 + Stage 2) -->
+<div id="public-profile-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fade-in">
+  
+  <!-- Private Profile Warning (Hidden by default) -->
+  <div id="pub-private-alert" class="hidden p-8 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] text-center space-y-3">
+    <div class="w-12 h-12 rounded-full bg-[#FAF7F2] border border-[#C4BCB2] mx-auto flex items-center justify-center text-xl">
+      🔒
+    </div>
+    <h2 class="text-xl font-serif font-bold text-[#2B2A28]">
+      Private Portfolio
+    </h2>
+    <p id="pub-private-msg" class="text-xs font-mono text-[#8C8378] max-w-md mx-auto leading-relaxed">
+      This member has chosen to keep their profile private.
+    </p>
+    <div class="pt-2">
+      <button
+        onclick="openDiscoverView()"
+        class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors cursor-pointer"
+      >
+        Discover Other Public Portfolios &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Profile View -->
+  <div id="pub-content-wrapper" class="space-y-10">
+
+    <!-- Hero Identity Card -->
+    <section class="p-6 sm:p-10 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] shadow-sm relative overflow-hidden">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        
+        <!-- Left: Avatar & Meta -->
+        <div class="flex items-start sm:items-center gap-5">
+          <div id="pub-avatar" class="w-20 h-20 rounded-2xl bg-[#2B2A28] text-[#FAF7F2] flex items-center justify-center font-serif font-bold text-2xl shrink-0 shadow-sm">
+            ?
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 id="pub-display-name" class="text-2xl sm:text-3xl font-serif font-bold text-[#2B2A28]">
+                Loading...
+              </h1>
+              <span id="pub-category-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2]">
+                Developer
+              </span>
+            </div>
+            
+            <p id="pub-headline" class="text-xs sm:text-sm font-mono text-[#8C8378]">
+              ...
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-[#8C8378] pt-0.5">
+              <span id="pub-username-tag" class="font-bold text-[#2B2A28]">@...</span>
+              <span>&bull;</span>
+              <span id="pub-location">📍 ...</span>
+              <span>&bull;</span>
+              <span id="pub-follower-stat">0 Followers &bull; 0 Following</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Actions (Follow/Unfollow, Resume, Share) -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          
+          <!-- Follow / Following / Edit Profile Button -->
+          <div id="pub-follow-btn-container">
+            <button
+              id="pub-follow-btn"
+              onclick="handleFollowClick()"
+              class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              <span id="pub-follow-btn-text">Follow</span>
+            </button>
+          </div>
+
+          <!-- View / Generate Resume (PDF) -->
+          <button
+            id="pub-resume-btn"
+            onclick="openCurrentProfileResume()"
+            class="px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Generate &amp; Print Curriculum Vitae (PDF)"
+          >
+            <svg class="w-3.5 h-3.5 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            <span>Resume (PDF)</span>
+          </button>
+
+          <!-- Endorse Button -->
+          <button
+            id="pub-hero-endorse-btn"
+            onclick="openEndorseModal()"
+            class="px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-emerald-700 hover:text-emerald-800 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Endorse this Engineer"
+          >
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Endorse</span>
+          </button>
+
+          <!-- Stage 4: Hire / Request Consultation Button -->
+          <button
+            id="pub-hero-inquiry-btn"
+            onclick="openInquiryModalForCurrentProfile()"
+            class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-[#FAF7F2] text-amber-900 border border-amber-300 hover:bg-amber-100 hover:border-amber-400 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Commission or Request Project Consultation"
+          >
+            <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+            <span>Hire / Inquire</span>
+          </button>
+
+          <!-- Share Button -->
+          <button
+            onclick="copyProfileUrl()"
+            class="px-3 py-2 rounded-xl text-xs font-mono bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#E7E0D6] transition-colors flex items-center gap-1.5 cursor-pointer"
+            title="Copy Profile Link"
+          >
+            <svg class="w-3 h-3 text-[#8C8378]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span id="pub-share-label">Share</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Main Content Layout: Two Columns -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left Column: Biography, Background, Skills, Links (5 cols) -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- Biography Card -->
+        <div class="p-6 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-3 shadow-2xs">
+          <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#8C8378] border-b border-[#C4BCB2] pb-2">
+            Biography &amp; Focus
+          </h2>
+          <p id="pub-bio" class="text-sm text-[#2B2A28] leading-relaxed">
+            ...
+          </p>
+        </div>
+
+        <!-- Skills & Proficiencies -->
+        <div class="p-6 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-3 shadow-2xs">
+          <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-[#8C8378] border-b border-[#C4BCB2] pb-2">
+            Skills, Technologies &amp; Disciplines
+          </h2>
+          <div id="pub-skills-list" class="flex flex-wrap gap-2 text-xs font-mono">
+            ...
+          </div>
+        </div>
+
+        <!-- Education & Experience Summaries -->
+        <div class="space-y-4">
+          <div class="p-5 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1.5">
+            <h3 class="text-xs font-mono uppercase font-bold text-[#8C8378]">Education Background</h3>
+            <p id="pub-education" class="text-xs font-mono text-[#2B2A28] leading-relaxed">
+              No formal education details listed.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-1.5">
+            <h3 class="text-xs font-mono uppercase font-bold text-[#8C8378]">Professional Experience</h3>
+            <p id="pub-experience" class="text-xs font-mono text-[#2B2A28] leading-relaxed">
+              No professional experience details listed.
+            </p>
+          </div>
+        </div>
+
+        <!-- External Web & Verified Profiles -->
+        <div class="p-5 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-3">
+          <h3 class="text-xs font-mono uppercase font-bold text-[#8C8378]">Connected Links &amp; Profiles</h3>
+          <div id="pub-links-list" class="flex flex-wrap gap-2.5 text-xs font-mono">
+            ...
+          </div>
+        </div>
+
+        <!-- Recent Activity Feed for this Profile -->
+        <div class="p-5 rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-3 shadow-2xs">
+          <h3 class="text-xs font-mono uppercase font-bold text-[#8C8378] border-b border-[#C4BCB2] pb-2">
+            Recent Activity
+          </h3>
+          <div id="pub-activity-list" class="space-y-2 text-xs font-mono text-[#55504A]">
+            Loading activity...
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Projects & Proof of Work + Problem-Solving (7 cols) -->
+      <div class="lg:col-span-7 space-y-8">
+        
+        <!-- Projects Section (Stage 2) -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-6">
+          
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#C4BCB2] pb-4">
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-[#8C8378]">
+                Proof of Work
+              </div>
+              <h2 class="text-xl font-serif font-bold text-[#2B2A28] flex items-center gap-2">
+                <span>Featured Projects &amp; Systems</span>
+                <span id="pub-projects-count-chip" class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28]">0</span>
+              </h2>
+            </div>
+
+            <!-- Owner Action: Add Project -->
+            <div id="pub-owner-add-project-btn" class="hidden">
+              <button
+                onclick="openAddProjectModal()"
+                class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Add Project</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Projects List Container -->
+          <div id="pub-projects-container" class="space-y-5">
+            <!-- Rendered by app.js -->
+          </div>
+
+        </div>
+
+        <!-- Problem-Solving Case Studies Section (Stage 2) -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-6 shadow-2xs">
+          
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#C4BCB2] pb-4">
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-amber-700">
+                Problems &amp; Solutions
+              </div>
+              <h2 class="text-xl font-serif font-bold text-[#2B2A28]">
+                Real-World Problem-Solving Proof
+              </h2>
+            </div>
+
+            <!-- Owner Action: Document Problem -->
+            <div id="pub-owner-add-problem-btn" class="hidden">
+              <button
+                onclick="openAddProblemModal()"
+                class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Document Problem</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Problems List Container -->
+          <div id="pub-problems-container" class="space-y-4">
+            <!-- Rendered by app.js -->
+          </div>
+
+        </div>
+
+        <!-- Verified Peer Endorsements Section (Stage 3) -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#C4BCB2] pb-4">
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-emerald-800 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                <span>Stage 3 &bull; Social Proof &amp; Validation</span>
+              </div>
+              <h2 class="text-xl font-serif font-bold text-[#2B2A28] flex items-center gap-2">
+                <span>Verified Peer Endorsements</span>
+                <span id="pub-endorsements-count-chip" class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-[#FAF7F2] border border-[#C4BCB2] text-[#2B2A28]">0</span>
+              </h2>
+            </div>
+
+            <!-- Action: Endorse This Member -->
+            <div>
+              <button
+                id="pub-endorse-btn"
+                onclick="openEndorseModal()"
+                class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>+ Endorse Engineer</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Endorsements List Container -->
+          <div id="pub-endorsements-container" class="space-y-4">
+            <!-- Rendered by app.js -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

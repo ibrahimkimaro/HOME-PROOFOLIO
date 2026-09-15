@@ -1,0 +1,354 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root, [data-theme="editorial"] {
+    --paper-canvas: #FAF7F2;
+    --paper-card: #F0EBE3;
+    --paper-card-hover: #E8E1D6;
+    --paper-border: #C4BCB2;
+    --paper-backdrop: #B9AC9E;
+    --paper-text: #2B2A28;
+    --paper-text-muted: #8C8378;
+    --paper-accent: #2B2A28;
+    --paper-accent-contrast: #FAF7F2;
+    --paper-primary: #2B2A28;
+  }
+
+  [data-theme="minimalist"] {
+    --paper-canvas: #FFFFFF;
+    --paper-card: #F8FAFC;
+    --paper-card-hover: #F1F5F9;
+    --paper-border: #E2E8F0;
+    --paper-backdrop: #CBD5E1;
+    --paper-text: #0F172A;
+    --paper-text-muted: #64748B;
+    --paper-accent: #0F172A;
+    --paper-accent-contrast: #FFFFFF;
+    --paper-primary: #2563EB;
+  }
+
+  [data-theme="cyber"] {
+    --paper-canvas: #0D0E11;
+    --paper-card: #15171C;
+    --paper-card-hover: #1C1F26;
+    --paper-border: #282C37;
+    --paper-backdrop: #20242E;
+    --paper-text: #ECEEF2;
+    --paper-text-muted: #949BA8;
+    --paper-accent: #10B981;
+    --paper-accent-contrast: #0D0E11;
+    --paper-primary: #10B981;
+  }
+
+  [data-theme="nord"] {
+    --paper-canvas: #0F172A;
+    --paper-card: #1E293B;
+    --paper-card-hover: #26354D;
+    --paper-border: #334155;
+    --paper-backdrop: #293548;
+    --paper-text: #F8FAFC;
+    --paper-text-muted: #94A3B8;
+    --paper-accent: #38BDF8;
+    --paper-accent-contrast: #0F172A;
+    --paper-primary: #38BDF8;
+  }
+
+  [data-theme="sepia"] {
+    --paper-canvas: #F5EFEB;
+    --paper-card: #EAE2D8;
+    --paper-card-hover: #DFD5C8;
+    --paper-border: #C8BEB0;
+    --paper-backdrop: #BDB2A3;
+    --paper-text: #2C221E;
+    --paper-text-muted: #84756B;
+    --paper-accent: #854D0E;
+    --paper-accent-contrast: #F5EFEB;
+    --paper-primary: #B45309;
+  }
+
+  [data-theme="contrast"] {
+    --paper-canvas: #FAF9F6;
+    --paper-card: #F3EFE6;
+    --paper-card-hover: #EAE4D7;
+    --paper-border: #18181B;
+    --paper-backdrop: #27272A;
+    --paper-text: #09090B;
+    --paper-text-muted: #52525B;
+    --paper-accent: #09090B;
+    --paper-accent-contrast: #FAF9F6;
+    --paper-primary: #DC2626;
+  }
+
+  html, body {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--paper-canvas);
+    color: var(--paper-text);
+    line-height: 1.6;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Headings & Brand (Serif): Newsreader for titles, headers, and featured proof stories */
+  h1, h2, h3, h4, h5, h6, .font-serif, .font-display, .font-serif-editorial {
+    font-family: 'Newsreader', Georgia, Cambria, serif;
+    font-feature-settings: "liga", "kern", "opsz";
+    letter-spacing: -0.015em;
+  }
+
+  /* Body & Navigation (Sans-serif): Plus Jakarta Sans for clean, readable UI copy and body text */
+  p, span, a, button, input, textarea, select, .font-sans, .font-body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* CLI & Metadata (Monospace): JetBrains Mono for project IDs, timestamps, tags, and the interactive terminal */
+  code, pre, kbd, .font-mono, .font-mono-ledger {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+    font-feature-settings: "zero", "tnum";
+  }
+
+  /* Custom Warm Stone Ledger Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #FAF7F2;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C4BCB2;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8C8378;
+  }
+}
+
+/* Editorial Print & Ledger Elevation Physics */
+.card-editorial {
+  background-color: #F0EBE3;
+  border: 1px solid #C4BCB2;
+  color: #2B2A28;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+.card-editorial:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(43, 42, 40, 0.08), 0 2px 6px -1px rgba(43, 42, 40, 0.04);
+  border-color: #8C8378;
+}
+
+.btn-charcoal {
+  background-color: #2B2A28;
+  color: #FAF7F2;
+  border: 1px solid #2B2A28;
+  transition: all 0.15s ease;
+}
+.btn-charcoal:hover {
+  background-color: #3f3e3a;
+  border-color: #3f3e3a;
+}
+
+.btn-cream {
+  background-color: #FAF7F2;
+  color: #2B2A28;
+  border: 1px solid #C4BCB2;
+  transition: all 0.15s ease;
+}
+.btn-cream:hover {
+  background-color: #F0EBE3;
+  border-color: #8C8378;
+}
+
+.badge-taupe {
+  background-color: #B9AC9E;
+  color: #2B2A28;
+}
+
+.border-stone-paper {
+  border-color: #C4BCB2;
+}
+
+.bg-paper-canvas {
+  background-color: #FAF7F2;
+}
+
+.bg-paper-card {
+  background-color: #F0EBE3;
+}
+
+.bg-paper-backdrop {
+  background-color: #B9AC9E;
+}
+
+.text-charcoal {
+  color: #2B2A28;
+}
+
+.text-accent-stone {
+  color: #8C8378;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.transition-smooth {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Typography Engine Modes */
+[data-font="serif"] h1, [data-font="serif"] h2, [data-font="serif"] h3, [data-font="serif"] h4, [data-font="serif"] .font-serif {
+  font-family: 'Newsreader', Georgia, Cambria, serif !important;
+}
+[data-font="sans"] h1, [data-font="sans"] h2, [data-font="sans"] h3, [data-font="sans"] h4, [data-font="sans"] .font-serif, [data-font="sans"], [data-font="sans"] body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+[data-font="mono"] h1, [data-font="mono"] h2, [data-font="mono"] h3, [data-font="mono"] h4, [data-font="mono"] .font-serif, [data-font="mono"] p, [data-font="mono"] span, [data-font="mono"] button, [data-font="mono"] body {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace !important;
+}
+[data-font="classical"] h1, [data-font="classical"] h2, [data-font="classical"] h3, [data-font="classical"] h4, [data-font="classical"] .font-serif {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 600;
+}
+[data-font="classical"] p, [data-font="classical"] .font-sans {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-size: 1.05rem;
+}
+
+/* Theme utility mappings */
+[data-theme="cyber"] .bg-\[\#FAF7F2\], [data-theme="nord"] .bg-\[\#FAF7F2\], [data-theme="minimalist"] .bg-\[\#FAF7F2\], [data-theme="sepia"] .bg-\[\#FAF7F2\], [data-theme="contrast"] .bg-\[\#FAF7F2\] {
+  background-color: var(--paper-canvas) !important;
+}
+
+[data-theme="cyber"] .bg-\[\#F0EBE3\], [data-theme="nord"] .bg-\[\#F0EBE3\], [data-theme="minimalist"] .bg-\[\#F0EBE3\], [data-theme="sepia"] .bg-\[\#F0EBE3\], [data-theme="contrast"] .bg-\[\#F0EBE3\] {
+  background-color: var(--paper-card) !important;
+}
+
+[data-theme="cyber"] .border-\[\#C4BCB2\], [data-theme="nord"] .border-\[\#C4BCB2\], [data-theme="minimalist"] .border-\[\#C4BCB2\], [data-theme="sepia"] .border-\[\#C4BCB2\], [data-theme="contrast"] .border-\[\#C4BCB2\] {
+  border-color: var(--paper-border) !important;
+}
+
+[data-theme="cyber"] .text-\[\#2B2A28\], [data-theme="nord"] .text-\[\#2B2A28\], [data-theme="minimalist"] .text-\[\#2B2A28\], [data-theme="sepia"] .text-\[\#2B2A28\], [data-theme="contrast"] .text-\[\#2B2A28\] {
+  color: var(--paper-text) !important;
+}
+
+[data-theme="cyber"] .text-\[\#8C8378\], [data-theme="nord"] .text-\[\#8C8378\], [data-theme="minimalist"] .text-\[\#8C8378\], [data-theme="sepia"] .text-\[\#8C8378\], [data-theme="contrast"] .text-\[\#8C8378\] {
+  color: var(--paper-text-muted) !important;
+}
+
+[data-theme="cyber"] .bg-\[\#2B2A28\], [data-theme="nord"] .bg-\[\#2B2A28\] {
+  background-color: var(--paper-accent) !important;
+  color: var(--paper-accent-contrast) !important;
+}
+
+[data-theme="cyber"] .text-\[\#FAF7F2\], [data-theme="nord"] .text-\[\#FAF7F2\] {
+  color: var(--paper-accent-contrast) !important;
+}
+
+[data-theme="cyber"] header, [data-theme="nord"] header, [data-theme="minimalist"] header, [data-theme="sepia"] header, [data-theme="contrast"] header {
+  background-color: var(--paper-canvas) !important;
+  border-color: var(--paper-border) !important;
+}
+
+/* Custom Project & Article Visual Gradients & Highlights */
+.banner-mesh-emerald {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.08) 100%);
+}
+.banner-mesh-indigo {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(79, 70, 229, 0.08) 100%);
+}
+.banner-mesh-amber {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.08) 100%);
+}
+.banner-mesh-rose {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.22) 0%, rgba(225, 29, 72, 0.08) 100%);
+}
+.banner-mesh-cyan {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.22) 0%, rgba(8, 145, 178, 0.08) 100%);
+}
+.banner-mesh-midnight {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.45) 0%, rgba(15, 23, 42, 0.2) 100%);
+}
+
+/* Print-to-PDF Engine Stylesheet */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 15mm;
+  }
+
+  body {
+    background-color: #FFFFFF !important;
+    color: #1A1918 !important;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  /* Hide web-only controls during PDF print */
+  header, 
+  footer, 
+  #chat-widget, 
+  .no-print, 
+  button, 
+  .disc-filter-btn,
+  nav {
+    display: none !important;
+  }
+
+  /* Reset modal backdrop for spotless page print */
+  #modal-container {
+    position: static !important;
+    background: transparent !important;
+  }
+
+  .print-surface {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    background: transparent !important;
+  }
+
+  .print-page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  a {
+    text-decoration: none !important;
+    color: #1A1918 !important;
+  }
+
+  /* Force background colors and borders to render in PDF output */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

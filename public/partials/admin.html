@@ -1,0 +1,57 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fade-in">
+  
+  <!-- Admin Header Banner -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+    <div class="space-y-1">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-[#FAF7F2] border border-[#C4BCB2] text-rose-800">
+        <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+        <span>Administrator Control Panel &bull; Stage 1</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-[#2B2A28]">
+        User &amp; Profile Account Management
+      </h1>
+      <p class="text-xs sm:text-sm font-mono text-[#8C8378]">
+        Manage Proofolio member accounts, audit registration dates, inspect statuses, and disable malicious or policy-violating accounts.
+      </p>
+    </div>
+
+    <button
+      onclick="loadAdminUsers()"
+      class="px-4 py-2 rounded-xl text-xs font-mono font-medium bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors cursor-pointer flex items-center gap-1.5 self-start md:self-auto"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      <span>Refresh User List</span>
+    </button>
+  </div>
+
+  <!-- User Management Table Card -->
+  <div class="rounded-2xl bg-[#FAF7F2] border border-[#C4BCB2] overflow-hidden shadow-xs">
+    <div class="p-4 bg-[#F0EBE3] border-b border-[#C4BCB2] flex items-center justify-between">
+      <div class="text-xs font-mono font-bold text-[#2B2A28] uppercase tracking-wider">
+        Registered Proofolio Accounts
+      </div>
+      <span id="admin-user-count" class="text-xs font-mono text-[#8C8378]">Loading...</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs font-mono">
+        <thead class="bg-[#FAF7F2] border-b border-[#C4BCB2] text-[#8C8378] uppercase text-[10px] tracking-wider">
+          <tr>
+            <th class="p-4">User</th>
+            <th class="p-4">Email</th>
+            <th class="p-4">Role</th>
+            <th class="p-4">Followers</th>
+            <th class="p-4">Status</th>
+            <th class="p-4 text-right">Administrative Action</th>
+          </tr>
+        </thead>
+        <tbody id="admin-users-tbody" class="divide-y divide-[#C4BCB2]">
+          <tr>
+            <td colspan="6" class="p-8 text-center text-[#8C8378]">Loading users...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

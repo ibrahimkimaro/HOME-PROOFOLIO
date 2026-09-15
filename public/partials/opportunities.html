@@ -1,0 +1,232 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fade-in">
+  
+  <!-- Header / Stage 4 Showcase -->
+  <div class="p-6 sm:p-8 rounded-3xl bg-[#F0EBE3] border border-[#C4BCB2] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-[#FAF7F2] border border-[#C4BCB2] text-amber-900 font-bold">
+        <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+        <span>Stage 4 &bull; Contracts, Gigs &amp; Direct Engagements</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-[#2B2A28]">
+        Engineering Opportunities &amp; Contracts Board
+      </h1>
+      <p class="text-xs sm:text-sm font-mono text-[#8C8378] max-w-2xl leading-relaxed">
+        Connect directly with founders, enterprises, and engineering teams. Apply using your verified Proofolio proof of work, projects, and peer endorsements.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2.5">
+      <button
+        onclick="toggleElement('post-opportunity-box')"
+        class="px-5 py-2.5 rounded-xl text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] hover:bg-[#8C8378] transition-colors flex items-center gap-2 cursor-pointer shadow-xs whitespace-nowrap"
+      >
+        <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>+ Post an Opportunity</span>
+      </button>
+
+      <button
+        onclick="openInquiryModal('ibrahim', 'Ibrahim Kimaro')"
+        class="px-4 py-2.5 rounded-xl text-xs font-mono font-bold bg-[#FAF7F2] text-[#2B2A28] border border-[#C4BCB2] hover:border-[#2B2A28] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+      >
+        <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        <span>Hire Ibrahim Direct</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Post Opportunity Box (Collapsible) -->
+  <div id="post-opportunity-box" class="hidden p-6 sm:p-8 rounded-3xl bg-[#FAF7F2] border border-[#C4BCB2] space-y-6 shadow-sm">
+    <div class="flex items-center justify-between border-b border-[#C4BCB2] pb-4">
+      <div>
+        <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-amber-900">
+          Post Technical Role or Project RFP
+        </div>
+        <h2 class="text-xl font-serif font-bold text-[#2B2A28]">
+          Commission Engineers or Recruit Specialists
+        </h2>
+      </div>
+      <button
+        onclick="toggleElement('post-opportunity-box')"
+        class="text-xs font-mono text-[#8C8378] hover:text-[#2B2A28] cursor-pointer"
+      >
+        Close &times;
+      </button>
+    </div>
+
+    <form onsubmit="handleCreateOpportunity(event)" class="space-y-4 text-xs font-mono">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold text-[#2B2A28] mb-1">Opportunity Title *</label>
+          <input
+            id="opp-title"
+            type="text"
+            required
+            placeholder="e.g. Go Backend Architect for Payment Reconciliation"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+        <div>
+          <label class="block font-bold text-[#2B2A28] mb-1">Company / Team Name</label>
+          <input
+            id="opp-company"
+            type="text"
+            placeholder="e.g. Kibo Pay or SolarPamoja"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block font-bold text-[#2B2A28] mb-1">Category *</label>
+          <select
+            id="opp-category"
+            required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          >
+            <option value="Contract">Contract (Milestone / Project)</option>
+            <option value="Consulting">Consulting / Architecture Audit</option>
+            <option value="Full-Time">Full-Time Staff</option>
+            <option value="Collaboration">Open-Source / Co-founder Collaboration</option>
+            <option value="Security Audit">Security &amp; Vulnerability Audit</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-[#2B2A28] mb-1">Compensation / Budget *</label>
+          <input
+            id="opp-budget"
+            type="text"
+            required
+            placeholder="e.g. TZS 3,500,000 / mo or $2,000 USD fixed"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+
+        <div>
+          <label class="block font-bold text-[#2B2A28] mb-1">Location / Working Mode *</label>
+          <input
+            id="opp-location"
+            type="text"
+            required
+            placeholder="e.g. Remote or Dar es Salaam / Hybrid"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-bold text-[#2B2A28] mb-1">Scope &amp; Role Deliverables *</label>
+        <textarea
+          id="opp-description"
+          rows="3"
+          required
+          placeholder="Detail technical scope, expected deliveries, architecture environment, and timeline..."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28] leading-relaxed"
+        ></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold text-[#2B2A28] mb-1">Required Skills (comma separated)</label>
+          <input
+            id="opp-skills"
+            type="text"
+            placeholder="Go, PostgreSQL, HTMX, Docker, M-Pesa API"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+        <div>
+          <label class="block font-bold text-[#2B2A28] mb-1">Contact Email / Link</label>
+          <input
+            id="opp-contact"
+            type="text"
+            placeholder="careers@company.com or https://..."
+            class="w-full px-3.5 py-2.5 rounded-xl bg-[#F0EBE3] border border-[#C4BCB2] text-xs text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button
+          type="button"
+          onclick="toggleElement('post-opportunity-box')"
+          class="px-4 py-2 rounded-xl border border-[#C4BCB2] bg-[#FAF7F2] text-[#2B2A28] font-bold cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-5 py-2 rounded-xl bg-[#2B2A28] text-[#FAF7F2] font-bold hover:bg-[#8C8378] cursor-pointer"
+        >
+          Publish Opportunity Now &rarr;
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C4BCB2] pb-6">
+    <!-- Category Filter Buttons -->
+    <div class="flex flex-wrap gap-2">
+      <button
+        onclick="filterOpportunities('all')"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-[#2B2A28] text-[#FAF7F2] shadow-2xs opp-filter-btn"
+        data-cat="all"
+      >
+        All Gigs
+      </button>
+      <button
+        onclick="filterOpportunities('Contract')"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] opp-filter-btn"
+        data-cat="Contract"
+      >
+        Contracts
+      </button>
+      <button
+        onclick="filterOpportunities('Consulting')"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] opp-filter-btn"
+        data-cat="Consulting"
+      >
+        Consulting &amp; Audits
+      </button>
+      <button
+        onclick="filterOpportunities('Collaboration')"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] opp-filter-btn"
+        data-cat="Collaboration"
+      >
+        Collaborations
+      </button>
+      <button
+        onclick="filterOpportunities('Full-Time')"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-[#F0EBE3] text-[#2B2A28] border border-[#C4BCB2] hover:bg-[#FAF7F2] opp-filter-btn"
+        data-cat="Full-Time"
+      >
+        Full-Time
+      </button>
+    </div>
+
+    <!-- Search Input & Count -->
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Search by skill, title, location..."
+          oninput="handleOpportunitySearch(this.value)"
+          class="w-64 px-3 py-1.5 rounded-xl bg-[#FAF7F2] border border-[#C4BCB2] text-xs font-mono text-[#2B2A28] focus:outline-none focus:border-[#2B2A28]"
+        />
+      </div>
+      <span id="opp-count" class="text-xs font-mono text-[#8C8378] whitespace-nowrap">
+        Loading opportunities...
+      </span>
+    </div>
+  </div>
+
+  <!-- Opportunities Listing Grid -->
+  <div id="opportunities-list" class="space-y-4">
+    <div class="p-8 rounded-2xl bg-[#F0EBE3] border border-[#C4BCB2] text-center text-xs font-mono text-[#8C8378]">
+      Fetching active engineering opportunities...
+    </div>
+  </div>
+
+</div>
