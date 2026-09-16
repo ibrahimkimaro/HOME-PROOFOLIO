@@ -28,6 +28,15 @@ type PageData struct {
 	Articles      []models.ArticlePost
 	Opportunities []models.Opportunity
 	Inquiries     []models.Inquiry
+	Roles         []models.UserRole
+	Organizations []models.Organization
+	CurrentOrg    *models.Organization
+	Ideas         []models.Idea
+	CurrentIdea   *models.Idea
+	ActiveFilter  string
+	RoleFilter    string
+	SuccessMsg    string
+	ErrMsg        string
 }
 
 func generateID(prefix string) string {
@@ -195,15 +204,27 @@ func HandleDashboard(w http.ResponseWriter, r *http.Request) {
 		inquiries, _ = db.GetInquiriesForUser("usr_ibrahim")
 	}
 
+	roles, _ := db.GetUserRoles(user.ID)
+	orgs, _ := db.GetOrganizationsForUser(user.ID)
+	ideas, _ := db.GetIdeasForUser(user.ID)
+
+	displayName := user.Username
+	if profile != nil && profile.DisplayName != "" {
+		displayName = profile.DisplayName
+	}
+
 	data := PageData{
-		Title:        "Engineering Console & Workspace",
-		ActiveNav:    "dashboard",
-		User:         user,
-		Profile:      profile,
-		Projects:     projects,
-		Problems:     problems,
-		Endorsements: endorsements,
-		Inquiries:    inquiries,
+		Title:         fmt.Sprintf("%s — Workspace & Multi-Role Console", displayName),
+		ActiveNav:     "dashboard",
+		User:          user,
+		Profile:       profile,
+		Projects:      projects,
+		Problems:      problems,
+		Endorsements:  endorsements,
+		Inquiries:     inquiries,
+		Roles:         roles,
+		Organizations: orgs,
+		Ideas:         ideas,
 	}
 
 	renderAppView(w, r, "dashboard.html", data)
@@ -230,30 +251,64 @@ func HandleInquiries(w http.ResponseWriter, r *http.Request) {
 	renderAppView(w, r, "inquiries.html", data)
 }
 
-// 5. Engineer Portfolio View
+// 5. Multi-Role Living Portfolio View
 func HandlePortfolio(w http.ResponseWriter, r *http.Request) {
-	user, currentProfile := auth.GetUserFromRequest(r)
+	currentUser, currentProfile := auth.GetUserFromRequest(r)
 
-	profile, _ := db.GetProfileByUsername("ibrahim")
-	if profile == nil && currentProfile != nil {
+	targetUsername := r.URL.Query().Get("u")
+	var profile *models.Profile
+	if targetUsername != "" {
+		profile, _ = db.GetProfileByUsername(targetUsername)
+	} else if currentProfile != nil {
 		profile = currentProfile
+	} else {
+		// Public fallback: showcase Amina or Ibrahim
+		profile, _ = db.GetProfileByUsername("amina")
+		if profile == nil {
+			profile, _ = db.GetProfileByUsername("ibrahim")
+		}
 	}
 
-	projects, _ := db.GetAllProjects()
-	problems, _ := db.GetAllProblems()
-	endorsements, _ := db.GetEndorsementsByTargetUser("usr_ibrahim")
+	var targetUserID string
+	if profile != nil {
+		targetUserID = profile.UserID
+	}
+
+	roles, _ := db.GetUserRoles(targetUserID)
+	orgs, _ := db.GetOrganizationsForUser(targetUserID)
+	ideas, _ := db.GetIdeasForUser(targetUserID)
+	endorsements, _ := db.GetEndorsementsByTargetUser(targetUserID)
+	projects, _ := db.GetProjectsByUserID(targetUserID)
+	if len(projects) == 0 {
+		projects, _ = db.GetAllProjects()
+	}
+	problems, _ := db.GetProblemsByUserID(targetUserID)
+	if len(problems) == 0 {
+		problems, _ = db.GetAllProblems()
+	}
+
+	roleFilter := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("role")))
+
+	displayName := "Professional"
+	if profile != nil && profile.DisplayName != "" {
+		displayName = profile.DisplayName
+	}
 
 	data := PageData{
-		Title:        "Ibrahim Kimaro — Verified Engineering Portfolio",
-		ActiveNav:    "portfolio",
-		User:         user,
-		Profile:      profile,
-		Projects:     projects,
-		Problems:     problems,
-		Endorsements: endorsements,
+		Title:         fmt.Sprintf("%s — Multi-Role Profile & Living Proofolio", displayName),
+		ActiveNav:     "portfolio",
+		User:          currentUser,
+		Profile:       profile,
+		Roles:         roles,
+		Organizations: orgs,
+		Ideas:         ideas,
+		Projects:      projects,
+		Problems:      problems,
+		Endorsements:  endorsements,
+		RoleFilter:    roleFilter,
 	}
 
-	if user != nil {
+	if currentUser != nil {
 		renderAppView(w, r, "portfolio.html", data)
 	} else {
 		renderLandingView(w, r, "portfolio.html", data)
@@ -915,3 +970,633 @@ func HandlePostOpportunity(w http.ResponseWriter, r *http.Request) {
 	_ = db.CreateOpportunity(&opp)
 	HandleOpportunities(w, r)
 }
+
+func slugify(s string) string {
+	s = strings.ToLower(strings.TrimSpace(s))
+	var out []rune
+	for _, r := range s {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			out = append(out, r)
+		} else if r == ' ' || r == '-' || r == '_' {
+			if len(out) > 0 && out[len(out)-1] != '-' {
+				out = append(out, '-')
+			}
+		}
+	}
+	res := strings.Trim(string(out), "-")
+	if res == "" {
+		res = "org-" + generateID("")
+	}
+	return res
+}
+
+// =========================================================================
+// ORGANIZATIONS HANDLERS
+// =========================================================================
+
+func HandleOrganizationsList(w http.ResponseWriter, r *http.Request) {
+	user, profile := auth.GetUserFromRequest(r)
+	orgs, _ := db.GetAllOrganizations()
+
+	data := PageData{
+		Title:         "Organizations & Businesses — Proof-Backed Directory",
+		ActiveNav:     "organizations",
+		User:          user,
+		Profile:       profile,
+		Organizations: orgs,
+	}
+
+	if user != nil {
+		renderAppView(w, r, "organizations.html", data)
+	} else {
+		renderPublicContentView(w, r, "organizations.html", data)
+	}
+}
+
+func HandleOrganizationDetail(w http.ResponseWriter, r *http.Request) {
+	user, profile := auth.GetUserFromRequest(r)
+
+	// Extract slug from URL: /organizations/{slug}
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 2 || parts[1] == "" {
+		http.Redirect(w, r, "/organizations", http.StatusSeeOther)
+		return
+	}
+	slug := parts[1]
+
+	org, err := db.GetOrganizationBySlug(slug)
+	if err != nil || org == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	activeTab := r.URL.Query().Get("tab")
+	if activeTab == "" {
+		activeTab = "about"
+	}
+
+	data := PageData{
+		Title:        fmt.Sprintf("%s — Verified Organization Profile", org.Name),
+		ActiveNav:    "organizations",
+		User:         user,
+		Profile:      profile,
+		CurrentOrg:   org,
+		ActiveFilter: activeTab,
+	}
+
+	if user != nil {
+		renderAppView(w, r, "organization_detail.html", data)
+	} else {
+		renderPublicContentView(w, r, "organization_detail.html", data)
+	}
+}
+
+func HandleCreateOrganization(w http.ResponseWriter, r *http.Request) {
+	user, profile := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login?redirect=/organizations", http.StatusSeeOther)
+		return
+	}
+
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "Organization name is required", http.StatusBadRequest)
+		return
+	}
+
+	slug := slugify(name)
+	// Check existing slug
+	if existing, _ := db.GetOrganizationBySlug(slug); existing != nil {
+		slug = fmt.Sprintf("%s-%s", slug, generateID(""))
+	}
+
+	rawServices := r.FormValue("services")
+	var services []string
+	for _, s := range strings.Split(rawServices, ",") {
+		s = strings.TrimSpace(s)
+		if s != "" {
+			services = append(services, s)
+		}
+	}
+
+	rawProducts := r.FormValue("products")
+	var products []models.OrgProduct
+	for _, p := range strings.Split(rawProducts, "\n") {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			products = append(products, models.OrgProduct{
+				Name:        p,
+				Category:    "Commercial Solution",
+				Description: "Verified inventory item or professional service offering",
+				Status:      "Active",
+			})
+		}
+	}
+
+	org := models.Organization{
+		ID:            generateID("org"),
+		Name:          name,
+		Slug:          slug,
+		Tagline:       strings.TrimSpace(r.FormValue("tagline")),
+		Industry:      strings.TrimSpace(r.FormValue("industry")),
+		LogoURL:       "/static/images/home-profolio-logo.jpeg",
+		About:         strings.TrimSpace(r.FormValue("about")),
+		Services:      services,
+		Products:      products,
+		Location:      strings.TrimSpace(r.FormValue("location")),
+		Website:       strings.TrimSpace(r.FormValue("website")),
+		ContactEmail:  strings.TrimSpace(r.FormValue("contactEmail")),
+		ContactPhone:  strings.TrimSpace(r.FormValue("contactPhone")),
+		CreatorUserID: user.ID,
+		Verified:      true,
+		BusinessInfo: models.OrgBusinessInfo{
+			RegistrationNo: strings.TrimSpace(r.FormValue("registrationNo")),
+			TaxID:          strings.TrimSpace(r.FormValue("taxId")),
+			FoundedYear:    strings.TrimSpace(r.FormValue("foundedYear")),
+			Location:       strings.TrimSpace(r.FormValue("location")),
+			Website:        strings.TrimSpace(r.FormValue("website")),
+			Phone:          strings.TrimSpace(r.FormValue("contactPhone")),
+			Email:          strings.TrimSpace(r.FormValue("contactEmail")),
+			LicenseStatus:  strings.TrimSpace(r.FormValue("licenseStatus")),
+		},
+	}
+
+	if err := db.CreateOrganization(&org); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to create organization: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Add creator as founder / owner member
+	member := models.OrgMember{
+		ID:             generateID("orgmem"),
+		OrganizationID: org.ID,
+		UserID:         user.ID,
+		Username:       user.Username,
+		DisplayName:    user.Username,
+		RoleTitle:      "Founder & Executive Director",
+		RoleType:       "founder",
+		IsPublic:       true,
+	}
+	if profile != nil && profile.DisplayName != "" {
+		member.DisplayName = profile.DisplayName
+	}
+	_ = db.AddOrganizationMember(&member)
+
+	// Automatically connect this role to the user's multi-role profile
+	_ = db.CreateUserRole(&models.UserRole{
+		ID:               generateID("role"),
+		UserID:           user.ID,
+		RoleType:         "founder",
+		Title:            "Founder & Director",
+		OrganizationName: org.Name,
+		OrganizationID:   org.ID,
+		Status:           "active",
+		StartDate:        "2026",
+		Description:      fmt.Sprintf("Founder and executive director of %s in %s.", org.Name, org.Location),
+		Skills:           []string{"Executive Leadership", "Strategic Operations", org.Industry},
+		Achievements:     []string{fmt.Sprintf("Established %s with full business compliance", org.Name)},
+		IsPrimary:        true,
+	})
+
+	http.Redirect(w, r, "/organizations/"+slug, http.StatusSeeOther)
+}
+
+func HandleAddOrgUpdate(w http.ResponseWriter, r *http.Request) {
+	user, profile := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	slug := r.FormValue("slug")
+	org, err := db.GetOrganizationBySlug(slug)
+	if err != nil || org == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	authorName := user.Username
+	if profile != nil && profile.DisplayName != "" {
+		authorName = profile.DisplayName
+	}
+
+	upd := models.OrgUpdate{
+		ID:             generateID("upd"),
+		OrganizationID: org.ID,
+		AuthorUserID:   user.ID,
+		AuthorName:     authorName,
+		Title:          strings.TrimSpace(r.FormValue("title")),
+		Content:        strings.TrimSpace(r.FormValue("content")),
+		Category:       strings.TrimSpace(r.FormValue("category")),
+	}
+
+	_ = db.AddOrganizationUpdate(&upd)
+	http.Redirect(w, r, "/organizations/"+slug+"?tab=updates", http.StatusSeeOther)
+}
+
+func HandleAddOrgMember(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	slug := r.FormValue("slug")
+	org, err := db.GetOrganizationBySlug(slug)
+	if err != nil || org == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	targetUsername := strings.TrimSpace(r.FormValue("username"))
+	targetUser, err := db.GetUserByUsername(targetUsername)
+	if err != nil || targetUser == nil {
+		http.Error(w, "User not found with username: "+targetUsername, http.StatusBadRequest)
+		return
+	}
+
+	targetProfile, _ := db.GetProfileByUserID(targetUser.ID)
+	displayName := targetUser.Username
+	if targetProfile != nil && targetProfile.DisplayName != "" {
+		displayName = targetProfile.DisplayName
+	}
+
+	roleTitle := strings.TrimSpace(r.FormValue("roleTitle"))
+	roleType := strings.TrimSpace(r.FormValue("roleType"))
+
+	mem := models.OrgMember{
+		ID:             generateID("orgmem"),
+		OrganizationID: org.ID,
+		UserID:         targetUser.ID,
+		Username:       targetUser.Username,
+		DisplayName:    displayName,
+		RoleTitle:      roleTitle,
+		RoleType:       roleType,
+		IsPublic:       true,
+	}
+
+	_ = db.AddOrganizationMember(&mem)
+
+	// Also add a corresponding UserRole for the member
+	_ = db.CreateUserRole(&models.UserRole{
+		ID:               generateID("role"),
+		UserID:           targetUser.ID,
+		RoleType:         roleType,
+		Title:            roleTitle,
+		OrganizationName: org.Name,
+		OrganizationID:   org.ID,
+		Status:           "active",
+		StartDate:        "2026",
+		Description:      fmt.Sprintf("%s at %s.", roleTitle, org.Name),
+		IsPrimary:        false,
+	})
+
+	http.Redirect(w, r, "/organizations/"+slug+"?tab=team", http.StatusSeeOther)
+}
+
+func HandleAddOrgProject(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	slug := r.FormValue("slug")
+	org, err := db.GetOrganizationBySlug(slug)
+	if err != nil || org == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	proj := models.OrgProject{
+		ID:             generateID("orgproj"),
+		OrganizationID: org.ID,
+		Title:          strings.TrimSpace(r.FormValue("title")),
+		Description:    strings.TrimSpace(r.FormValue("description")),
+		Status:         r.FormValue("status"),
+		Metrics:        strings.TrimSpace(r.FormValue("metrics")),
+	}
+
+	_ = db.AddOrganizationProject(&proj)
+	http.Redirect(w, r, "/organizations/"+slug+"?tab=projects", http.StatusSeeOther)
+}
+
+func HandleAddOrgProduct(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	slug := r.FormValue("slug")
+	org, err := db.GetOrganizationBySlug(slug)
+	if err != nil || org == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	prd := models.OrgProduct{
+		Name:        strings.TrimSpace(r.FormValue("name")),
+		Category:    strings.TrimSpace(r.FormValue("category")),
+		Description: strings.TrimSpace(r.FormValue("description")),
+		Status:      strings.TrimSpace(r.FormValue("status")),
+	}
+
+	_ = db.AddOrganizationProduct(org.ID, prd)
+	http.Redirect(w, r, "/organizations/"+slug+"?tab=products", http.StatusSeeOther)
+}
+
+// =========================================================================
+// IDEAS & LEARNING JOURNAL HANDLERS
+// =========================================================================
+
+func HandleIdeas(w http.ResponseWriter, r *http.Request) {
+	user, profile := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login?redirect=/ideas", http.StatusSeeOther)
+		return
+	}
+
+	ideas, _ := db.GetIdeasForUser(user.ID)
+	stageFilter := strings.ToUpper(strings.TrimSpace(r.URL.Query().Get("stage")))
+
+	var filteredIdeas []models.Idea
+	if stageFilter != "" && stageFilter != "ALL" {
+		for _, idea := range ideas {
+			if strings.ToUpper(idea.Stage) == stageFilter {
+				filteredIdeas = append(filteredIdeas, idea)
+			}
+		}
+	} else {
+		filteredIdeas = ideas
+	}
+
+	data := PageData{
+		Title:        "Ideas & Learning Journal — Evolution of Thought",
+		ActiveNav:    "ideas",
+		User:         user,
+		Profile:      profile,
+		Ideas:        filteredIdeas,
+		ActiveFilter: stageFilter,
+	}
+
+	renderAppView(w, r, "ideas.html", data)
+}
+
+func HandleIdeaDetail(w http.ResponseWriter, r *http.Request) {
+	user, profile := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login?redirect=/ideas", http.StatusSeeOther)
+		return
+	}
+
+	// Extract idea ID from URL: /ideas/{id}
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 2 || parts[1] == "" {
+		http.Redirect(w, r, "/ideas", http.StatusSeeOther)
+		return
+	}
+	id := parts[1]
+
+	idea, err := db.GetIdeaByID(id)
+	if err != nil || idea == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	data := PageData{
+		Title:       fmt.Sprintf("Idea: %s — Chronological Progression", idea.Title),
+		ActiveNav:   "ideas",
+		User:        user,
+		Profile:     profile,
+		CurrentIdea: idea,
+	}
+
+	renderAppView(w, r, "idea_detail.html", data)
+}
+
+func HandleCreateIdea(w http.ResponseWriter, r *http.Request) {
+	user, profile := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	title := strings.TrimSpace(r.FormValue("title"))
+	if title == "" {
+		http.Error(w, "Idea title is required", http.StatusBadRequest)
+		return
+	}
+
+	rawTags := r.FormValue("tags")
+	var tags []string
+	for _, t := range strings.Split(rawTags, ",") {
+		t = strings.TrimSpace(t)
+		if t != "" {
+			tags = append(tags, t)
+		}
+	}
+
+	stage := strings.ToUpper(strings.TrimSpace(r.FormValue("stage")))
+	if stage == "" {
+		stage = "NEW"
+	}
+
+	authorName := user.Username
+	if profile != nil && profile.DisplayName != "" {
+		authorName = profile.DisplayName
+	}
+
+	idea := models.Idea{
+		ID:                   generateID("idea"),
+		UserID:               user.ID,
+		AuthorName:           authorName,
+		AuthorUsername:       user.Username,
+		Title:                title,
+		WhatLearned:          strings.TrimSpace(r.FormValue("whatLearned")),
+		Source:               strings.TrimSpace(r.FormValue("source")),
+		ThoughtsQuestions:    strings.TrimSpace(r.FormValue("thoughtsQuestions")),
+		CurrentUnderstanding: strings.TrimSpace(r.FormValue("currentUnderstanding")),
+		Stage:                stage,
+		Visibility:           r.FormValue("visibility"),
+		Tags:                 tags,
+	}
+	if idea.Visibility == "" {
+		idea.Visibility = "private"
+	}
+
+	if err := db.CreateIdea(&idea); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to record idea: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Add initial timeline entry
+	_ = db.AddIdeaTimelineEntry(&models.IdeaTimelineEntry{
+		ID:           generateID("entry"),
+		IdeaID:       idea.ID,
+		UserID:       user.ID,
+		Note:         fmt.Sprintf("Spark captured: %s", idea.WhatLearned),
+		StageAtEntry: stage,
+		Source:       idea.Source,
+	})
+
+	http.Redirect(w, r, "/ideas", http.StatusSeeOther)
+}
+
+func HandleAddIdeaTimeline(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	ideaID := r.FormValue("ideaId")
+	note := strings.TrimSpace(r.FormValue("note"))
+	newStage := strings.ToUpper(strings.TrimSpace(r.FormValue("stage")))
+	source := strings.TrimSpace(r.FormValue("source"))
+
+	if ideaID == "" || note == "" {
+		http.Error(w, "Idea ID and note are required", http.StatusBadRequest)
+		return
+	}
+
+	idea, err := db.GetIdeaByID(ideaID)
+	if err != nil || idea == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	stageToRecord := idea.Stage
+	if newStage != "" && newStage != idea.Stage {
+		stageToRecord = newStage
+		_ = db.UpdateIdeaStage(ideaID, user.ID, newStage, "")
+	}
+
+	_ = db.AddIdeaTimelineEntry(&models.IdeaTimelineEntry{
+		ID:           generateID("entry"),
+		IdeaID:       ideaID,
+		UserID:       user.ID,
+		Note:         note,
+		StageAtEntry: stageToRecord,
+		Source:       source,
+	})
+
+	http.Redirect(w, r, "/ideas/"+ideaID, http.StatusSeeOther)
+}
+
+func HandleUpdateIdeaStage(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	ideaID := r.FormValue("ideaId")
+	newStage := strings.ToUpper(strings.TrimSpace(r.FormValue("stage")))
+	note := strings.TrimSpace(r.FormValue("note"))
+
+	_ = db.UpdateIdeaStage(ideaID, user.ID, newStage, note)
+	http.Redirect(w, r, "/ideas/"+ideaID, http.StatusSeeOther)
+}
+
+func HandlePromoteIdeaToProject(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	ideaID := r.FormValue("ideaId")
+	idea, err := db.GetIdeaByID(ideaID)
+	if err != nil || idea == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	projID := generateID("proj")
+	proj := models.Project{
+		ID:                projID,
+		UserID:            user.ID,
+		Title:             idea.Title,
+		Headline:          fmt.Sprintf("Evolved from Idea: %s", idea.Title),
+		Category:          "Verified Implementation",
+		ProblemSolved:     idea.WhatLearned,
+		ArchitectureNotes: idea.CurrentUnderstanding,
+		Metrics:           "Validated from concept to proof",
+		TechStack:         idea.Tags,
+		LiveURL:           "",
+		RepoURL:           "",
+	}
+
+	_ = db.CreateProject(&proj)
+	_ = db.UpdateIdeaStage(idea.ID, user.ID, "PROJECT", fmt.Sprintf("Promoted idea to full verified portfolio project '%s'.", idea.Title))
+	_, _ = db.DB.Exec("UPDATE ideas SET linked_project_id = $1 WHERE id = $2", projID, idea.ID)
+
+	http.Redirect(w, r, "/portfolio#projects", http.StatusSeeOther)
+}
+
+// =========================================================================
+// MULTI-ROLE HANDLERS
+// =========================================================================
+
+func HandleAddRole(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	rawSkills := r.FormValue("skills")
+	var skills []string
+	for _, s := range strings.Split(rawSkills, ",") {
+		s = strings.TrimSpace(s)
+		if s != "" {
+			skills = append(skills, s)
+		}
+	}
+
+	rawAchievements := r.FormValue("achievements")
+	var achievements []string
+	for _, a := range strings.Split(rawAchievements, "\n") {
+		a = strings.TrimSpace(a)
+		if a != "" {
+			achievements = append(achievements, a)
+		}
+	}
+
+	role := models.UserRole{
+		ID:               generateID("role"),
+		UserID:           user.ID,
+		RoleType:         r.FormValue("roleType"),
+		Title:            strings.TrimSpace(r.FormValue("title")),
+		OrganizationName: strings.TrimSpace(r.FormValue("organizationName")),
+		OrganizationID:   strings.TrimSpace(r.FormValue("organizationId")),
+		Status:           r.FormValue("status"),
+		StartDate:        strings.TrimSpace(r.FormValue("startDate")),
+		EndDate:          strings.TrimSpace(r.FormValue("endDate")),
+		Description:      strings.TrimSpace(r.FormValue("description")),
+		Skills:           skills,
+		Achievements:     achievements,
+		IsPrimary:        r.FormValue("isPrimary") == "true",
+	}
+
+	if role.Status == "" {
+		role.Status = "active"
+	}
+
+	_ = db.CreateUserRole(&role)
+	http.Redirect(w, r, "/portfolio", http.StatusSeeOther)
+}
+
+func HandleDeleteRole(w http.ResponseWriter, r *http.Request) {
+	user, _ := auth.GetUserFromRequest(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	roleID := r.FormValue("roleId")
+	_ = db.DeleteUserRole(roleID, user.ID)
+	http.Redirect(w, r, "/portfolio", http.StatusSeeOther)
+}
+

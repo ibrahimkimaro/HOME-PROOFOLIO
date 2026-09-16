@@ -1,0 +1,79 @@
+{{define "content"}}
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+    <div>
+      <span class="sec-tag">Verified Commercial Directory</span>
+      <h1 class="sec-h" style="margin-top:6px;">Organizations &amp; Businesses</h1>
+      <p style="font-size:.88rem;color:var(--text-3);margin-top:5px;max-width:640px;">Verified enterprises, healthcare dispensaries, engineering firms, and institutions connected to Proofolio professionals.</p>
+    </div>
+    <button onclick="document.getElementById('quick-org-dialog').showModal()" class="a-btn prim">🏢 Register Organization</button>
+  </div>
+  <div style="display:flex;gap:20px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-size:.78rem;color:var(--text-3);font-family:var(--mono);">
+    <span>Total Verified: <strong style="color:var(--text-1);">{{len .Organizations}}</strong></span>
+    <span>Governance: <strong style="color:var(--green);">Legally Verified &amp; Licensed</strong></span>
+  </div>
+</div>
+
+<!-- Organizations Grid -->
+<div class="cards-grid">
+  {{range .Organizations}}
+  <div class="mc" style="display:flex;flex-direction:column;">
+    <div class="mc-p" style="flex:1;display:flex;flex-direction:column;">
+
+      <!-- Card Top -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--green),#047857);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0;">
+            {{slice .Name 0 2}}
+          </div>
+          <div>
+            <a href="/organizations/{{.Slug}}" style="font-weight:800;font-size:1rem;color:var(--text-1);letter-spacing:-.01em;">{{.Name}}</a>
+            <div style="font-size:.72rem;color:var(--accent);font-weight:700;margin-top:1px;">{{.Industry}}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button type="button" onclick="window.openQrShareModal({title:'{{.Name}}',subtitle:'Verified Organization &amp; Business Profile',url:'/organizations/{{.Slug}}',type:'org',badgeText:'ORGANIZATION'})" class="icon-btn" style="width:28px;height:28px;font-size:.8rem;" title="Share QR">📇</button>
+          <span class="mc-tag green" style="margin-bottom:0;">✓ Verified</span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <p style="font-size:.85rem;color:var(--text-2);line-height:1.55;margin-bottom:14px;">
+        {{if .Tagline}}{{.Tagline}}{{else}}{{.About}}{{end}}
+      </p>
+
+      <!-- Legal Specs -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:12px;margin-bottom:14px;">
+        <div class="info-row"><span class="info-key">📍 Location</span><span class="info-val" style="font-size:.78rem;">{{.Location}}</span></div>
+        <div class="info-row"><span class="info-key">Compliance</span><span class="info-val" style="font-size:.78rem;color:var(--green);">{{if .BusinessInfo.LicenseStatus}}{{.BusinessInfo.LicenseStatus}}{{else}}Compliant{{end}}</span></div>
+        <div class="info-row"><span class="info-key">Reg No</span><span class="info-val" style="font-size:.78rem;">{{if .BusinessInfo.RegistrationNo}}{{.BusinessInfo.RegistrationNo}}{{else}}BRELA Reg{{end}}</span></div>
+      </div>
+
+      <!-- Services -->
+      {{if .Services}}
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
+        {{range $i, $s := .Services}}{{if lt $i 4}}
+        <span class="skill-pill green">{{$s}}</span>
+        {{end}}{{end}}
+      </div>
+      {{end}}
+
+      <!-- Footer -->
+      <div class="mc-footer" style="margin-top:auto;">
+        <span style="font-size:.78rem;color:var(--text-3);">👥 {{len .Members}} Members</span>
+        <a href="/organizations/{{.Slug}}" class="a-btn grn sm">View Profile →</a>
+      </div>
+    </div>
+  </div>
+  {{else}}
+  <div class="empty-state">
+    <div style="font-size:2rem;margin-bottom:8px;">🏢</div>
+    <strong style="color:var(--text-2);">No organizations yet</strong>
+    <p>Register your first organization to build your verified business network.</p>
+  </div>
+  {{end}}
+</div>
+
+{{end}}

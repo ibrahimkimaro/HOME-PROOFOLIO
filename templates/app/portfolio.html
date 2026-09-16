@@ -1,217 +1,583 @@
 {{define "content"}}
-<!-- Engineer Portfolio View -->
-<section class="section">
+<!-- Multi-Role Living Portfolio View -->
+<section class="section" style="padding-top: 0.5rem;">
   <div class="container">
-    
-    <!-- Profile Hero Card -->
-    <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2.5rem; margin-bottom:3.5rem; box-shadow:var(--shadow-card);">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem; margin-bottom:2rem;">
+
+    <!-- Profile Hero Card with Multi-Role Identity -->
+    <div
+      style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2.5rem; margin-bottom:2.5rem; box-shadow:var(--shadow-card);">
+      <div
+        style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem; margin-bottom:2rem;">
         <div style="display:flex; align-items:center; gap:1.5rem;">
-          <div style="width:72px; height:72px; border-radius:var(--radius-md); background:var(--color-terracotta); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.75rem; font-weight:800; box-shadow:0 4px 14px rgba(194, 89, 50, 0.35);">
-            {{if .Profile}}{{slice .Profile.DisplayName 0 2}}{{else}}IK{{end}}
+          <div
+            style="width:78px; height:78px; border-radius:var(--radius-md); background:linear-gradient(135deg, var(--color-terracotta), #963814); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.9rem; font-weight:800; box-shadow:0 6px 18px rgba(194, 89, 50, 0.35);">
+            {{if .Profile}}{{if .Profile.DisplayName}}{{slice .Profile.DisplayName 0
+            2}}{{else}}PR{{end}}{{else}}PR{{end}}
           </div>
           <div>
-            <div style="display:flex; align-items:center; gap:0.6rem;">
-              <h1 style="font-size:1.75rem; font-weight:800; color:var(--text-heading);">
-                {{if .Profile}}{{.Profile.DisplayName}}{{else}}Ibrahim Kimaro{{end}}
+            <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+              <h1 style="font-size:1.85rem; font-weight:800; color:var(--text-heading); letter-spacing:-0.02em;">
+                {{if .Profile}}{{.Profile.DisplayName}}{{else}}Professional Identity{{end}}
               </h1>
-              <span class="badge-emerald" title="Cryptographically Verified by Peer Consensus">&#10004; Verified Engineer</span>
+              <span class="badge-emerald" title="Verified by Multi-Role Consensus">&#10004; Verified Living
+                Portfolio</span>
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.85rem; color:var(--color-terracotta); font-weight:600; margin-top:0.2rem;">
-              @{{if .Profile}}{{.Profile.Username}}{{else}}ibrahim{{end}} &bull; {{if .Profile}}{{.Profile.Category}}{{else}}engineer{{end}}
+
+            <div
+              style="font-family:var(--font-mono); font-size:0.85rem; color:var(--color-terracotta); font-weight:700; margin-top:0.25rem;">
+              @{{if .Profile}}{{.Profile.Username}}{{else}}professional{{end}} &bull; {{if
+              .Profile}}{{.Profile.Category}}{{else}}Multi-Role Specialist{{end}}
             </div>
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.3rem;">
-              📍 {{if .Profile}}{{.Profile.Location}}{{else}}Dar es Salaam, Tanzania{{end}}
+
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+              <!-- 📍 {{if .Profile}}{{.Profile.Location}}{{else}}Dar es Salaam, Tanzania{{end}} -->
+              {{if .Organizations}}
+              &bull; Affiliated with:
+              {{range .Organizations}}
+              <a href="/organizations/{{.Slug}}"
+                style="color:var(--color-terracotta); font-weight:700; text-decoration:none;">{{.Name}}</a>
+              {{end}}
+              {{end}}
             </div>
           </div>
         </div>
 
-        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <!-- Hero Action Buttons -->
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <button type="button" onclick="window.openQrShareModal({
+            title: '{{if .Profile}}{{.Profile.DisplayName}}{{else}}{{.User.Username}}{{end}}\'s Verified Living Proof',
+            subtitle: 'Multi-Role Professional Identity &amp; Cryptographic Evidence',
+            url: '/portfolio?u={{if .Profile}}{{.Profile.Username}}{{else}}{{.User.Username}}{{end}}',
+            type: 'profile',
+            badgeText: 'VERIFIED PROFILE'
+          })" class="btn btn-outline-emerald">
+            📇 Share Profile QR
+          </button>
+          <button onclick="document.getElementById('share-proof-card-dialog').showModal()" class="btn btn-secondary">
+            📄 Credential Sheet
+          </button>
           <button onclick="document.getElementById('inquiry-dialog').showModal()" class="btn btn-primary">
             <span>🚀 Hire / Start Contract</span>
           </button>
           {{if .User}}
-            <button onclick="document.getElementById('project-dialog').showModal()" class="btn btn-secondary">
-              + Add Project
-            </button>
-            <button onclick="document.getElementById('problem-dialog').showModal()" class="btn btn-secondary">
-              + Add Case Study
-            </button>
+          <button onclick="document.getElementById('quick-role-dialog').showModal()" class="btn btn-secondary">
+            👤 + Add Role
+          </button>
+          <button onclick="document.getElementById('project-dialog').showModal()" class="btn btn-secondary">
+            + Add Project
+          </button>
+          <button onclick="document.getElementById('problem-dialog').showModal()" class="btn btn-secondary">
+            + Case Study
+          </button>
           {{end}}
         </div>
       </div>
 
-      <div style="font-size:1.1rem; color:var(--text-heading); font-weight:600; line-height:1.6; margin-bottom:1rem; max-width:860px;">
-        {{if .Profile}}{{.Profile.Headline}}{{else}}Systems Engineer &amp; Full-Stack Architect{{end}}
+      <!-- Multi-Role Persona Title Banner -->
+      <div
+        style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem;">
+        <div
+          style="font-family:var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.4rem; letter-spacing:0.06em;">
+          Multi-Role Persona &amp; Operational Affiliations
+        </div>
+        <div
+          style="font-size:1.15rem; font-weight:800; color:var(--text-heading); display:flex; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          {{if .Roles}}
+          {{range $i, $r := .Roles}}
+          {{if $i}}<span style="color:var(--text-muted); font-weight:400;">|</span>{{end}}
+          <span class="role-badge role-badge-{{$r.RoleType}}" style="font-size:0.88rem; padding:3px 10px;">
+            {{if eq $r.RoleType "student"}}🎓{{else if eq $r.RoleType "founder"}}🚀{{else if eq $r.RoleType
+            "manager"}}📋{{else}}💼{{end}}
+            {{$r.Title}}
+          </span>
+          {{end}}
+          {{else}}
+          {{if .Profile}}{{.Profile.Headline}}{{else}}Professional &bull; Founder &bull; Manager{{end}}
+          {{end}}
+        </div>
       </div>
 
-      <p style="font-size:0.95rem; color:var(--text-body); line-height:1.65; max-width:860px; margin-bottom:1.5rem;">
-        {{if .Profile}}{{.Profile.Bio}}{{else}}Specialized in low-latency logistics backends, transactional PostgreSQL optimizations, financial microservices, and clean hypermedia architectures.{{end}}
+      <!-- Bio / Summary -->
+      <p style="font-size:0.95rem; color:var(--text-body); line-height:1.65; max-width:880px; margin-bottom:1.5rem;">
+        {{if .Profile}}{{.Profile.Bio}}{{else}}Multi-disciplinary practitioner integrating theoretical rigor with
+        frontline business operations.{{end}}
       </p>
 
-      <div style="font-family:var(--font-mono); font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.06em; margin-bottom:0.5rem;">
-        Verified Technical Skills
+      <!-- Verified Skills -->
+      <div
+        style="font-family:var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.06em; margin-bottom:0.4rem;">
+        Verified Cross-Disciplinary Skills
       </div>
-      <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+      <div style="display:flex; flex-wrap:wrap; gap:0.45rem;">
         {{if .Profile}}
-          {{range .Profile.Skills}}
-            <span class="badge-amber">{{.}}</span>
-          {{end}}
-        {{else}}
-          <span class="badge-amber">Go</span>
-          <span class="badge-amber">PostgreSQL</span>
-          <span class="badge-amber">HTML5 / HTMX</span>
-          <span class="badge-amber">Distributed Systems</span>
-          <span class="badge-amber">Linux</span>
+        {{range .Profile.Skills}}
+        <span class="badge-amber">{{.}}</span>
+        {{end}}
+        {{end}}
+        {{range .Roles}}
+        {{range .Skills}}
+        <span class="badge-emerald" style="font-size:0.72rem;">{{.}}</span>
+        {{end}}
         {{end}}
       </div>
     </div>
 
-    <!-- Section 1: Verified Projects -->
-    <div style="margin-bottom:4rem;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2rem;">
+    <!-- Interactive Role Filter Tabs ("Focus Persona" Filter) -->
+    <div
+      style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:0.85rem 1.25rem;">
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        <span
+          style="font-size:0.82rem; font-weight:700; font-family:var(--font-mono); text-transform:uppercase; color:var(--text-muted);">
+          Focus Persona:
+        </span>
+        <a href="/portfolio{{if .Profile}}?u={{.Profile.Username}}{{end}}"
+          class="btn {{if not .RoleFilter}}btn-primary{{else}}btn-secondary{{end}} btn-sm"
+          style="padding:3px 10px; font-size:0.75rem;">
+          All Roles (Unified Proofolio)
+        </a>
+        {{range .Roles}}
+        <a href="/portfolio?{{if $.Profile}}u={{$.Profile.Username}}&{{end}}role={{.RoleType}}"
+          class="btn {{if eq $.RoleFilter .RoleType}}btn-primary{{else}}btn-secondary{{end}} btn-sm"
+          style="padding:3px 10px; font-size:0.75rem;">
+          {{if eq .RoleType "student"}}🎓{{else if eq .RoleType "founder"}}🚀{{else if eq .RoleType
+          "manager"}}📋{{else}}💼{{end}}
+          {{.Title}}
+        </a>
+        {{end}}
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">
+        {{len .Roles}} Active Concurrent Roles
+      </div>
+    </div>
+
+    <!-- Section 1: Multi-Role Experience & Responsibilities -->
+    <div style="margin-bottom:3.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
         <div>
-          <div class="badge-terracotta" style="margin-bottom:0.4rem;">Verified Code</div>
-          <h2 style="font-size:2rem; font-weight:800; color:var(--text-heading);">Production Implementations</h2>
-          <p style="font-size:0.95rem; color:var(--text-muted); margin-top:0.25rem;">
-            Architecture designs and source code with verifiable performance telemetry.
+          <span class="badge-terracotta" style="margin-bottom:0.25rem;">Relationship: Person &rarr; Role &rarr;
+            Organization</span>
+          <h2 style="font-size:1.75rem; font-weight:800; color:var(--text-heading);">Concurrent Professional Roles</h2>
+        </div>
+        {{if .User}}
+        <button onclick="document.getElementById('quick-role-dialog').showModal()" class="btn btn-secondary btn-sm">
+          + Add New Role
+        </button>
+        {{end}}
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem;">
+        {{range .Roles}}
+        {{if or (not $.RoleFilter) (eq $.RoleFilter .RoleType)}}
+        <div
+          style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:1.5rem; display:flex; flex-direction:column; box-shadow:var(--shadow-card);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+            <span class="role-badge role-badge-{{.RoleType}}" style="font-size:0.75rem;">
+              {{if eq .RoleType "student"}}🎓 Student &bull; Education{{else if eq .RoleType "founder"}}🚀 Founder
+              &bull; Ownership{{else if eq .RoleType "manager"}}📋 Management &bull; Operations{{else}}💼
+              Specialist{{end}}
+            </span>
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <button type="button" onclick="window.openQrShareModal({
+                    title: '{{.Title}}',
+                    subtitle: '{{.RoleType | printf " %s role" }} affiliated with {{.OrganizationName}}',
+                url: '/portfolio?u={{if $.Profile}}{{$.Profile.Username}}{{else}}{{$.User.Username}}{{end}}&amp;role={{.RoleType}}'
+                , type: 'role' , badgeText: 'ROLE: {{.RoleType}}' })" class="btn-qr-share"
+                style="padding:1px 6px; font-size:0.68rem;" title="Share Role QR &amp; Link">
+                <span>👤</span>
+                <span>QR</span>
+              </button>
+              <span class="badge-emerald" style="font-size:0.65rem;">{{.Status}}</span>
+            </div>
+          </div>
+
+          <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-heading); margin-bottom:0.25rem;">
+            {{.Title}}
+          </h3>
+
+          <!-- Organization Affiliation Link -->
+          <div
+            style="display:flex; align-items:center; gap:0.4rem; font-size:0.88rem; color:var(--color-terracotta); font-weight:700; margin-bottom:0.75rem;">
+            <span>🏢</span>
+            {{if .OrganizationID}}
+            <span>{{.OrganizationName}}</span>
+            {{else}}
+            <span>{{.OrganizationName}}</span>
+            {{end}}
+            <span
+              style="color:var(--text-muted); font-size:0.75rem; font-weight:400; font-family:var(--font-mono); margin-left:auto;">
+              {{.StartDate}} — {{if .EndDate}}{{.EndDate}}{{else}}Present{{end}}
+            </span>
+          </div>
+
+          <p style="font-size:0.88rem; color:var(--text-body); line-height:1.55; margin-bottom:1rem;">
+            {{.Description}}
+          </p>
+
+          <!-- Key Achievements -->
+          {{if .Achievements}}
+          <div
+            style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:1rem;">
+            <div
+              style="font-family:var(--font-mono); font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.35rem;">
+              Key Achievements
+            </div>
+            <ul style="padding-left:1.2rem; font-size:0.82rem; color:var(--text-body); line-height:1.45;">
+              {{range .Achievements}}
+              <li style="margin-bottom:0.25rem;">{{.}}</li>
+              {{end}}
+            </ul>
+          </div>
+          {{end}}
+
+          <!-- Skills Acquired -->
+          {{if .Skills}}
+          <div
+            style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:auto; padding-top:0.75rem; border-top:1px solid var(--border-stone);">
+            {{range .Skills}}
+            <span class="badge-amber" style="font-size:0.68rem; padding:1px 6px;">{{.}}</span>
+            {{end}}
+          </div>
+          {{end}}
+
+          {{if $.User}}
+          <div style="margin-top:0.75rem; padding-top:0.5rem; text-align:right;">
+            <form action="/api/roles/{{.ID}}/delete" method="POST" style="display:inline;"
+              onsubmit="return confirm('Remove this role?');">
+              <input type="hidden" name="roleId" value="{{.ID}}">
+              <button type="submit"
+                style="background:none; border:none; color:var(--text-muted); font-size:0.72rem; cursor:pointer; text-decoration:underline;">
+                Remove Role
+              </button>
+            </form>
+          </div>
+          {{end}}
+        </div>
+        {{end}}
+        {{else}}
+        <div
+          style="grid-column:1/-1; text-align:center; padding:2.5rem; background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone); color:var(--text-muted);">
+          No professional roles defined yet. Click "+ Add New Role" to register your student, founder, or manager
+          credentials!
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <!-- Section 2: Connected Organizations Showcase -->
+    <div style="margin-bottom:3.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <div>
+          <span class="badge-emerald" style="margin-bottom:0.25rem;">Registered Businesses &amp; Enterprises</span>
+          <h2 style="font-size:1.75rem; font-weight:800; color:var(--text-heading);">Connected Organizations</h2>
+        </div>
+        <a href="/organizations" class="btn btn-secondary btn-sm">Explore All Organizations &rarr;</a>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;">
+        {{range .Organizations}}
+        <div
+          style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:1.75rem; box-shadow:var(--shadow-card); display:flex; flex-direction:column;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.85rem;">
+            <div>
+              <h3 style="font-size:1.3rem; font-weight:800; color:var(--text-heading);">
+                <a href="/organizations/{{.Slug}}"
+                  style="color:var(--text-heading); text-decoration:none;">{{.Name}}</a>
+              </h3>
+              <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.2rem;">
+                {{.Industry}} &bull; 📍 {{.Location}}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <button type="button" onclick="window.openQrShareModal({
+                  title: '{{.Name}}',
+                  subtitle: 'Registered Organization &amp; Business Profile ({{.Industry}})',
+                  url: '/organizations/{{.Slug}}',
+                  type: 'org',
+                  badgeText: 'ORGANIZATION'
+                })" class="btn-qr-share text-xs" title="Share Organization QR &amp; Link">
+                <span>🏢</span>
+                <span>QR</span>
+              </button>
+              <span class="badge-emerald">&#10004; Verified</span>
+            </div>
+          </div>
+
+          <p style="font-size:0.9rem; color:var(--text-body); line-height:1.55; margin-bottom:1.25rem;">
+            {{if .Tagline}}{{.Tagline}}{{else}}{{.About}}{{end}}
+          </p>
+
+          <!-- Legal & Registration Specs -->
+          <div
+            style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:1.25rem; font-size:0.8rem; font-family:var(--font-mono);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+              <span style="color:var(--text-muted);">Registration:</span>
+              <strong style="color:var(--text-heading);">{{if
+                .BusinessInfo.RegistrationNo}}{{.BusinessInfo.RegistrationNo}}{{else}}BRELA Reg{{end}}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+              <span style="color:var(--text-muted);">Tax ID / TIN:</span>
+              <strong style="color:var(--text-heading);">{{if
+                .BusinessInfo.TaxID}}{{.BusinessInfo.TaxID}}{{else}}Verified Active{{end}}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">License:</span>
+              <strong style="color:var(--emerald-proof-text);">{{if
+                .BusinessInfo.LicenseStatus}}{{.BusinessInfo.LicenseStatus}}{{else}}Compliant{{end}}</strong>
+            </div>
+          </div>
+
+          <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.8rem; color:var(--text-muted);">
+              {{len .Members}} Team Members
+            </span>
+            <a href="/organizations/{{.Slug}}" class="btn btn-outline-emerald btn-sm">
+              View Organization Profile &rarr;
+            </a>
+          </div>
+        </div>
+        {{else}}
+        <div
+          style="grid-column:1/-1; text-align:center; padding:2rem; background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone); color:var(--text-muted);">
+          No connected organizations registered yet.
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <!-- Section 3: Ideas & Learning Progression Showcase -->
+    {{if .Ideas}}
+    <div style="margin-bottom:3.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <div>
+          <span class="stage-badge stage-UNDERSTANDING" style="margin-bottom:0.25rem;">Cognitive Evolution &bull;
+            Learning History</span>
+          <h2 style="font-size:1.75rem; font-weight:800; color:var(--text-heading);">Ideas &amp; Learning Evolution</h2>
+        </div>
+        <a href="/ideas" class="btn btn-secondary btn-sm">All Ideas &rarr;</a>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.25rem;">
+        {{range $i, $idea := .Ideas}}
+        {{if lt $i 3}}
+        <a href="/ideas/{{$idea.ID}}"
+          style="text-decoration:none; background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:1.25rem; display:flex; flex-direction:column; box-shadow:var(--shadow-card); transition:all 0.2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+            <span class="stage-badge stage-{{$idea.Stage}}">{{$idea.Stage}}</span>
+            <span
+              style="font-size:0.72rem; font-family:var(--font-mono); color:var(--text-muted);">{{$idea.UpdatedAt.Format
+              "Jan 02, 2006"}}</span>
+          </div>
+
+          <h4 style="font-size:1.1rem; font-weight:800; color:var(--text-heading); margin-bottom:0.35rem;">
+            {{$idea.Title}}</h4>
+          <p style="font-size:0.85rem; color:var(--text-body); line-height:1.45; margin-bottom:0.75rem;">
+            {{$idea.WhatLearned}}
+          </p>
+
+          <div
+            style="margin-top:auto; font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); display:flex; justify-content:space-between;">
+            <span>Source: <em>{{if $idea.Source}}{{$idea.Source}}{{else}}Field study{{end}}</em></span>
+            <span>{{len $idea.TimelineEntries}} notes &rarr;</span>
+          </div>
+        </a>
+        {{end}}
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+
+    <!-- Section 4: Verified Projects -->
+    <div style="margin-bottom:3.5rem;" id="projects">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:1.75rem;">
+        <div>
+          <div class="badge-terracotta" style="margin-bottom:0.3rem;">Operational Implementations</div>
+          <h2 style="font-size:1.75rem; font-weight:800; color:var(--text-heading);">Verified Projects &amp; Solutions
+          </h2>
+          <p style="font-size:0.9rem; color:var(--text-muted); margin-top:0.2rem;">
+            Systems, protocols, and workflows with quantifiable performance metrics.
           </p>
         </div>
       </div>
 
       <div class="services-grid">
         {{range .Projects}}
-          <div class="service-card" style="background:var(--bg-paper);">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-              <span class="badge-terracotta">{{.Category}}</span>
-              <div style="display:flex; gap:0.5rem;">
-                {{if .LiveURL}}
-                  <a href="{{.LiveURL}}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.75rem;">Demo &nearr;</a>
-                {{end}}
-                {{if .RepoURL}}
-                  <a href="{{.RepoURL}}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.75rem;">Repo &lt;/&gt;</a>
-                {{end}}
-              </div>
-            </div>
-
-            <h3 style="font-size:1.3rem; font-weight:800; color:var(--text-heading); margin-bottom:0.4rem;">{{.Title}}</h3>
-            <p style="font-size:0.9rem; color:var(--text-body); line-height:1.55; margin-bottom:1rem;">{{.Headline}}</p>
-
-            {{if .Metrics}}
-              <div class="badge-amber" style="margin-bottom:1rem; align-self:flex-start;">
-                <span>⚡ {{.Metrics}}</span>
-              </div>
-            {{end}}
-
-            <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:1rem;">
-              <div style="font-family:var(--font-mono); font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.3rem;">Problem Solved</div>
-              <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.ProblemSolved}}</div>
-            </div>
-
-            {{if .ArchitectureNotes}}
-              <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:1.25rem;">
-                <div style="font-family:var(--font-mono); font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.3rem;">Architecture Details</div>
-                <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.ArchitectureNotes}}</div>
-              </div>
-            {{end}}
-
-            <div style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--border-stone); display:flex; flex-wrap:wrap; gap:0.4rem;">
-              {{range .TechStack}}
-                <span class="badge-emerald" style="font-size:0.65rem; padding:2px 6px;">{{.}}</span>
+        <div class="service-card" style="background:var(--bg-paper);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+            <span class="badge-terracotta">{{.Category}}</span>
+            <div style="display:flex; gap:0.4rem; align-items:center;">
+              <button type="button" onclick="window.openQrShareModal({
+                  title: '{{.Title}}',
+                  subtitle: 'Verified Project Proof by {{if $.Profile}}{{$.Profile.DisplayName}}{{else}}{{$.User.Username}}{{end}}',
+                  url: '/portfolio?u={{if $.Profile}}{{$.Profile.Username}}{{else}}{{$.User.Username}}{{end}}#projects',
+                  type: 'project',
+                  badgeText: 'VERIFIED PROJECT'
+                })" class="btn-qr-share text-xs" title="Share Project QR &amp; Link">
+                <span>📁</span>
+                <span>QR</span>
+              </button>
+              {{if .LiveURL}}
+              <a href="{{.LiveURL}}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm"
+                style="padding:2px 8px; font-size:0.75rem;">Demo &nearr;</a>
+              {{end}}
+              {{if .RepoURL}}
+              <a href="{{.RepoURL}}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm"
+                style="padding:2px 8px; font-size:0.75rem;">Evidence &lt;/&gt;</a>
               {{end}}
             </div>
           </div>
-        {{else}}
-          <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted); background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone);">
-            No projects published yet.
+
+          <h3 style="font-size:1.3rem; font-weight:800; color:var(--text-heading); margin-bottom:0.4rem;">{{.Title}}
+          </h3>
+          <p style="font-size:0.9rem; color:var(--text-body); line-height:1.55; margin-bottom:1rem;">{{.Headline}}</p>
+
+          {{if .Metrics}}
+          <div class="badge-amber" style="margin-bottom:1rem; align-self:flex-start;">
+            <span>⚡ {{.Metrics}}</span>
           </div>
+          {{end}}
+
+          <div
+            style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:1rem;">
+            <div
+              style="font-family:var(--font-mono); font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.3rem;">
+              Problem Solved</div>
+            <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.ProblemSolved}}</div>
+          </div>
+
+          {{if .ArchitectureNotes}}
+          <div
+            style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:1.25rem;">
+            <div
+              style="font-family:var(--font-mono); font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.3rem;">
+              Implementation Notes</div>
+            <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.ArchitectureNotes}}</div>
+          </div>
+          {{end}}
+
+          <div
+            style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--border-stone); display:flex; flex-wrap:wrap; gap:0.4rem;">
+            {{range .TechStack}}
+            <span class="badge-emerald" style="font-size:0.65rem; padding:2px 6px;">{{.}}</span>
+            {{end}}
+          </div>
+        </div>
+        {{else}}
+        <div
+          style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted); background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone);">
+          No projects published yet.
+        </div>
         {{end}}
       </div>
     </div>
 
-    <!-- Section 2: Proof Cases (4-Stage Trajectory) -->
-    <div style="margin-bottom:4rem;" id="proof-cases">
-      <div style="margin-bottom:2rem;">
-        <div class="badge-terracotta" style="margin-bottom:0.4rem;">Engineering Trajectories</div>
-        <h2 style="font-size:2rem; font-weight:800; color:var(--text-heading);">Proof-of-Work Case Studies</h2>
-        <p style="font-size:0.95rem; color:var(--text-muted); margin-top:0.25rem;">
-          Detailed technical postmortems demonstrating deep analytical problem-solving.
+    <!-- Section 5: 4-Stage Problem Studies -->
+    <div style="margin-bottom:3.5rem;" id="proof-cases">
+      <div style="margin-bottom:1.75rem;">
+        <div class="badge-terracotta" style="margin-bottom:0.3rem;">Analytical Rigor</div>
+        <h2 style="font-size:1.75rem; font-weight:800; color:var(--text-heading);">4-Stage Problem Solving Studies</h2>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-top:0.2rem;">
+          Documented case trajectories showing deep diagnostic and implementation capability.
         </p>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:1.75rem;">
+      <div style="display:flex; flex-direction:column; gap:2rem;">
         {{range .Problems}}
-          <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:2rem; box-shadow:var(--shadow-card);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border-stone);">
+        <div
+          style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-card);">
+          <div
+            style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <span class="badge-terracotta" style="margin-bottom:0.3rem;">{{.Domain}}</span>
               <h3 style="font-size:1.4rem; font-weight:800; color:var(--text-heading);">{{.Title}}</h3>
-              <span class="badge-terracotta">{{.Domain}}</span>
             </div>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-              <div style="background:var(--bg-card); border-left:3px solid #f43f5e; padding:1rem; border-radius:var(--radius-sm);">
-                <div style="font-family:var(--font-mono); font-size:0.68rem; font-weight:700; text-transform:uppercase; color:#f43f5e; margin-bottom:0.35rem;">1. Observed Symptoms</div>
-                <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.Symptoms}}</div>
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <button type="button" onclick="window.openQrShareModal({
+                  title: '{{.Title}}',
+                  subtitle: '4-Stage Problem Solving Case Study ({{.Domain}})',
+                  url: '/portfolio?u={{if $.Profile}}{{$.Profile.Username}}{{else}}{{$.User.Username}}{{end}}#proof-cases',
+                  type: 'case',
+                  badgeText: 'CASE STUDY'
+                })" class="btn-qr-share" title="Share Case Study QR &amp; Link">
+                <span>📄</span>
+                <span>QR</span>
+              </button>
+              <div class="badge-emerald" style="font-size:0.85rem; padding:6px 14px;">
+                🎯 Outcome: {{.Outcome}}
               </div>
-              <div style="background:var(--bg-card); border-left:3px solid var(--amber-tag-text); padding:1rem; border-radius:var(--radius-sm);">
-                <div style="font-family:var(--font-mono); font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--amber-tag-text); margin-bottom:0.35rem;">2. Root Cause</div>
-                <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.RootCause}}</div>
-              </div>
-              <div style="background:var(--bg-card); border-left:3px solid var(--color-terracotta); padding:1rem; border-radius:var(--radius-sm);">
-                <div style="font-family:var(--font-mono); font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.35rem;">3. Engineered Solution</div>
-                <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.Solution}}</div>
-              </div>
-              <div style="background:var(--bg-card); border-left:3px solid var(--emerald-proof-text); padding:1rem; border-radius:var(--radius-sm);">
-                <div style="font-family:var(--font-mono); font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--emerald-proof-text); margin-bottom:0.35rem;">4. Measured Outcome</div>
-                <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.Outcome}}</div>
-              </div>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-              <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
-                {{range .TechStack}}
-                  <span class="badge-amber" style="font-size:0.65rem;">{{.}}</span>
-                {{end}}
-              </div>
-              <span class="badge-emerald" style="font-size:0.75rem;">&#10004; Verified Production Resolution</span>
             </div>
           </div>
+
+          <!-- 4 Stage Grid -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
+              <div
+                style="font-family:var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.4rem;">
+                Stage 1: Symptoms</div>
+              <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.Symptoms}}</div>
+            </div>
+
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
+              <div
+                style="font-family:var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.4rem;">
+                Stage 2: Root Cause</div>
+              <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.RootCause}}</div>
+            </div>
+
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
+              <div
+                style="font-family:var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.4rem;">
+                Stage 3: Solution Architecture</div>
+              <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.Solution}}</div>
+            </div>
+
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
+              <div
+                style="font-family:var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-terracotta); margin-bottom:0.4rem;">
+                Stage 4: Verified Outcome</div>
+              <div style="font-size:0.85rem; color:var(--text-body); line-height:1.5;">{{.Outcome}}</div>
+            </div>
+          </div>
+        </div>
+        {{else}}
+        <div
+          style="text-align:center; padding:3rem; color:var(--text-muted); background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone);">
+          No problem case studies published yet.
+        </div>
         {{end}}
       </div>
     </div>
 
-    <!-- Section 3: Peer Endorsements -->
-    <div>
-      <div style="margin-bottom:2rem;">
-        <div class="badge-terracotta" style="margin-bottom:0.4rem;">Social Consensus</div>
-        <h2 style="font-size:2rem; font-weight:800; color:var(--text-heading);">Verified Peer Endorsements</h2>
+    <!-- Section 6: Peer Endorsements -->
+    <div style="margin-bottom:4rem;">
+      <div style="margin-bottom:1.75rem;">
+        <div class="badge-terracotta" style="margin-bottom:0.3rem;">Peer Validated</div>
+        <h2 style="font-size:1.75rem; font-weight:800; color:var(--text-heading);">Professional Endorsements</h2>
       </div>
 
-      <div class="services-grid">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;">
         {{range .Endorsements}}
-          <div class="service-card" style="background:var(--bg-paper);">
-            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
-              <div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--bg-card); border:1px solid var(--border-stone); display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--color-terracotta);">
-                {{slice .AuthorName 0 2}}
-              </div>
-              <div>
-                <div style="font-size:0.95rem; font-weight:800; color:var(--text-heading); display:flex; align-items:center; gap:0.35rem;">
-                  <span>{{.AuthorName}}</span>
-                  {{if .Verified}}<span class="badge-emerald" style="font-size:0.6rem; padding:1px 5px;">&#10004; Verified</span>{{end}}
-                </div>
-                <div style="font-size:0.78rem; color:var(--text-muted);">{{.AuthorRole}} &bull; <strong style="color:var(--color-terracotta);">{{.Relationship}}</strong></div>
-              </div>
-            </div>
-
-            <p style="font-size:0.9rem; color:var(--text-body); line-height:1.6; font-style:italic; margin-bottom:1rem; flex:1;">
-              &ldquo;{{.Content}}&rdquo;
-            </p>
-
-            {{if .TargetTitle}}
-              <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted); padding-top:0.75rem; border-top:1px solid var(--border-stone);">
-                Validated on: <strong>{{.TargetTitle}}</strong>
-              </div>
-            {{end}}
+        <div
+          style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:1.5rem; box-shadow:var(--shadow-card);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <strong style="color:var(--text-heading); font-size:1.05rem;">{{.AuthorName}}</strong>
+            <span class="badge-emerald" style="font-size:0.65rem;">&#10004; Verified Relationship</span>
           </div>
+          <div style="font-size:0.8rem; color:var(--color-terracotta); font-weight:600; margin-bottom:0.75rem;">
+            {{.AuthorRole}}{{if .Relationship}} &bull; {{.Relationship}}{{end}}
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-body); line-height:1.6; font-style:italic;">
+            "{{.Content}}"
+          </p>
+        </div>
+        {{else}}
+        <div
+          style="grid-column:1/-1; text-align:center; padding:2rem; background:var(--bg-paper); border-radius:var(--radius-md); border:1px solid var(--border-stone); color:var(--text-muted);">
+          No peer endorsements logged yet.
+        </div>
         {{end}}
       </div>
     </div>
@@ -219,144 +585,173 @@
   </div>
 </section>
 
-<!-- Dialogs for Modals -->
-<dialog id="inquiry-dialog">
-  <div class="dialog-header">
-    <h3 class="dialog-title">Start Client Contract Engagement</h3>
-    <button class="close-btn" onclick="document.getElementById('inquiry-dialog').close()">&times;</button>
-  </div>
-  <div id="inquiry-form-container">
-    <form hx-post="/api/inquiries" hx-target="#inquiry-form-container">
-      <input type="hidden" name="targetUserId" value="usr_ibrahim">
-      <div class="form-group">
-        <label class="form-label">Your Full Name / Company</label>
-        <input type="text" name="senderName" class="form-input" placeholder="e.g. Acme Logistics, Inc." required>
+<!-- Direct Client RFP / Proposal Dialog -->
+<dialog id="inquiry-dialog" class="modal-dialog">
+  <div class="modal-content" style="max-width: 600px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+      <div>
+        <span class="badge-terracotta" style="margin-bottom:0.25rem;">Direct Contract Proposal</span>
+        <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-heading);">Transmit RFP / Inquire for Contract
+        </h3>
       </div>
-      <div class="form-group">
-        <label class="form-label">Work Email</label>
-        <input type="email" name="senderEmail" class="form-input" placeholder="contracts@acme.io" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Engagement Type</label>
-        <select name="projectType" class="form-select">
-          <option value="Systems Architecture & Audit">Systems Architecture &amp; Audit</option>
-          <option value="High-Throughput Backend in Go">High-Throughput Backend in Go</option>
-          <option value="PostgreSQL Database Optimization">PostgreSQL Database Optimization</option>
-          <option value="Full-Stack Hypermedia Web App (HTMX)">Full-Stack Hypermedia Web App (HTMX)</option>
-        </select>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-        <div class="form-group">
-          <label class="form-label">Budget Range</label>
-          <input type="text" name="budgetRange" class="form-input" placeholder="$5,000 - $15,000" required>
+      <button onclick="document.getElementById('inquiry-dialog').close()" class="btn btn-secondary btn-sm"
+        style="padding:3px 9px;">✕</button>
+    </div>
+
+    <form action="/api/inquiries" method="POST">
+      <input type="hidden" name="targetUserId" value="{{if .Profile}}{{.Profile.UserID}}{{else}}usr_amina{{end}}">
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.3rem;">Your Full Name
+            *</label>
+          <input type="text" name="senderName" required placeholder="e.g. Dr. K. Mussa" class="form-input"
+            style="width:100%;">
         </div>
-        <div class="form-group">
-          <label class="form-label">Timeline</label>
-          <input type="text" name="timeline" class="form-input" placeholder="2-4 weeks" required>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.3rem;">Your Email *</label>
+          <input type="email" name="senderEmail" required placeholder="e.g. director@health-network.org"
+            class="form-input" style="width:100%;">
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Project Scope &amp; Deliverables</label>
-        <textarea name="description" class="form-textarea" placeholder="Detail the constraints, performance targets, and key deliverables..." required></textarea>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.3rem;">Project / Engagement
+            Type</label>
+          <select name="projectType" class="form-input" style="width:100%;">
+            <option value="Pharmacy Dispensary Advisory">Pharmacy Dispensary Advisory</option>
+            <option value="Financial & Inventory Audit">Financial &amp; Inventory Audit</option>
+            <option value="Operations Management Contract">Operations Management Contract</option>
+            <option value="Systems Architecture Consultation">Systems Architecture Consultation</option>
+            <option value="Full-Time Executive Offer">Full-Time Executive Offer</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.3rem;">Estimated Budget
+            Range</label>
+          <input type="text" name="budgetRange" placeholder="e.g. $2,500 - $6,000 / Retainer" class="form-input"
+            style="width:100%;">
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
-        Submit Contract Proposal &rarr;
-      </button>
+
+      <div style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.3rem;">Proposal Subject / Title
+          *</label>
+        <input type="text" name="title" required
+          placeholder="e.g. Inventory Optimization &amp; Cold-Chain Audit for Regional Clinics" class="form-input"
+          style="width:100%;">
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.3rem;">Detailed Scope of Work
+          &amp; Deliverables *</label>
+        <textarea name="description" rows="4" required
+          placeholder="Describe the objectives, required milestones, timeline, and deliverables..." class="form-input"
+          style="width:100%;"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button type="button" onclick="document.getElementById('inquiry-dialog').close()"
+          class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">Transmit Proposal to Inbox</button>
+      </div>
     </form>
   </div>
 </dialog>
 
-<dialog id="project-dialog">
-  <div class="dialog-header">
-    <h3 class="dialog-title">Publish Verified Project</h3>
-    <button class="close-btn" onclick="document.getElementById('project-dialog').close()">&times;</button>
-  </div>
-  <div id="project-form-container">
-    <form hx-post="/api/projects" hx-target="#main-content">
-      <div class="form-group">
-        <label class="form-label">Project Title</label>
-        <input type="text" name="title" class="form-input" placeholder="Panga Distributed Telemetry" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Category</label>
-        <input type="text" name="category" class="form-input" placeholder="Distributed Systems" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Headline</label>
-        <input type="text" name="headline" class="form-input" placeholder="High-throughput messaging broker in Go" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Problem Solved</label>
-        <textarea name="problemSolved" class="form-textarea" placeholder="Eliminated order contention..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Architecture Highlights</label>
-        <textarea name="architectureNotes" class="form-textarea" placeholder="Worker pool with persistent write buffers..."></textarea>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-        <div class="form-group">
-          <label class="form-label">Live URL</label>
-          <input type="url" name="liveUrl" class="form-input" placeholder="https://...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Repo URL</label>
-          <input type="url" name="repoUrl" class="form-input" placeholder="https://github.com/...">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tech Stack (comma-separated)</label>
-        <input type="text" name="techStack" class="form-input" placeholder="Go, PostgreSQL, HTMX, Redis" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Measured Metrics</label>
-        <input type="text" name="metrics" class="form-input" placeholder="42% latency reduction &bull; 99.99% SLA">
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
-        Publish to Proofolio
-      </button>
-    </form>
-  </div>
-</dialog>
+<!-- Shareable Digital Proof Card Modal -->
+<dialog id="share-proof-card-dialog" class="modal-dialog">
+  <div class="modal-content"
+    style="max-width: 580px; background:var(--bg-paper); border:2px solid var(--color-terracotta);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+      <span class="badge-emerald">&#10004; Cryptographically Certified Living Credential</span>
+      <button onclick="document.getElementById('share-proof-card-dialog').close()" class="btn btn-secondary btn-sm"
+        style="padding:2px 8px;">✕</button>
+    </div>
 
-<dialog id="problem-dialog">
-  <div class="dialog-header">
-    <h3 class="dialog-title">Publish Case Study</h3>
-    <button class="close-btn" onclick="document.getElementById('problem-dialog').close()">&times;</button>
-  </div>
-  <div id="problem-form-container">
-    <form hx-post="/api/problems" hx-target="#main-content">
-      <div class="form-group">
-        <label class="form-label">Title</label>
-        <input type="text" name="title" class="form-input" placeholder="Race condition under heavy concurrent write load" required>
+    <!-- The Digital Proof Card Representation -->
+    <div id="printable-proof-card"
+      style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-md); padding:1.75rem; margin-bottom:1.5rem; position:relative; overflow:hidden;">
+      <div
+        style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-terracotta), #F59E0B, #10B981);">
       </div>
-      <div class="form-group">
-        <label class="form-label">Technical Domain</label>
-        <input type="text" name="domain" class="form-input" placeholder="FinTech / Concurrency" required>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:1rem;">
+          <div
+            style="width:56px; height:56px; border-radius:var(--radius-md); background:linear-gradient(135deg, var(--color-terracotta), #963814); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:800;">
+            {{if .Profile}}{{if .Profile.DisplayName}}{{slice .Profile.DisplayName 0
+            2}}{{else}}PR{{end}}{{else}}PR{{end}}
+          </div>
+          <div>
+            <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-heading); line-height:1.2;">
+              {{if .Profile}}{{.Profile.DisplayName}}{{else}}Proofolio Practitioner{{end}}
+            </h3>
+            <div
+              style="font-family:var(--font-mono); font-size:0.75rem; color:var(--color-terracotta); font-weight:700;">
+              PROOFOLIO-ID #PFL-{{if .Profile}}{{.Profile.Username}}{{else}}VERIFIED{{end}}
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <span class="badge-emerald" style="font-size:0.7rem;">● Active Verified</span>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">1. Symptoms</label>
-        <textarea name="symptoms" class="form-textarea" placeholder="Duplicate ledger records..." required></textarea>
+
+      <!-- Multi-Role Persona Display -->
+      <div style="margin-bottom:1rem;">
+        <div
+          style="font-family:var(--font-mono); font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.3rem;">
+          Concurrent Operational Roles
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
+          {{range .Roles}}
+          <span class="role-badge role-badge-{{.RoleType}}" style="font-size:0.72rem;">
+            {{.Title}} &bull; {{.OrganizationName}}
+          </span>
+          {{else}}
+          <span style="font-size:0.8rem; color:var(--text-muted);">{{if
+            .Profile}}{{.Profile.Headline}}{{else}}Professional Practitioner{{end}}</span>
+          {{end}}
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">2. Root Cause</label>
-        <textarea name="rootCause" class="form-textarea" placeholder="Read-committed isolation leak..." required></textarea>
+
+      <!-- Proven Performance Metrics -->
+      <div
+        style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:0.75rem; margin-bottom:1rem; font-size:0.78rem; font-family:var(--font-mono);">
+        <div>
+          <span style="color:var(--text-muted);">Total Proof Cases:</span><br>
+          <strong style="color:var(--text-heading); font-size:1rem;">{{len .Projects}} Projects &bull; {{len .Problems}}
+            Studies</strong>
+        </div>
+        <div>
+          <span style="color:var(--text-muted);">Affiliated Orgs:</span><br>
+          <strong style="color:var(--emerald-proof-text); font-size:1rem;">{{len .Organizations}} Registered</strong>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">3. Engineered Solution</label>
-        <textarea name="solution" class="form-textarea" placeholder="PostgreSQL advisory locks..." required></textarea>
+
+      <div style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono); text-align:center;">
+        Anchored on PostgreSQL Consensus &bull; Verified by Proofolio Protocol
       </div>
-      <div class="form-group">
-        <label class="form-label">4. Measured Outcome</label>
-        <textarea name="outcome" class="form-textarea" placeholder="Zero duplicates over 500k transactions..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tech Stack (comma-separated)</label>
-        <input type="text" name="techStack" class="form-input" placeholder="Go, PostgreSQL, Advisory Locks" required>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
-        Publish Case Study
+    </div>
+
+    <!-- Modal Actions -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+      <button
+        onclick="navigator.clipboard.writeText(window.location.href); alert('Public Proofolio Verification Link copied to clipboard!');"
+        class="btn btn-secondary btn-sm">
+        📋 Copy Public Link
       </button>
-    </form>
+      <div style="display:flex; gap:0.5rem;">
+        <button onclick="window.print()" class="btn btn-secondary btn-sm">
+          🖨 Print / PDF
+        </button>
+        <button onclick="document.getElementById('share-proof-card-dialog').close()" class="btn btn-primary btn-sm">
+          Done
+        </button>
+      </div>
+    </div>
   </div>
 </dialog>
 {{end}}

@@ -59,8 +59,17 @@
             Sign In to Console &rarr;
           </button>
 
-          <div style="margin-top:1.75rem; text-align:center; font-size:0.8rem; color:var(--text-muted); background:var(--bg-card); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-stone);">
-            💡 Demo Account Seed: <strong>ibrahim</strong> / <strong>kimmy001</strong>
+          <div
+            style="margin-top:1.5rem; font-size:0.8rem; color:var(--text-muted); background:var(--bg-card); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--border-stone);">
+            <div style="font-weight:600; margin-bottom:0.4rem; color:var(--text-main);">💡 Quick Demo Sign-In:</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button type="button" onclick="fillCredentials('ibrahim', 'kimmy001')" class="btn btn-secondary btn-sm" style="font-size:0.75rem; padding:0.3rem 0.6rem;">
+                👨‍💻 Ibrahim (Lead Engineer)
+              </button>
+              <button type="button" onclick="fillCredentials('amina', 'amina001')" class="btn btn-secondary btn-sm" style="font-size:0.75rem; padding:0.3rem 0.6rem;">
+                🎓 Amina (Student &amp; Founder)
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -91,6 +100,7 @@
           <div class="form-group">
             <label class="form-label">Specialization &amp; Discipline</label>
             <select name="category" class="form-select">
+              <option value="finance">💰 Accounting, Audit &amp; Financial Management</option>
               <option value="hr">👥 Human Resources (HR) &amp; Talent Operations</option>
               <option value="business">📊 Business Administration, Operations &amp; Management</option>
               <option value="engineer" selected>💻 Software Engineers &amp; Systems Architects</option>
@@ -122,6 +132,13 @@
 </div>
 
 <script>
+  function fillCredentials(u, p) {
+    const userInput = document.querySelector('input[name="username"]');
+    const passInput = document.querySelector('input[name="password"]');
+    if (userInput) userInput.value = u;
+    if (passInput) passInput.value = p;
+  }
+
   function handleTabClick(e, tab) {
     if (e) e.preventDefault();
     setAuthTab(tab, true);

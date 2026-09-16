@@ -31,15 +31,30 @@ func main() {
 
 	// 3. Page Routes
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
+		path := r.URL.Path
+
+		if strings.HasPrefix(path, "/organizations/") && len(path) > len("/organizations/") {
+			handlers.HandleOrganizationDetail(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/ideas/") && len(path) > len("/ideas/") {
+			handlers.HandleIdeaDetail(w, r)
+			return
+		}
+
+		switch path {
 		case "/":
 			handlers.HandleLanding(w, r)
 		case "/about":
 			handlers.HandleAbout(w, r)
 		case "/dashboard":
 			handlers.HandleDashboard(w, r)
-		case "/portfolio":
+		case "/portfolio", "/profile":
 			handlers.HandlePortfolio(w, r)
+		case "/organizations":
+			handlers.HandleOrganizationsList(w, r)
+		case "/ideas":
+			handlers.HandleIdeas(w, r)
 		case "/inquiries":
 			handlers.HandleInquiries(w, r)
 		case "/discover":
@@ -90,6 +105,54 @@ func main() {
 	})
 	mux.HandleFunc("/api/opportunities", handlers.HandlePostOpportunity)
 	mux.HandleFunc("/api/opportunities/apply", handlers.HandleApplyOpportunity)
+
+	// New Feature API Endpoints: Organizations, Ideas & Roles
+	mux.HandleFunc("/api/organizations", handlers.HandleCreateOrganization)
+	mux.HandleFunc("/api/organizations/", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/updates") {
+			handlers.HandleAddOrgUpdate(w, r)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/members") {
+			handlers.HandleAddOrgMember(w, r)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/projects") {
+			handlers.HandleAddOrgProject(w, r)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/products") {
+			handlers.HandleAddOrgProduct(w, r)
+			return
+		}
+		http.NotFound(w, r)
+	})
+
+	mux.HandleFunc("/api/ideas", handlers.HandleCreateIdea)
+	mux.HandleFunc("/api/ideas/", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/timeline") {
+			handlers.HandleAddIdeaTimeline(w, r)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/stage") {
+			handlers.HandleUpdateIdeaStage(w, r)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/promote") {
+			handlers.HandlePromoteIdeaToProject(w, r)
+			return
+		}
+		http.NotFound(w, r)
+	})
+
+	mux.HandleFunc("/api/roles", handlers.HandleAddRole)
+	mux.HandleFunc("/api/roles/", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/delete") {
+			handlers.HandleDeleteRole(w, r)
+			return
+		}
+		http.NotFound(w, r)
+	})
 
 	port := os.Getenv("PORT")
 	if port == "" {

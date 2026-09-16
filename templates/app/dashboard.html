@@ -1,242 +1,160 @@
 {{define "content"}}
-<section class="section">
-  <div class="container">
-    
-    <!-- Welcome Console Header -->
-    <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2.25rem; margin-bottom:2.5rem; box-shadow:var(--shadow-card);">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">
-        <div>
-          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.4rem;">
-            <span class="badge-terracotta">{{if .Profile}}{{.Profile.Category}}{{else}}engineer{{end}}</span>
-            <span class="badge-emerald">&#10004; Verified Profile</span>
-          </div>
-          <h1 style="font-size:2rem; font-weight:800; color:var(--text-heading); letter-spacing:-0.02em;">
-            Welcome back, {{if .Profile}}{{.Profile.DisplayName}}{{else}}{{.User.Username}}{{end}}
-          </h1>
-          <p style="font-size:0.95rem; color:var(--text-muted); margin-top:0.25rem;">
-            {{if .Profile}}{{.Profile.Headline}}{{else}}Manage your living proof of work, incoming client contract RFPs, and peer endorsements.{{end}}
-          </p>
-        </div>
+<style>
+  .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+  @media(max-width:500px){.dash-grid{grid-template-columns:repeat(2,1fr);gap:10px;}}
+  @media(max-width:340px){.dash-grid{grid-template-columns:1fr;}}
+  .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+  @media(max-width:860px){.panel-grid{grid-template-columns:1fr;gap:12px;}}
+  .idea-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);min-width:0;overflow:hidden;}
+  .idea-row:last-child{border-bottom:none;}
+  .idea-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+  .org-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);min-width:0;overflow:hidden;}
+  .org-row:last-child{border-bottom:none;}
+  .org-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--green),#047857);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.82rem;color:#fff;flex-shrink:0;}
+  .lc-bar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:12px;max-width:100%;overflow:hidden;}
+  .lc-step{padding:2px 8px;border-radius:99px;font-size:.63rem;font-weight:700;font-family:var(--mono);background:var(--bg);border:1px solid var(--border);color:var(--text-3);white-space:nowrap;}
+  .lc-step.on{background:rgba(124,58,237,.12);border-color:rgba(124,58,237,.3);color:var(--accent);}
+  .lc-arr{color:var(--text-3);font-size:.65rem;}
+  @media(max-width:600px){
+    .dash-grid{gap:8px;}
+    .stat-num{font-size:1.4rem;}
+    .lc-step{font-size:.58rem;padding:2px 6px;}
+    .lc-arr{display:none;} /* hide arrows on tiny screens */
+    .idea-row a{font-size:.8rem;}
+    .org-row .org-icon{width:30px;height:30px;font-size:.75rem;}
+  }
+</style>
 
-        <!-- Quick Action Buttons -->
-        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-          <button onclick="document.getElementById('project-dialog').showModal()" class="btn btn-primary btn-sm">
-            + Add Project
-          </button>
-          <button onclick="document.getElementById('problem-dialog').showModal()" class="btn btn-secondary btn-sm">
-            + Add Case Study
-          </button>
-          <a href="/portfolio" class="btn btn-outline-emerald btn-sm">
-            Public View &nearr;
-          </a>
-        </div>
+<!-- Stat Row -->
+<div class="dash-grid">
+  <div class="stat-card">
+    <span class="stat-icon">👤</span>
+    <div class="stat-num" style="color:var(--accent);">{{len .Roles}}</div>
+    <div class="stat-lbl">Active Roles</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-icon">🏢</span>
+    <div class="stat-num" style="color:var(--green);">{{len .Organizations}}</div>
+    <div class="stat-lbl">Organizations</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-icon">💡</span>
+    <div class="stat-num" style="color:var(--amber);">{{len .Ideas}}</div>
+    <div class="stat-lbl">Ideas Journal</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-icon">📁</span>
+    <div class="stat-num" style="color:var(--text-1);">{{len .Projects}}</div>
+    <div class="stat-lbl">Proof Projects</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-icon">📬</span>
+    <div class="stat-num" style="color:var(--red);">{{len .Inquiries}}</div>
+    <div class="stat-lbl">Inquiries</div>
+  </div>
+</div>
+
+<!-- Two-col panels -->
+<div class="panel-grid">
+
+  <!-- Ideas Journal Panel -->
+  <div class="mc mc-p" style="display:flex;flex-direction:column;gap:0;">
+    <div class="mc-header" style="margin-bottom:10px;">
+      <div>
+        <span class="mc-tag purple">⚡ 6-Stage Evolution</span>
+        <div class="mc-title-lg" style="margin-top:4px;">Ideas &amp; Learning Journal</div>
       </div>
-
-      <!-- Metrics Row -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.25rem; margin-top:2rem; padding-top:1.75rem; border-top:1px solid var(--border-stone);">
-        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
-          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Projects}}</div>
-          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--color-terracotta); font-weight:700; margin-top:0.2rem;">Verified Projects</div>
-        </div>
-
-        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
-          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Problems}}</div>
-          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--amber-tag-text); font-weight:700; margin-top:0.2rem;">4-Stage Case Studies</div>
-        </div>
-
-        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
-          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Endorsements}}</div>
-          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--emerald-proof-text); font-weight:700; margin-top:0.2rem;">Peer Endorsements</div>
-        </div>
-
-        <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
-          <div style="font-family:var(--font-mono); font-size:1.75rem; font-weight:800; color:var(--text-heading);">{{len .Inquiries}}</div>
-          <div style="font-size:0.75rem; text-transform:uppercase; font-family:var(--font-mono); color:var(--color-terracotta); font-weight:700; margin-top:0.2rem;">Client Inquiries</div>
-        </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="document.getElementById('quick-idea-dialog').showModal()" class="a-btn prim sm">+ Idea</button>
+        <a href="/ideas" class="a-btn sec sm">All →</a>
       </div>
     </div>
 
-    <!-- Client Inquiries Inbox -->
-    <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2.25rem; margin-bottom:2.5rem; box-shadow:var(--shadow-card);">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-        <div>
-          <div class="badge-terracotta" style="margin-bottom:0.3rem;">Contract Pipeline</div>
-          <h2 style="font-size:1.5rem; font-weight:800; color:var(--text-heading);">Direct Client Inquiries &amp; Proposals</h2>
+    <div class="lc-bar">
+      <span class="lc-step on">⚡ NEW</span><span class="lc-arr">→</span>
+      <span class="lc-step">🔍 EXPLORING</span><span class="lc-arr">→</span>
+      <span class="lc-step">📖 LEARNING</span><span class="lc-arr">→</span>
+      <span class="lc-step">💡 UNDERSTANDING</span><span class="lc-arr">→</span>
+      <span class="lc-step">🧪 TESTING</span><span class="lc-arr">→</span>
+      <span class="lc-step">🏆 PROJECT</span>
+    </div>
+
+    <div>
+      {{range $i, $idea := .Ideas}}{{if lt $i 5}}
+      <div class="idea-row">
+        <div class="idea-dot" style="background:{{if eq $idea.Stage "NEW"}}var(--accent){{else if eq $idea.Stage "EXPLORING"}}var(--accent-2){{else if eq $idea.Stage "LEARNING"}}var(--amber){{else if eq $idea.Stage "UNDERSTANDING"}}var(--green){{else if eq $idea.Stage "TESTING"}}var(--red){{else}}var(--text-3){{end}};"></div>
+        <div style="min-width:0;flex:1;">
+          <a href="/ideas/{{$idea.ID}}" style="font-weight:700;font-size:.85rem;color:var(--text-1);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{$idea.Title}}</a>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px;">
+            <span class="mc-tag {{if eq $idea.Stage "NEW"}}purple{{else if eq $idea.Stage "LEARNING"}}amber{{else if eq $idea.Stage "TESTING"}}red{{else}}green{{end}}" style="margin-bottom:0;font-size:.58rem;">{{$idea.Stage}}</span>
+            <span style="font-size:.7rem;color:var(--text-3);font-family:var(--mono);">{{$idea.UpdatedAt.Format "Jan 02"}}</span>
+          </div>
         </div>
-        <span class="badge-emerald">{{len .Inquiries}} Total Inquiries</span>
+        <a href="/ideas/{{$idea.ID}}" class="a-btn sec sm" style="flex-shrink:0;">View</a>
       </div>
-
-      {{if .Inquiries}}
-        <div style="display:flex; flex-direction:column; gap:1rem;">
-          {{range .Inquiries}}
-            <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1.25rem;">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
-                <div>
-                  <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-heading);">{{.Title}}</h3>
-                  <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.15rem;">
-                    From: <strong style="color:var(--text-heading);">{{.SenderName}}</strong> &bull; <a href="mailto:{{.SenderEmail}}" style="color:var(--color-terracotta);">{{.SenderEmail}}</a>
-                  </div>
-                </div>
-
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                  <span class="badge-amber">💰 {{.BudgetRange}}</span>
-                  <span class="badge-emerald">{{.Status}}</span>
-                </div>
-              </div>
-
-              <p style="font-size:0.88rem; color:var(--text-body); line-height:1.55; margin-bottom:0.75rem;">
-                {{.Description}}
-              </p>
-
-              <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between; border-top:1px solid var(--border-stone); padding-top:0.5rem;">
-                <span>Type: <strong>{{.ProjectType}}</strong></span>
-                <span>Timeline: <strong>{{.Timeline}}</strong></span>
-                <span>Received: <strong>{{.CreatedAt.Format "Jan 02, 2006"}}</strong></span>
-              </div>
-            </div>
-          {{end}}
-        </div>
-      {{else}}
-        <div style="text-align:center; padding:2rem; color:var(--text-muted); background:var(--bg-card); border-radius:var(--radius-sm); border:1px solid var(--border-stone);">
-          No contract proposals received yet. Your profile inquiry form is active on your public portfolio.
-        </div>
+      {{end}}{{else}}
+      <div style="text-align:center;padding:2rem;color:var(--text-3);font-size:.85rem;">No ideas yet — capture your first discovery!</div>
       {{end}}
     </div>
+  </div>
 
-    <!-- Active Projects & Case Studies Summary -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
-      <!-- Projects -->
-      <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-card);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-          <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-heading);">Your Projects</h3>
-          <button onclick="document.getElementById('project-dialog').showModal()" class="btn btn-secondary btn-sm">+ Add</button>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-          {{range .Projects}}
-            <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
-              <strong style="color:var(--text-heading); font-size:0.95rem;">{{.Title}}</strong>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">{{.Category}} &bull; {{.Headline}}</div>
-            </div>
-          {{else}}
-            <p style="font-size:0.85rem; color:var(--text-muted);">No projects added.</p>
-          {{end}}
-        </div>
+  <!-- Organizations Panel -->
+  <div class="mc mc-p" style="display:flex;flex-direction:column;gap:0;">
+    <div class="mc-header" style="margin-bottom:10px;">
+      <div>
+        <span class="mc-tag green">Verified Network</span>
+        <div class="mc-title-lg" style="margin-top:4px;">Connected Organizations</div>
       </div>
-
-      <!-- Case Studies -->
-      <div style="background:var(--bg-paper); border:1px solid var(--border-stone); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-card);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-          <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-heading);">4-Stage Case Studies</h3>
-          <button onclick="document.getElementById('problem-dialog').showModal()" class="btn btn-secondary btn-sm">+ Add</button>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-          {{range .Problems}}
-            <div style="background:var(--bg-card); border:1px solid var(--border-stone); border-radius:var(--radius-sm); padding:1rem;">
-              <strong style="color:var(--text-heading); font-size:0.95rem;">{{.Title}}</strong>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">{{.Domain}} &bull; 4 stages documented</div>
-            </div>
-          {{else}}
-            <p style="font-size:0.85rem; color:var(--text-muted);">No case studies added.</p>
-          {{end}}
-        </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="document.getElementById('quick-org-dialog').showModal()" class="a-btn prim sm">+ Org</button>
+        <a href="/organizations" class="a-btn sec sm">All →</a>
       </div>
     </div>
 
-  </div>
-</section>
-
-<!-- Dialogs for Modals -->
-<dialog id="project-dialog">
-  <div class="dialog-header">
-    <h3 class="dialog-title">Publish Verified Project</h3>
-    <button class="close-btn" onclick="document.getElementById('project-dialog').close()">&times;</button>
-  </div>
-  <div id="project-form-container">
-    <form hx-post="/api/projects" hx-target="#main-content">
-      <div class="form-group">
-        <label class="form-label">Project Title</label>
-        <input type="text" name="title" class="form-input" placeholder="Distributed Order Engine" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Category</label>
-        <input type="text" name="category" class="form-input" placeholder="Distributed Systems" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Headline</label>
-        <input type="text" name="headline" class="form-input" placeholder="High-throughput messaging broker in Go" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Problem Solved</label>
-        <textarea name="problemSolved" class="form-textarea" placeholder="Eliminated order contention..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Architecture Highlights</label>
-        <textarea name="architectureNotes" class="form-textarea" placeholder="Worker pool with persistent write buffers..."></textarea>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-        <div class="form-group">
-          <label class="form-label">Live URL</label>
-          <input type="url" name="liveUrl" class="form-input" placeholder="https://...">
+    <div>
+      {{range $i, $org := .Organizations}}{{if lt $i 5}}
+      <div class="org-row">
+        <div class="org-icon">{{slice $org.Name 0 2}}</div>
+        <div style="min-width:0;flex:1;">
+          <a href="/organizations/{{$org.Slug}}" style="font-weight:700;font-size:.85rem;color:var(--text-1);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{$org.Name}}</a>
+          <div style="font-size:.72rem;color:var(--text-3);margin-top:2px;">{{$org.Industry}} · {{$org.Location}}</div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Repo URL</label>
-          <input type="url" name="repoUrl" class="form-input" placeholder="https://github.com/...">
-        </div>
+        <span class="mc-tag green" style="margin-bottom:0;flex-shrink:0;">✓ Verified</span>
       </div>
-      <div class="form-group">
-        <label class="form-label">Tech Stack (comma-separated)</label>
-        <input type="text" name="techStack" class="form-input" placeholder="Go, PostgreSQL, HTMX, Redis" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Measured Metrics</label>
-        <input type="text" name="metrics" class="form-input" placeholder="42% latency reduction &bull; 99.99% SLA">
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
-        Publish to Proofolio
-      </button>
-    </form>
+      {{end}}{{else}}
+      <div style="text-align:center;padding:2rem;color:var(--text-3);font-size:.85rem;">No organizations yet — register your first one!</div>
+      {{end}}
+    </div>
   </div>
-</dialog>
+</div>
 
-<dialog id="problem-dialog">
-  <div class="dialog-header">
-    <h3 class="dialog-title">Publish Case Study</h3>
-    <button class="close-btn" onclick="document.getElementById('problem-dialog').close()">&times;</button>
+<!-- Roles Quick Strip -->
+{{if .Roles}}
+<div class="mc mc-p" style="margin-top:18px;">
+  <div class="mc-header">
+    <div>
+      <span class="mc-tag purple">Identity</span>
+      <div class="mc-title-lg" style="margin-top:4px;">Active Professional Roles</div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="document.getElementById('quick-role-dialog').showModal()" class="a-btn sec sm">+ Add Role</button>
+      <a href="/portfolio" class="a-btn sec sm">Full Profile →</a>
+    </div>
   </div>
-  <div id="problem-form-container">
-    <form hx-post="/api/problems" hx-target="#main-content">
-      <div class="form-group">
-        <label class="form-label">Title</label>
-        <input type="text" name="title" class="form-input" placeholder="Race condition under heavy concurrent write load" required>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+    {{range .Roles}}
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);">
+      <div style="width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:rgba(124,58,237,.1);">
+        {{if eq .RoleType "student"}}🎓{{else if eq .RoleType "founder"}}🚀{{else if eq .RoleType "manager"}}📋{{else}}💼{{end}}
       </div>
-      <div class="form-group">
-        <label class="form-label">Technical Domain</label>
-        <input type="text" name="domain" class="form-input" placeholder="FinTech / Concurrency" required>
+      <div style="min-width:0;">
+        <div style="font-weight:700;font-size:.83rem;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{.Title}}</div>
+        {{if .OrganizationName}}<div style="font-size:.72rem;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🏢 {{.OrganizationName}}</div>{{end}}
       </div>
-      <div class="form-group">
-        <label class="form-label">1. Symptoms</label>
-        <textarea name="symptoms" class="form-textarea" placeholder="Duplicate ledger records..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">2. Root Cause</label>
-        <textarea name="rootCause" class="form-textarea" placeholder="Read-committed isolation leak..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">3. Engineered Solution</label>
-        <textarea name="solution" class="form-textarea" placeholder="PostgreSQL advisory locks..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">4. Measured Outcome</label>
-        <textarea name="outcome" class="form-textarea" placeholder="Zero duplicates over 500k transactions..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tech Stack (comma-separated)</label>
-        <input type="text" name="techStack" class="form-input" placeholder="Go, PostgreSQL, Advisory Locks" required>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
-        Publish Case Study
-      </button>
-    </form>
+    </div>
+    {{end}}
   </div>
-</dialog>
+</div>
+{{end}}
+
 {{end}}

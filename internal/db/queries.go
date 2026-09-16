@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"home_proofolio/internal/models"
@@ -581,3 +582,350 @@ func ApplyToOpportunity(app *models.OpportunityApplicant) error {
 		app.ID, app.OpportunityID, app.UserID, app.Username, app.DisplayName, app.Headline, app.Email, app.Message, now)
 	return err
 }
+
+// =========================================================================
+// MULTI-ROLE PROFILE QUERIES
+// =========================================================================
+
+func GetUserRoles(userID string) ([]models.UserRole, error) {
+	rows, err := DB.Query(`SELECT id, user_id, role_type, title, organization_name, organization_id, status,
+		start_date, end_date, description, achievements, skills, is_primary, created_at, updated_at
+		FROM user_roles WHERE user_id = $1 ORDER BY is_primary DESC, created_at DESC`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var roles []models.UserRole
+	for rows.Next() {
+		var r models.UserRole
+		var achRaw, sklRaw []byte
+		if err := rows.Scan(&r.ID, &r.UserID, &r.RoleType, &r.Title, &r.OrganizationName, &r.OrganizationID,
+			&r.Status, &r.StartDate, &r.EndDate, &r.Description, &achRaw, &sklRaw, &r.IsPrimary, &r.CreatedAt, &r.UpdatedAt); err == nil {
+			_ = json.Unmarshal(achRaw, &r.Achievements)
+			_ = json.Unmarshal(sklRaw, &r.Skills)
+			roles = append(roles, r)
+		}
+	}
+	return roles, nil
+}
+
+func CreateUserRole(r *models.UserRole) error {
+	achRaw, _ := json.Marshal(r.Achievements)
+	sklRaw, _ := json.Marshal(r.Skills)
+	now := time.Now()
+	_, err := DB.Exec(`INSERT INTO user_roles (id, user_id, role_type, title, organization_name, organization_id, status,
+		start_date, end_date, description, achievements, skills, is_primary, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+		r.ID, r.UserID, r.RoleType, r.Title, r.OrganizationName, r.OrganizationID,
+		r.Status, r.StartDate, r.EndDate, r.Description, string(achRaw), string(sklRaw), r.IsPrimary, now, now)
+	return err
+}
+
+func DeleteUserRole(id, userID string) error {
+	_, err := DB.Exec(`DELETE FROM user_roles WHERE id = $1 AND user_id = $2`, id, userID)
+	return err
+}
+
+// =========================================================================
+// ORGANIZATION QUERIES
+// =========================================================================
+
+func GetAllOrganizations() ([]models.Organization, error) {
+	rows, err := DB.Query(`SELECT id, name, slug, tagline, industry, logo_url, about, services, products,
+		business_info, contact_email, contact_phone, location, website, creator_user_id, verified, created_at, updated_at
+		FROM organizations ORDER BY created_at DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list []models.Organization
+	for rows.Next() {
+		var o models.Organization
+		var srvRaw, prdRaw, bsnRaw []byte
+		if err := rows.Scan(&o.ID, &o.Name, &o.Slug, &o.Tagline, &o.Industry, &o.LogoURL, &o.About,
+			&srvRaw, &prdRaw, &bsnRaw, &o.ContactEmail, &o.ContactPhone, &o.Location, &o.Website, &o.CreatorUserID,
+			&o.Verified, &o.CreatedAt, &o.UpdatedAt); err == nil {
+			_ = json.Unmarshal(srvRaw, &o.Services)
+			_ = json.Unmarshal(prdRaw, &o.Products)
+			_ = json.Unmarshal(bsnRaw, &o.BusinessInfo)
+			o.Members = getOrgMembers(o.ID)
+			o.Updates = getOrgUpdates(o.ID)
+			o.Projects = getOrgProjects(o.ID)
+			list = append(list, o)
+		}
+	}
+	return list, nil
+}
+
+func GetOrganizationBySlug(slug string) (*models.Organization, error) {
+	var o models.Organization
+	var srvRaw, prdRaw, bsnRaw []byte
+	err := DB.QueryRow(`SELECT id, name, slug, tagline, industry, logo_url, about, services, products,
+		business_info, contact_email, contact_phone, location, website, creator_user_id, verified, created_at, updated_at
+		FROM organizations WHERE LOWER(slug) = LOWER($1)`, slug).
+		Scan(&o.ID, &o.Name, &o.Slug, &o.Tagline, &o.Industry, &o.LogoURL, &o.About,
+			&srvRaw, &prdRaw, &bsnRaw, &o.ContactEmail, &o.ContactPhone, &o.Location, &o.Website, &o.CreatorUserID,
+			&o.Verified, &o.CreatedAt, &o.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	_ = json.Unmarshal(srvRaw, &o.Services)
+	_ = json.Unmarshal(prdRaw, &o.Products)
+	_ = json.Unmarshal(bsnRaw, &o.BusinessInfo)
+	o.Members = getOrgMembers(o.ID)
+	o.Updates = getOrgUpdates(o.ID)
+	o.Projects = getOrgProjects(o.ID)
+	return &o, nil
+}
+
+func GetOrganizationsForUser(userID string) ([]models.Organization, error) {
+	rows, err := DB.Query(`SELECT o.id, o.name, o.slug, o.tagline, o.industry, o.logo_url, o.about,
+		o.services, o.products, o.business_info, o.contact_email, o.contact_phone, o.location, o.website,
+		o.creator_user_id, o.verified, o.created_at, o.updated_at
+		FROM organizations o
+		JOIN organization_members m ON o.id = m.organization_id
+		WHERE m.user_id = $1 ORDER BY o.created_at DESC`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list []models.Organization
+	for rows.Next() {
+		var o models.Organization
+		var srvRaw, prdRaw, bsnRaw []byte
+		if err := rows.Scan(&o.ID, &o.Name, &o.Slug, &o.Tagline, &o.Industry, &o.LogoURL, &o.About,
+			&srvRaw, &prdRaw, &bsnRaw, &o.ContactEmail, &o.ContactPhone, &o.Location, &o.Website, &o.CreatorUserID,
+			&o.Verified, &o.CreatedAt, &o.UpdatedAt); err == nil {
+			_ = json.Unmarshal(srvRaw, &o.Services)
+			_ = json.Unmarshal(prdRaw, &o.Products)
+			_ = json.Unmarshal(bsnRaw, &o.BusinessInfo)
+			o.Members = getOrgMembers(o.ID)
+			o.Updates = getOrgUpdates(o.ID)
+			o.Projects = getOrgProjects(o.ID)
+			list = append(list, o)
+		}
+	}
+	return list, nil
+}
+
+func getOrgMembers(orgID string) []models.OrgMember {
+	rows, err := DB.Query(`SELECT m.id, m.organization_id, m.user_id, COALESCE(u.username, ''),
+		COALESCE(p.display_name, m.user_id), COALESCE(p.avatar_url, ''), m.role_title, m.role_type, m.joined_at, m.is_public
+		FROM organization_members m
+		LEFT JOIN users u ON m.user_id = u.id
+		LEFT JOIN profiles p ON m.user_id = p.user_id
+		WHERE m.organization_id = $1 ORDER BY m.joined_at ASC`, orgID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var members []models.OrgMember
+	for rows.Next() {
+		var m models.OrgMember
+		if err := rows.Scan(&m.ID, &m.OrganizationID, &m.UserID, &m.Username, &m.DisplayName, &m.AvatarURL, &m.RoleTitle, &m.RoleType, &m.JoinedAt, &m.IsPublic); err == nil {
+			members = append(members, m)
+		}
+	}
+	return members
+}
+
+func getOrgUpdates(orgID string) []models.OrgUpdate {
+	rows, err := DB.Query(`SELECT id, organization_id, author_user_id, author_name, title, content, category, created_at
+		FROM organization_updates WHERE organization_id = $1 ORDER BY created_at DESC`, orgID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var updates []models.OrgUpdate
+	for rows.Next() {
+		var u models.OrgUpdate
+		if err := rows.Scan(&u.ID, &u.OrganizationID, &u.AuthorUserID, &u.AuthorName, &u.Title, &u.Content, &u.Category, &u.CreatedAt); err == nil {
+			updates = append(updates, u)
+		}
+	}
+	return updates
+}
+
+func getOrgProjects(orgID string) []models.OrgProject {
+	rows, err := DB.Query(`SELECT id, organization_id, title, description, status, metrics, created_at
+		FROM organization_projects WHERE organization_id = $1 ORDER BY created_at DESC`, orgID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var projects []models.OrgProject
+	for rows.Next() {
+		var p models.OrgProject
+		if err := rows.Scan(&p.ID, &p.OrganizationID, &p.Title, &p.Description, &p.Status, &p.Metrics, &p.CreatedAt); err == nil {
+			projects = append(projects, p)
+		}
+	}
+	return projects
+}
+
+func CreateOrganization(o *models.Organization) error {
+	srvRaw, _ := json.Marshal(o.Services)
+	prdRaw, _ := json.Marshal(o.Products)
+	bsnRaw, _ := json.Marshal(o.BusinessInfo)
+	now := time.Now()
+	_, err := DB.Exec(`INSERT INTO organizations (id, name, slug, tagline, industry, logo_url, about, services, products,
+		business_info, contact_email, contact_phone, location, website, creator_user_id, verified, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+		o.ID, o.Name, o.Slug, o.Tagline, o.Industry, o.LogoURL, o.About, string(srvRaw), string(prdRaw),
+		string(bsnRaw), o.ContactEmail, o.ContactPhone, o.Location, o.Website, o.CreatorUserID, o.Verified, now, now)
+	return err
+}
+
+func AddOrganizationMember(m *models.OrgMember) error {
+	now := time.Now()
+	_, err := DB.Exec(`INSERT INTO organization_members (id, organization_id, user_id, role_title, role_type, joined_at, is_public)
+		VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO NOTHING`,
+		m.ID, m.OrganizationID, m.UserID, m.RoleTitle, m.RoleType, now, m.IsPublic)
+	return err
+}
+
+func AddOrganizationUpdate(u *models.OrgUpdate) error {
+	now := time.Now()
+	_, err := DB.Exec(`INSERT INTO organization_updates (id, organization_id, author_user_id, author_name, title, content, category, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		u.ID, u.OrganizationID, u.AuthorUserID, u.AuthorName, u.Title, u.Content, u.Category, now)
+	return err
+}
+
+func AddOrganizationProject(p *models.OrgProject) error {
+	now := time.Now()
+	_, err := DB.Exec(`INSERT INTO organization_projects (id, organization_id, title, description, status, metrics, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		p.ID, p.OrganizationID, p.Title, p.Description, p.Status, p.Metrics, now)
+	return err
+}
+
+func AddOrganizationProduct(orgID string, product models.OrgProduct) error {
+	var prdRaw []byte
+	err := DB.QueryRow("SELECT products FROM organizations WHERE id = $1", orgID).Scan(&prdRaw)
+	if err != nil {
+		return err
+	}
+	var list []models.OrgProduct
+	_ = json.Unmarshal(prdRaw, &list)
+	list = append(list, product)
+	updatedRaw, _ := json.Marshal(list)
+	_, err = DB.Exec("UPDATE organizations SET products = $1, updated_at = $2 WHERE id = $3", string(updatedRaw), time.Now(), orgID)
+	return err
+}
+
+// =========================================================================
+// IDEAS & LEARNING JOURNAL QUERIES
+// =========================================================================
+
+func GetIdeasForUser(userID string) ([]models.Idea, error) {
+	rows, err := DB.Query(`SELECT i.id, i.user_id, COALESCE(p.display_name, u.username), u.username,
+		i.title, i.what_learned, i.source, i.thoughts_questions, i.current_understanding,
+		i.stage, i.visibility, i.tags, i.linked_project_id, i.linked_problem_id, i.created_at, i.updated_at
+		FROM ideas i
+		JOIN users u ON i.user_id = u.id
+		LEFT JOIN profiles p ON i.user_id = p.user_id
+		WHERE i.user_id = $1 ORDER BY i.updated_at DESC`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ideas []models.Idea
+	for rows.Next() {
+		var idea models.Idea
+		var tagsRaw []byte
+		if err := rows.Scan(&idea.ID, &idea.UserID, &idea.AuthorName, &idea.AuthorUsername,
+			&idea.Title, &idea.WhatLearned, &idea.Source, &idea.ThoughtsQuestions, &idea.CurrentUnderstanding,
+			&idea.Stage, &idea.Visibility, &tagsRaw, &idea.LinkedProjectID, &idea.LinkedProblemID, &idea.CreatedAt, &idea.UpdatedAt); err == nil {
+			_ = json.Unmarshal(tagsRaw, &idea.Tags)
+			idea.TimelineEntries = getIdeaTimelineEntries(idea.ID)
+			ideas = append(ideas, idea)
+		}
+	}
+	return ideas, nil
+}
+
+func GetIdeaByID(id string) (*models.Idea, error) {
+	var idea models.Idea
+	var tagsRaw []byte
+	err := DB.QueryRow(`SELECT i.id, i.user_id, COALESCE(p.display_name, u.username), u.username,
+		i.title, i.what_learned, i.source, i.thoughts_questions, i.current_understanding,
+		i.stage, i.visibility, i.tags, i.linked_project_id, i.linked_problem_id, i.created_at, i.updated_at
+		FROM ideas i
+		JOIN users u ON i.user_id = u.id
+		LEFT JOIN profiles p ON i.user_id = p.user_id
+		WHERE i.id = $1`, id).
+		Scan(&idea.ID, &idea.UserID, &idea.AuthorName, &idea.AuthorUsername,
+			&idea.Title, &idea.WhatLearned, &idea.Source, &idea.ThoughtsQuestions, &idea.CurrentUnderstanding,
+			&idea.Stage, &idea.Visibility, &tagsRaw, &idea.LinkedProjectID, &idea.LinkedProblemID, &idea.CreatedAt, &idea.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	_ = json.Unmarshal(tagsRaw, &idea.Tags)
+	idea.TimelineEntries = getIdeaTimelineEntries(idea.ID)
+	return &idea, nil
+}
+
+func getIdeaTimelineEntries(ideaID string) []models.IdeaTimelineEntry {
+	rows, err := DB.Query(`SELECT id, idea_id, user_id, note, stage_at_entry, source, created_at
+		FROM idea_timeline_entries WHERE idea_id = $1 ORDER BY created_at ASC`, ideaID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var entries []models.IdeaTimelineEntry
+	for rows.Next() {
+		var e models.IdeaTimelineEntry
+		if err := rows.Scan(&e.ID, &e.IdeaID, &e.UserID, &e.Note, &e.StageAtEntry, &e.Source, &e.CreatedAt); err == nil {
+			entries = append(entries, e)
+		}
+	}
+	return entries
+}
+
+func CreateIdea(idea *models.Idea) error {
+	tagsRaw, _ := json.Marshal(idea.Tags)
+	now := time.Now()
+	_, err := DB.Exec(`INSERT INTO ideas (id, user_id, title, what_learned, source, thoughts_questions, current_understanding, stage, visibility, tags, linked_project_id, linked_problem_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+		idea.ID, idea.UserID, idea.Title, idea.WhatLearned, idea.Source, idea.ThoughtsQuestions, idea.CurrentUnderstanding,
+		idea.Stage, idea.Visibility, string(tagsRaw), idea.LinkedProjectID, idea.LinkedProblemID, now, now)
+	return err
+}
+
+func AddIdeaTimelineEntry(e *models.IdeaTimelineEntry) error {
+	now := time.Now()
+	_, err := DB.Exec(`INSERT INTO idea_timeline_entries (id, idea_id, user_id, note, stage_at_entry, source, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		e.ID, e.IdeaID, e.UserID, e.Note, e.StageAtEntry, e.Source, now)
+	if err == nil {
+		_, _ = DB.Exec(`UPDATE ideas SET updated_at = $1 WHERE id = $2`, now, e.IdeaID)
+	}
+	return err
+}
+
+func UpdateIdeaStage(id, userID, newStage, note string) error {
+	now := time.Now()
+	_, err := DB.Exec(`UPDATE ideas SET stage = $1, updated_at = $2 WHERE id = $3 AND user_id = $4`, newStage, now, id, userID)
+	if err == nil && note != "" {
+		entryId := fmt.Sprintf("entry_%d", time.Now().UnixNano())
+		_ = AddIdeaTimelineEntry(&models.IdeaTimelineEntry{
+			ID:           entryId,
+			IdeaID:       id,
+			UserID:       userID,
+			Note:         note,
+			StageAtEntry: newStage,
+			CreatedAt:    now,
+		})
+	}
+	return err
+}
+

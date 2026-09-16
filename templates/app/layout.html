@@ -1,161 +1,2230 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{.Title}} — Proofolio Console</title>
-  <meta name="description" content="Proofolio Engineering Console — Manage your verified proof-of-work, client inquiries, projects, and peer endorsements.">
-  
+  <title>{{.Title}} — Proofolio</title>
+  <meta name="description"
+    content="Proofolio Multi-Role Living Console — Verified evidence, multi-role professional identity, organizations, and evolving ideas journal.">
   <link rel="icon" type="image/jpeg" href="/static/images/home-profolio-logo.jpeg">
 
-  <!-- Modern Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Design System CSS -->
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
 
-  <!-- Local HTMX -->
   <script src="/static/js/htmx.min.js"></script>
+  <script src="/static/js/qrcode.min.js"></script>
 
-  <!-- Instant Theme Bootstrap -->
   <script>
-    (function() {
+    (function () {
       try {
-        const savedTheme = localStorage.getItem('proofolio_theme') || 
+        var t = localStorage.getItem('proofolio_theme') ||
           (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', savedTheme);
-      } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { }
     })();
   </script>
+
+  <style>
+    /* ── Tokens ── */
+    :root {
+      --accent: #7C3AED;
+      --accent-2: #06B6D4;
+      --accent-glow: rgba(124, 58, 237, .25);
+      --green: #10B981;
+      --amber: #F59E0B;
+      --red: #EF4444;
+      --bg: #F1F4FB;
+      --bg-card: #FFFFFF;
+      --bg-sidebar: #16192B;
+      --border: #E2E6F0;
+      --text-1: #0C0F1A;
+      --text-2: #374151;
+      --text-3: #6B7280;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --r-sm: 8px;
+      --r-md: 14px;
+      --r-lg: 20px;
+      --r-xl: 26px;
+      --sidebar-w: 244px;
+      --topbar-h: 58px;
+      --sidebar-col: 70px;
+      --sh-card: 0 1px 3px rgba(15, 17, 23, .05), 0 6px 20px rgba(15, 17, 23, .06);
+      --sh-pop: 0 12px 40px rgba(15, 17, 23, .16);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0B0D1A;
+      --bg-card: #111424;
+      --bg-sidebar: #080A15;
+      --border: #1C1F35;
+      --text-1: #EEF2FF;
+      --text-2: #B0BCDE;
+      --text-3: #5C6A8A;
+      --sh-card: 0 1px 3px rgba(0, 0, 0, .5), 0 6px 24px rgba(0, 0, 0, .4);
+      --sh-pop: 0 12px 48px rgba(0, 0, 0, .7);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-2);
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      max-width: 100vw;
+      background: var(--bg);
+      transition: background .25s, color .25s;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: var(--font);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      transition: width .28s cubic-bezier(.4, 0, .2, 1), transform .28s cubic-bezier(.4, 0, .2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-col);
+    }
+
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .sb-profile-info,
+    .sidebar.collapsed .sb-brand-name,
+    .sidebar.collapsed .live-dot,
+    .sidebar.collapsed .nav-badge,
+    .sidebar.collapsed .nav-sec {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sb-brand {
+      justify-content: center;
+      padding: 0 14px;
+    }
+
+    .sidebar.collapsed .nav-link {
+      justify-content: center;
+      padding: 11px 0;
+    }
+
+    .sidebar.collapsed .sb-footer {
+      justify-content: center;
+      padding: 12px 0;
+    }
+
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px;
+      height: var(--topbar-h);
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      flex-shrink: 0;
+      transition: padding .28s, justify-content .28s;
+    }
+
+    .sb-logo {
+      width: 33px;
+      height: 33px;
+      border-radius: 9px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, .55);
+    }
+
+    .sb-brand-name {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.025em;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+
+    .sb-brand-name span {
+      color: var(--accent);
+    }
+
+    .live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .58rem;
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: .07em;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(16, 185, 129, .12);
+      border: 1px solid rgba(16, 185, 129, .22);
+      margin-left: auto;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+
+    .live-dot::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .25;
+      }
+    }
+
+    .sb-nav {
+      flex: 1;
+      padding: 10px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sb-nav::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .sb-nav::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .07);
+      border-radius: 99px;
+    }
+
+    .nav-sec {
+      font-size: .56rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .2);
+      padding: 14px 20px 4px;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px 9px 20px;
+      color: rgba(255, 255, 255, .42);
+      font-size: .83rem;
+      font-weight: 500;
+      transition: background .14s, color .14s, padding .28s;
+      position: relative;
+      white-space: nowrap;
+      margin: 1px 0;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, .05);
+      color: rgba(255, 255, 255, .82);
+    }
+
+    .nav-link.active {
+      color: #fff;
+      font-weight: 600;
+      background: linear-gradient(90deg, rgba(124, 58, 237, .2), rgba(124, 58, 237, .03));
+    }
+
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(124, 58, 237, .55);
+    }
+
+    .nav-icon {
+      font-size: .95rem;
+      width: 21px;
+      text-align: center;
+      flex-shrink: 0;
+      transition: transform .17s;
+    }
+
+    .nav-link:hover .nav-icon {
+      transform: scale(1.2);
+    }
+
+    .nav-label {
+      transition: opacity .2s;
+      white-space: nowrap;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      font-size: .6rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      padding: 1px 6px;
+      border-radius: 99px;
+      background: rgba(124, 58, 237, .18);
+      color: #C4B5FD;
+      transition: opacity .2s;
+    }
+
+    /* Sidebar footer — avatar clickable area */
+    .sb-footer {
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      transition: padding .28s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .sb-footer:hover {
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .sb-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .8rem;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: -.03em;
+    }
+
+    .sb-profile-info {
+      min-width: 0;
+      flex: 1;
+      transition: opacity .2s;
+    }
+
+    .sb-profile-name {
+      font-size: .79rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sb-profile-handle {
+      font-size: .66rem;
+      font-family: var(--mono);
+      color: rgba(255, 255, 255, .32);
+      white-space: nowrap;
+    }
+
+    .sb-footer-caret {
+      color: rgba(255, 255, 255, .3);
+      font-size: .65rem;
+      flex-shrink: 0;
+      transition: opacity .2s;
+    }
+
+    /* User popup menu */
+    .user-popup {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 10px;
+      right: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 6px;
+      box-shadow: var(--sh-pop);
+      z-index: 400;
+      display: none;
+      animation: popUp .18s ease;
+    }
+
+    .user-popup.open {
+      display: block;
+    }
+
+    @keyframes popUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .user-popup-header {
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+
+    .user-popup-name {
+      font-size: .9rem;
+      font-weight: 800;
+      color: var(--text-1);
+    }
+
+    .user-popup-handle {
+      font-size: .7rem;
+      font-family: var(--mono);
+      color: var(--text-3);
+      margin-top: 1px;
+    }
+
+    .user-popup-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 5px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: .62rem;
+      font-weight: 700;
+      background: rgba(16, 185, 129, .1);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, .22);
+    }
+
+    .popup-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      font-family: var(--font);
+      font-size: .83rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      text-align: left;
+    }
+
+    .popup-item:hover {
+      background: rgba(124, 58, 237, .07);
+      color: var(--accent);
+    }
+
+    .popup-item.danger:hover {
+      background: rgba(239, 68, 68, .07);
+      color: var(--red);
+    }
+
+    .popup-item-icon {
+      width: 20px;
+      text-align: center;
+      font-size: .9rem;
+    }
+
+    .popup-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: var(--sidebar-w);
+      height: var(--topbar-h);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      z-index: 100;
+      transition: left .28s cubic-bezier(.4, 0, .2, 1), background .25s, border-color .25s;
+    }
+
+    .topbar.sb-col {
+      left: var(--sidebar-col);
+    }
+
+    .toggle-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3);
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+
+    .toggle-btn:hover {
+      background: var(--bg);
+      color: var(--text-1);
+      border-color: var(--accent);
+    }
+
+    .topbar-title {
+      font-size: .87rem;
+      font-weight: 700;
+      color: var(--text-1);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--r-sm);
+      font-size: .77rem;
+      font-weight: 700;
+      white-space: nowrap;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-family: var(--font);
+      transition: all .15s;
+      box-shadow: 0 2px 12px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: #6D28D9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      border-radius: var(--r-sm);
+      font-size: .77rem;
+      font-weight: 600;
+      white-space: nowrap;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-family: var(--font);
+      transition: all .15s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(124, 58, 237, .05);
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .88rem;
+      color: var(--text-3);
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(124, 58, 237, .05);
+    }
+
+    .role-pills {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      overflow: hidden;
+      max-width: 260px;
+    }
+
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: .63rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .role-pill.student {
+      background: rgba(6, 182, 212, .1);
+      color: #06B6D4;
+      border-color: rgba(6, 182, 212, .28);
+    }
+
+    .role-pill.founder {
+      background: rgba(245, 158, 11, .1);
+      color: var(--amber);
+      border-color: rgba(245, 158, 11, .28);
+    }
+
+    .role-pill.manager {
+      background: rgba(16, 185, 129, .1);
+      color: var(--green);
+      border-color: rgba(16, 185, 129, .28);
+    }
+
+    .role-pill.other {
+      background: rgba(124, 58, 237, .1);
+      color: var(--accent);
+      border-color: rgba(124, 58, 237, .28);
+    }
+
+    .add-dropdown {
+      position: relative;
+    }
+
+    .add-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 7px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 5px;
+      min-width: 180px;
+      box-shadow: var(--sh-pop);
+      z-index: 300;
+      animation: fadeDown .15s ease;
+    }
+
+    @media(max-width:480px) {
+      .add-menu {
+        right: auto;
+        left: 0;
+        min-width: 160px;
+      }
+    }
+
+    .add-menu.open {
+      display: block;
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .add-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      font-family: var(--font);
+      font-size: .81rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+    }
+
+    .add-item:hover {
+      background: rgba(124, 58, 237, .07);
+      color: var(--accent);
+    }
+
+    /* ── App Shell ── */
+    .app-shell {
+      margin-left: var(--sidebar-w);
+      margin-top: var(--topbar-h);
+      flex: 1;
+      min-height: calc(100vh - var(--topbar-h));
+      width: calc(100vw - var(--sidebar-w));
+      overflow-x: hidden;
+      transition: margin-left .28s cubic-bezier(.4, 0, .2, 1), width .28s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .app-shell.sb-col {
+      margin-left: var(--sidebar-col);
+      width: calc(100vw - var(--sidebar-col));
+    }
+
+    main#main-content {
+      padding: 26px 30px 60px;
+      min-height: 100%;
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
+    /* ── Mobile / Responsive ── */
+    .sb-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      z-index: 190;
+      backdrop-filter: blur(3px);
+    }
+
+    /* Tablet + Phone: sidebar becomes overlay */
+    @media(max-width:900px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-w) !important;
+      }
+
+      .sidebar.mob-open {
+        transform: translateX(0);
+      }
+
+      .sb-overlay.active {
+        display: block;
+      }
+
+      .topbar {
+        left: 0 !important;
+      }
+
+      .app-shell {
+        margin-left: 0 !important;
+        width: 100vw !important;
+      }
+
+      main#main-content {
+        padding: 18px 18px 56px;
+      }
+
+      .role-pills {
+        display: none;
+      }
+
+      /* user popup: open upward from the overlay sidebar */
+      .user-popup {
+        left: 0;
+        right: 0;
+        bottom: calc(100% + 6px);
+      }
+    }
+
+    /* Phone: tighter everything */
+    @media(max-width:600px) {
+      main#main-content {
+        padding: 12px 12px 60px;
+      }
+
+      .btn-primary .btn-text {
+        display: none;
+      }
+
+      .btn-primary {
+        padding: 6px 10px;
+      }
+
+      .btn-ghost .btn-text {
+        display: none;
+      }
+
+      .btn-ghost {
+        padding: 6px 10px;
+      }
+
+      .topbar {
+        padding: 0 10px;
+        gap: 6px;
+      }
+
+      .topbar-title {
+        font-size: .8rem;
+      }
+
+      .page-hero {
+        padding: 14px;
+      }
+
+      .cards-grid,
+      .cards-grid-2 {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+      }
+
+      .mc-p {
+        padding: 14px;
+      }
+
+      .stat-num {
+        font-size: 1.55rem;
+      }
+
+      .sec-h {
+        font-size: 1.15rem;
+      }
+
+      .mc-title-lg {
+        font-size: 1rem;
+      }
+
+      /* Lifecycle: shrink pills + hide arrows so bar doesn't overflow */
+      .lc-step {
+        font-size: .57rem;
+        padding: 2px 6px;
+      }
+
+      .lc-arrow {
+        display: none;
+      }
+
+      /* Text overflow containment inside cards */
+      .mc-title,
+      .mc-title-lg,
+      .mc-sub,
+      p {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+
+      .info-val {
+        word-break: break-all;
+        font-size: .75rem;
+      }
+
+      /* Filter tabs: negative margin trick to reach screen edge */
+      .filter-tabs {
+        margin-right: -12px;
+        padding-right: 12px;
+      }
+    }
+
+    /* Very small phones < 380px */
+    @media(max-width:380px) {
+      main#main-content {
+        padding: 10px 10px 56px;
+      }
+
+      .topbar-title {
+        display: none;
+      }
+
+      .toggle-btn {
+        width: 30px;
+        height: 30px;
+      }
+
+      .icon-btn {
+        width: 30px;
+        height: 30px;
+      }
+
+      .page-hero {
+        padding: 12px;
+        border-radius: var(--r-md);
+      }
+
+      .mc-p {
+        padding: 14px;
+      }
+    }
+
+    /* ── Modals ── */
+    dialog.modal-dialog {
+      border: none;
+      padding: 0;
+      background: transparent;
+      max-width: 100vw;
+      width: 100%;
+    }
+
+    dialog.modal-dialog::backdrop {
+      background: rgba(5, 8, 18, .74);
+      backdrop-filter: blur(7px);
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 28px;
+      max-width: 640px;
+      width: calc(100% - 24px);
+      margin: auto;
+      box-shadow: var(--sh-pop);
+    }
+
+    /* ── Modal mobile: bottom-sheet style ── */
+    @media(max-width:640px){
+      /* position dialog at bottom of screen */
+      dialog.modal-dialog{
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-end;
+        align-items:stretch;
+        padding:0;
+        height:100%;
+        max-height:100%;
+      }
+      .modal-box{
+        width:100%;
+        max-width:100%;
+        border-radius:var(--r-xl) var(--r-xl) 0 0;
+        padding:16px 14px calc(env(safe-area-inset-bottom,0px) + 16px);
+        max-height:88vh;
+        overflow-y:auto;
+        -webkit-overflow-scrolling:touch;
+        margin:0;
+        border-left:none;
+        border-right:none;
+        border-bottom:none;
+      }
+      /* drag handle pill at top */
+      .modal-box::before{
+        content:'';
+        display:block;
+        width:36px;height:4px;
+        border-radius:99px;
+        background:var(--border);
+        margin:0 auto 16px;
+      }
+      .modal-title{font-size:1rem;}
+      .form-grid{grid-template-columns:1fr;}
+      .modal-footer{
+        flex-direction:column-reverse;gap:8px;
+        position:sticky;bottom:0;
+        background:var(--bg-card);
+        padding-top:10px;
+        margin-top:10px;
+      }
+      .modal-footer .btn-cancel,
+      .modal-footer .btn-submit{
+        width:100%;text-align:center;justify-content:center;
+        padding:10px;
+      }
+      .btn-submit{font-size:.85rem;}
+      .btn-cancel{font-size:.82rem;}
+    }
+    @media(max-width:380px){
+      .modal-box{padding:12px 12px calc(env(safe-area-inset-bottom,0px) + 12px);}
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+
+    .modal-tag {
+      display: inline-block;
+      font-size: .61rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      padding: 2px 9px;
+      border-radius: 99px;
+      margin-bottom: 5px;
+      background: rgba(124, 58, 237, .1);
+      color: var(--accent);
+      border: 1px solid rgba(124, 58, 237, .2);
+    }
+
+    .modal-tag.green {
+      background: rgba(16, 185, 129, .1);
+      color: var(--green);
+      border-color: rgba(16, 185, 129, .22);
+    }
+
+    .modal-tag.amber {
+      background: rgba(245, 158, 11, .1);
+      color: var(--amber);
+      border-color: rgba(245, 158, 11, .22);
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-1);
+      letter-spacing: -.02em;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3);
+      font-size: .85rem;
+      flex-shrink: 0;
+      transition: all .15s;
+    }
+
+    .modal-close:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: rgba(239, 68, 68, .07);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: .73rem;
+      font-weight: 700;
+      color: var(--text-2);
+      margin-bottom: 4px;
+      letter-spacing: .02em;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 8px 11px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text-1);
+      font-family: var(--font);
+      font-size: .83rem;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, .15);
+    }
+
+    .form-textarea {
+      resize: vertical;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media(max-width:480px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-section {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 13px;
+      margin-bottom: 14px;
+    }
+
+    .form-section-lbl {
+      font-size: .61rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: 9px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 20px;
+    }
+
+    .btn-cancel {
+      padding: 7px 16px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-3);
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--text-3);
+      color: var(--text-1);
+    }
+
+    .btn-submit {
+      padding: 7px 18px;
+      border-radius: var(--r-sm);
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: .82rem;
+      font-weight: 700;
+      font-family: var(--font);
+      transition: all .15s;
+      box-shadow: 0 2px 12px var(--accent-glow);
+    }
+
+    .btn-submit:hover {
+      background: #6D28D9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    /* QR */
+    .qr-canvas-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      border-radius: var(--r-md);
+      padding: 18px;
+      margin: 14px 0;
+      border: 1px solid var(--border);
+    }
+
+    .qr-link-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .qr-link-input {
+      flex: 1;
+      padding: 7px 11px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: .75rem;
+      font-family: var(--mono);
+      color: var(--text-2);
+      outline: none;
+    }
+
+    .qr-utils {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* ── Modern Card system (used by pages) ── */
+    .mc {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--sh-card);
+      transition: box-shadow .2s, transform .2s;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .mc:hover {
+      box-shadow: 0 6px 28px rgba(15, 17, 23, .1);
+      transform: translateY(-1px);
+    }
+
+    .mc-p {
+      padding: 22px 24px;
+    }
+
+    .mc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mc-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .61rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    .mc-tag.purple {
+      background: rgba(124, 58, 237, .1);
+      color: var(--accent);
+      border: 1px solid rgba(124, 58, 237, .2);
+    }
+
+    .mc-tag.green {
+      background: rgba(16, 185, 129, .1);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, .2);
+    }
+
+    .mc-tag.amber {
+      background: rgba(245, 158, 11, .1);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, .2);
+    }
+
+    .mc-tag.cyan {
+      background: rgba(6, 182, 212, .1);
+      color: var(--accent-2);
+      border: 1px solid rgba(6, 182, 212, .2);
+    }
+
+    .mc-tag.red {
+      background: rgba(239, 68, 68, .1);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, .2);
+    }
+
+    .mc-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-1);
+      letter-spacing: -.01em;
+      line-height: 1.3;
+    }
+
+    .mc-title-lg {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-1);
+      letter-spacing: -.015em;
+      line-height: 1.3;
+    }
+
+    .mc-sub {
+      font-size: .8rem;
+      color: var(--text-3);
+      line-height: 1.55;
+      margin-top: 4px;
+    }
+
+    .mc-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .mc-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* stat cards */
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 18px 20px;
+      box-shadow: var(--sh-card);
+      transition: box-shadow .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, rgba(124, 58, 237, .04), transparent 60%);
+      pointer-events: none;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(15, 17, 23, .1);
+    }
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 900;
+      font-family: var(--mono);
+      color: var(--text-1);
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+
+    .stat-lbl {
+      font-size: .67rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-3);
+      margin-top: 5px;
+    }
+
+    .stat-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 1.4rem;
+      opacity: .18;
+    }
+
+    /* section headings */
+    .sec-tag {
+      display: inline-block;
+      font-size: .6rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: rgba(124, 58, 237, .1);
+      color: var(--accent);
+      border: 1px solid rgba(124, 58, 237, .2);
+      margin-bottom: 6px;
+    }
+
+    .sec-h {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-1);
+      letter-spacing: -.02em;
+    }
+
+    .sec-h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-1);
+      letter-spacing: -.015em;
+    }
+
+    /* action buttons in pages */
+    .a-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--r-sm);
+      font-size: .78rem;
+      font-weight: 700;
+      transition: all .15s;
+      font-family: var(--font);
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .a-btn.prim {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    .a-btn.prim:hover {
+      background: #6D28D9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 18px var(--accent-glow);
+    }
+
+    .a-btn.sec {
+      background: var(--bg);
+      border-color: var(--border);
+      color: var(--text-2);
+    }
+
+    .a-btn.sec:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(124, 58, 237, .05);
+    }
+
+    .a-btn.grn {
+      background: rgba(16, 185, 129, .1);
+      border-color: rgba(16, 185, 129, .25);
+      color: var(--green);
+    }
+
+    .a-btn.grn:hover {
+      background: rgba(16, 185, 129, .18);
+      border-color: var(--green);
+    }
+
+    .a-btn.sm {
+      padding: 4px 10px;
+      font-size: .72rem;
+    }
+
+    /* skill/tag pills */
+    .skill-pill {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: .66rem;
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+
+    .skill-pill.amber {
+      background: rgba(245, 158, 11, .1);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, .22);
+    }
+
+    .skill-pill.purple {
+      background: rgba(124, 58, 237, .1);
+      color: var(--accent);
+      border: 1px solid rgba(124, 58, 237, .22);
+    }
+
+    .skill-pill.green {
+      background: rgba(16, 185, 129, .1);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, .22);
+    }
+
+    .skill-pill.cyan {
+      background: rgba(6, 182, 212, .1);
+      color: var(--accent-2);
+      border: 1px solid rgba(6, 182, 212, .22);
+    }
+
+    /* info rows */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: .78rem;
+    }
+
+    .info-row+.info-row {
+      border-top: 1px solid var(--border);
+    }
+
+    .info-key {
+      color: var(--text-3);
+      font-family: var(--mono);
+    }
+
+    .info-val {
+      color: var(--text-1);
+      font-weight: 700;
+    }
+
+    /* page hero */
+    .page-hero {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 24px 26px;
+      margin-bottom: 24px;
+      box-shadow: var(--sh-card);
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(124, 58, 237, .04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* lifecycle */
+    .lifecycle-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+
+    .lc-step {
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: .66rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-3);
+      white-space: nowrap;
+      transition: all .15s;
+    }
+
+    .lc-step.active {
+      background: rgba(124, 58, 237, .12);
+      border-color: rgba(124, 58, 237, .3);
+      color: var(--accent);
+    }
+
+    .lc-arrow {
+      color: var(--text-3);
+      font-size: .65rem;
+    }
+
+    /* filter tabs — scrollable strip, contained within viewport */
+    .filter-tabs {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+      height: 3px;
+    }
+
+    .filter-tabs::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 99px;
+    }
+
+    .ftab {
+      padding: 5px 11px;
+      border-radius: 99px;
+      font-size: .72rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-3);
+      transition: all .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+    }
+
+    .ftab:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .ftab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* grids */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+
+    .cards-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    @media(max-width:700px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+
+    @media(max-width:640px) {
+      .cards-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+
+    /* empty state */
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 3rem 2rem;
+      border-radius: var(--r-lg);
+      border: 2px dashed var(--border);
+      color: var(--text-3);
+    }
+
+    .empty-state p {
+      font-size: .88rem;
+      margin-top: 6px;
+    }
+
+    /* ── Mobile Bottom Nav ── */
+    .mob-nav {
+      display: none;
+    }
+
+    @media(max-width:900px) {
+      .mob-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 58px;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border);
+        z-index: 300;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, .07);
+      }
+
+      .mob-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        flex: 1;
+        padding: 6px 4px;
+        border: none;
+        background: transparent;
+        color: var(--text-3);
+        font-family: var(--font);
+        cursor: pointer;
+        transition: color .15s;
+        min-width: 0;
+      }
+
+      .mob-nav-item.mob-active {
+        color: var(--accent);
+      }
+
+      .mob-nav-icon {
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+
+      .mob-nav-lbl {
+        font-size: .57rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+        white-space: nowrap;
+      }
+
+      .mob-nav-fab {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #fff;
+        box-shadow: 0 4px 16px var(--accent-glow);
+        flex: 0 0 48px;
+        margin-top: -18px;
+        border: 3px solid var(--bg-card);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform .15s, box-shadow .15s;
+      }
+
+      .mob-nav-fab:active {
+        transform: scale(.94);
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 99px;
+    }
+  </style>
 </head>
+
 <body hx-boost="true">
 
-  <!-- Authenticated Workspace Topbar -->
-  <header class="site-header" style="background:var(--bg-paper); border-bottom:1px solid var(--border-stone);">
-    <div class="container header-inner" style="height:68px;">
-      
-      <!-- Logo + Workspace Tag -->
-      <div style="display:flex; align-items:center; gap:1.25rem;">
-        <a href="/dashboard" class="logo-brand">
-          <img src="/static/images/home-profolio-logo.jpeg" alt="Proofolio Logo" style="width:38px; height:38px; border-radius:var(--radius-md); object-fit:cover; border:1px solid var(--border-stone);">
-          <div>
-            <div class="logo-title" style="font-size:1.05rem;">
-              <span>Proofolio</span>
-              <span class="badge-emerald" style="font-size:0.6rem; padding:1px 6px;">Console</span>
-            </div>
-            <span class="logo-tagline" style="font-size:0.65rem;">Workspace &bull; Verified</span>
-          </div>
-        </a>
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sb-brand">
+      <a href="/" style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+        <img src="/static/images/home-profolio-logo.jpeg" alt="Proofolio" class="sb-logo">
+        <span class="sb-brand-name">Proof<span>olio</span></span>
+      </a>
+      <span class="live-dot">LIVE</span>
+    </div>
 
-        <!-- App Console Navigation Tabs -->
-        <nav class="nav-links">
-          <a href="/dashboard" class="nav-link {{if eq .ActiveNav "dashboard"}}active{{end}}">
-            📊 Console
-          </a>
-          <a href="/portfolio" class="nav-link {{if eq .ActiveNav "portfolio"}}active{{end}}">
-            👤 My Portfolio
-          </a>
-          <a href="/inquiries" class="nav-link {{if eq .ActiveNav "inquiries"}}active{{end}}">
-            📬 Inquiries Inbox
-          </a>
-          <a href="/discover" class="nav-link {{if eq .ActiveNav "discover"}}active{{end}}">
-            🌐 Directory
-          </a>
-          <a href="/discussions" class="nav-link {{if eq .ActiveNav "discussions"}}active{{end}}">
-            💬 Discussions
-          </a>
-          <a href="/opportunities" class="nav-link {{if eq .ActiveNav "opportunities"}}active{{end}}">
-            💼 Opportunities
-          </a>
-        </nav>
+    <nav class="sb-nav" aria-label="Console navigation">
+      <div class="nav-sec">Workspace</div>
+      <a href="/dashboard" class="nav-link {{if eq .ActiveNav "dashboard"}}active{{end}}" title="Overview">
+        <span class="nav-icon">⚡</span><span class="nav-label">Overview</span>
+      </a>
+      <a href="/portfolio" class="nav-link {{if eq .ActiveNav "portfolio"}}active{{end}}" title="Profile & Proofs">
+        <span class="nav-icon">👤</span><span class="nav-label">Profile &amp; Proofs</span>
+      </a>
+      <a href="/ideas" class="nav-link {{if eq .ActiveNav "ideas"}}active{{end}}" title="Ideas Journal">
+        <span class="nav-icon">💡</span><span class="nav-label">Ideas Journal</span>
+        {{if .Ideas}}<span class="nav-badge">{{len .Ideas}}</span>{{end}}
+      </a>
+      <a href="/organizations" class="nav-link {{if eq .ActiveNav "organizations"}}active{{end}}"
+        title="Organizations">
+        <span class="nav-icon">🏢</span><span class="nav-label">Organizations</span>
+        {{if .Organizations}}<span class="nav-badge">{{len .Organizations}}</span>{{end}}
+      </a>
+      <div class="nav-sec">Network</div>
+      <a href="/inquiries" class="nav-link {{if eq .ActiveNav "inquiries"}}active{{end}}" title="Inquiries">
+        <span class="nav-icon">📬</span><span class="nav-label">Inquiries</span>
+        {{if .Inquiries}}<span class="nav-badge">{{len .Inquiries}}</span>{{end}}
+      </a>
+      <a href="/discussions" class="nav-link {{if eq .ActiveNav "discussions"}}active{{end}}" title="Discussions">
+        <span class="nav-icon">💬</span><span class="nav-label">Discussions</span>
+      </a>
+      <a href="/opportunities" class="nav-link {{if eq .ActiveNav "opportunities"}}active{{end}}"
+        title="Opportunities">
+        <span class="nav-icon">💼</span><span class="nav-label">Opportunities</span>
+      </a>
+      <a href="/discover" class="nav-link {{if eq .ActiveNav "discover"}}active{{end}}" title="Explore">
+        <span class="nav-icon">🌐</span><span class="nav-label">Explore</span>
+      </a>
+    </nav>
+
+    <!-- Profile strip — click to open user popup -->
+    <div class="sb-footer" id="sb-footer" onclick="toggleUserPopup()" aria-label="User menu" role="button" tabindex="0">
+      <div class="sb-avatar">
+        {{if .Profile}}{{if .Profile.DisplayName}}{{slice .Profile.DisplayName 0 2}}{{else}}US{{end}}{{else}}US{{end}}
       </div>
+      <div class="sb-profile-info">
+        <div class="sb-profile-name">{{if .Profile}}{{.Profile.DisplayName}}{{else}}{{.User.Username}}{{end}}</div>
+        <div class="sb-profile-handle">@{{if .Profile}}{{.Profile.Username}}{{else}}{{.User.Username}}{{end}}</div>
+      </div>
+      <span class="sb-footer-caret">▲</span>
 
-      <!-- Right Action Controls -->
-      <div class="header-actions">
-        <!-- Theme Toggle -->
-        <button onclick="toggleTheme()" class="theme-toggle-btn" id="theme-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
-          🌓
+      <!-- User popup -->
+      <div class="user-popup" id="user-popup" onclick="event.stopPropagation()">
+        <div class="user-popup-header">
+          <div class="user-popup-name">{{if .Profile}}{{.Profile.DisplayName}}{{else}}{{.User.Username}}{{end}}</div>
+          <div class="user-popup-handle">@{{if .Profile}}{{.Profile.Username}}{{else}}{{.User.Username}}{{end}}</div>
+          <div class="user-popup-verified">✓ Verified Living Proof</div>
+        </div>
+        <a href="/portfolio" class="popup-item">
+          <span class="popup-item-icon">👤</span> My Profile &amp; Proofs
+        </a>
+        <a href="/dashboard" class="popup-item">
+          <span class="popup-item-icon">⚡</span> Console Overview
+        </a>
+        <button class="popup-item" onclick="document.getElementById('quick-role-dialog').showModal();closeUserPopup()">
+          <span class="popup-item-icon">🎭</span> Manage Roles
         </button>
+        <button class="popup-item"
+          onclick="window.openQrShareModal({title:'My Verified Profile',subtitle:'Multi-Role Professional Identity',url:'/portfolio?u={{if .Profile}}{{.Profile.Username}}{{else}}{{.User.Username}}{{end}}',type:'profile',badgeText:'VERIFIED PROFILE'});closeUserPopup()">
+          <span class="popup-item-icon">📇</span> Share Profile QR
+        </button>
+        <a href="/about" class="popup-item">
+          <span class="popup-item-icon">⚙️</span> Settings &amp; About
+        </a>
+        <div class="popup-divider"></div>
+        <button class="popup-item danger" hx-post="/auth/logout">
+          <span class="popup-item-icon">🚪</span> Sign Out
+        </button>
+      </div>
+    </div>
+  </aside>
 
-        <!-- User Identity & Logout -->
-        <div style="display:flex; align-items:center; gap:0.75rem;">
-          <div style="display:flex; align-items:center; gap:0.5rem; background:var(--bg-card); padding:4px 10px; border-radius:var(--radius-full); border:1px solid var(--border-stone);">
-            <div style="width:24px; height:24px; border-radius:var(--radius-full); background:var(--color-terracotta); color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800;">
-              {{if .User}}{{slice .User.Username 0 1}}{{else}}U{{end}}
-            </div>
-            <span style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--text-heading);">
-              @{{if .User}}{{.User.Username}}{{else}}engineer{{end}}
-            </span>
-          </div>
+  <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
 
-          <button hx-post="/auth/logout" class="btn btn-secondary btn-sm" style="padding:4px 10px; font-size:0.75rem;">
-            Sign Out
-          </button>
+  <!-- ═══ TOP BAR ═══ -->
+  <header class="topbar" id="topbar">
+    <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <rect y="1.5" width="15" height="1.7" rx=".85" fill="currentColor" />
+        <rect y="6.65" width="15" height="1.7" rx=".85" fill="currentColor" />
+        <rect y="11.8" width="15" height="1.7" rx=".85" fill="currentColor" />
+      </svg>
+    </button>
+    <div class="topbar-title" style="font-size:small;">{{if .Profile}}{{.Profile.DisplayName}}{{else}}{{end}}</div>
+    <div class="topbar-actions">
+
+      <button class="btn-primary" onclick="document.getElementById('quick-idea-dialog').showModal()">💡 <span
+          class="btn-text">Quick Idea</span></button>
+      <div class="add-dropdown">
+        <button class="btn-ghost" id="add-btn" onclick="toggleAddMenu()">
+          ＋ <span class="btn-text">Add</span>
+          <svg width="9" height="9" viewBox="0 0 9 9" fill="none" style="margin-left:2px;">
+            <path d="M1.5 3L4.5 6L7.5 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="add-menu" id="add-menu">
+          <button class="add-item" onclick="document.getElementById('quick-role-dialog').showModal();closeAddMenu()">👤
+            Add Role</button>
+          <button class="add-item" onclick="document.getElementById('quick-org-dialog').showModal();closeAddMenu()">🏢
+            New Organization</button>
+          <button class="add-item" onclick="document.getElementById('project-dialog').showModal();closeAddMenu()">📁
+            Proof Project</button>
         </div>
       </div>
-
+      <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">🌓</button>
     </div>
   </header>
 
-  <!-- App Workspace Content Target -->
-  <main id="main-content">
-    {{template "content" .}}
-  </main>
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <div class="app-shell" id="app-shell">
+    <main id="main-content">
+      {{template "content" .}}
+    </main>
+  </div>
 
-  <!-- App Footer -->
-  <footer style="margin-top:auto; background:var(--bg-paper); border-top:1px solid var(--border-stone); padding:1.25rem 0; font-size:0.8rem; color:var(--text-muted);">
-    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-      <div style="display:flex; align-items:center; gap:0.75rem;">
-        <span class="badge-emerald" style="font-size:0.62rem; padding:1px 5px;">● Connected</span>
-        <span>PostgreSQL <code>home_proofolio_db</code> &bull; Go 1.26 Engine</span>
+  <!-- ═══ MOBILE BOTTOM NAV (≤900px only) ═══ -->
+  <nav class="mob-nav" aria-label="Mobile navigation">
+    <a href="/dashboard" class="mob-nav-item {{if eq .ActiveNav "dashboard"}}mob-active{{end}}">
+      <span class="mob-nav-icon">⚡</span>
+      <span class="mob-nav-lbl">Home</span>
+    </a>
+    <a href="/portfolio" class="mob-nav-item {{if eq .ActiveNav "portfolio"}}mob-active{{end}}">
+      <span class="mob-nav-icon">👤</span>
+      <span class="mob-nav-lbl">Profile</span>
+    </a>
+    <button class="mob-nav-item mob-nav-fab" onclick="document.getElementById('quick-idea-dialog').showModal()"
+      aria-label="Capture idea">
+      <span style="font-size:1.3rem;line-height:1;">💡</span>
+    </button>
+    <a href="/ideas" class="mob-nav-item {{if eq .ActiveNav "ideas"}}mob-active{{end}}">
+      <span class="mob-nav-icon">📝</span>
+      <span class="mob-nav-lbl">Ideas</span>
+    </a>
+    <button class="mob-nav-item" onclick="toggleSidebar()" aria-label="Open menu">
+      <span class="mob-nav-icon">☰</span>
+      <span class="mob-nav-lbl">Menu</span>
+    </button>
+  </nav>
+
+  <!-- ═══ MODAL: QR Share ═══ -->
+  <dialog id="qr-share-modal" class="modal-dialog">
+    <div class="modal-box" style="max-width:400px;">
+      <div class="modal-header">
+        <div>
+          <span id="qr-modal-badge" class="modal-tag">VERIFIED PROOF</span>
+          <h3 id="qr-modal-title" class="modal-title">Share &amp; Verify</h3>
+          <p id="qr-modal-subtitle" style="font-size:.76rem;color:var(--text-3);margin-top:2px;">Instant cryptographic
+            verification link</p>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('qr-share-modal').close()">✕</button>
       </div>
-      <div>
-        <a href="/" style="color:var(--text-body); text-decoration:none; margin-right:1rem;">Platform Homepage</a>
-        <a href="/about" style="color:var(--text-body); text-decoration:none; margin-right:1rem;">About Proofolio</a>
-        <a href="/portfolio" style="color:var(--color-terracotta); text-decoration:none;">Public Portfolio View &rarr;</a>
+      <div class="qr-canvas-wrapper">
+        <div id="qr-modal-canvas-box"></div>
+      </div>
+      <div class="qr-link-row">
+        <input type="text" id="qr-modal-link-input" class="qr-link-input" readonly>
+        <button type="button" id="qr-modal-copy-btn" onclick="copyQrModalLink()" class="btn-submit"
+          style="white-space:nowrap;font-size:.74rem;padding:7px 13px;">📋 Copy</button>
+      </div>
+      <div class="qr-utils">
+        <button type="button" onclick="downloadQrCodeImage()" class="btn-cancel" style="font-size:.74rem;">📥 Download
+          PNG</button>
+        <button type="button" onclick="window.print()" class="btn-cancel" style="font-size:.74rem;">🖨️ Print</button>
       </div>
     </div>
-  </footer>
+  </dialog>
 
+  <!-- ═══ MODAL: Capture Idea ═══ -->
+  <dialog id="quick-idea-dialog" class="modal-dialog">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div><span class="modal-tag amber">⚡ Fast Capture</span>
+          <h3 class="modal-title">Capture Idea / Discovery</h3>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('quick-idea-dialog').close()">✕</button>
+      </div>
+      <form action="/api/ideas" method="POST">
+        <div class="form-group"><label class="form-label">Idea / Learning Title *</label><input type="text" name="title"
+            required placeholder="e.g. Predictive FIFO batch inventory for hospital dispensaries" class="form-input">
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Initial Stage</label><select name="stage"
+              class="form-select">
+              <option value="NEW" selected>NEW · Initial Spark</option>
+              <option value="EXPLORING">EXPLORING · Gathering Questions</option>
+              <option value="LEARNING">LEARNING · Active Research</option>
+              <option value="UNDERSTANDING">UNDERSTANDING · Synthesizing</option>
+              <option value="TESTING">TESTING · Prototype Validation</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">Source / Inspiration</label><input type="text" name="source"
+              placeholder="e.g. Pharmacy inventory audit log" class="form-input"></div>
+        </div>
+        <div class="form-group"><label class="form-label">What did you learn or discover? *</label><textarea
+            name="whatLearned" required rows="3"
+            placeholder="Core discovery, insight, or operational problem observed..."
+            class="form-input form-textarea"></textarea></div>
+        <div class="form-group"><label class="form-label">Initial Questions / Next Steps</label><textarea
+            name="thoughtsQuestions" rows="2" placeholder="What doubts, trade-offs, or open tests remain?"
+            class="form-input form-textarea"></textarea></div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Tags (comma separated)</label><input type="text" name="tags"
+              placeholder="healthcare, inventory, fifo" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Visibility</label><select name="visibility"
+              class="form-select">
+              <option value="private" selected>Private · My Workspace</option>
+              <option value="public">Public · Verifiable by Anyone</option>
+            </select></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="document.getElementById('quick-idea-dialog').close()"
+            class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-submit">Capture to Journal →</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ═══ MODAL: Add Role ═══ -->
+  <dialog id="quick-role-dialog" class="modal-dialog">
+    <div class="modal-box" style="max-width:560px;">
+      <div class="modal-header">
+        <div><span class="modal-tag">Multi-Role Identity</span>
+          <h3 class="modal-title">Add Concurrent Role</h3>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('quick-role-dialog').close()">✕</button>
+      </div>
+      <form action="/api/roles" method="POST">
+        <div class="form-group"><label class="form-label">Role Title *</label><input type="text" name="title" required
+            placeholder="e.g. Accounting Student, Pharmacy Manager, or Systems Lead" class="form-input"></div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Role Type *</label><select name="roleType"
+              class="form-select">
+              <option value="student">🎓 Student / Education</option>
+              <option value="founder">🚀 Founder / Entrepreneur</option>
+              <option value="manager" selected>📋 Operations / Manager</option>
+              <option value="other">💼 Specialist / Consultant</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">Organization / University</label><input type="text"
+              name="organizationName" placeholder="e.g. XYZ Pharmacy or Institute of Finance" class="form-input"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Core Responsibilities &amp; Focus</label><textarea
+            name="description" rows="3" placeholder="Describe the scope, operational authority, or academic research..."
+            class="form-input form-textarea"></textarea></div>
+        <div class="form-group"><label class="form-label">Skills Applied (comma-separated)</label><input type="text"
+            name="skills" placeholder="Financial Auditing, Inventory Control, FIFO Batching" class="form-input"></div>
+        <div class="modal-footer">
+          <button type="button" onclick="document.getElementById('quick-role-dialog').close()"
+            class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-submit">Save Role to Profile</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ═══ MODAL: Register Organization ═══ -->
+  <dialog id="quick-org-dialog" class="modal-dialog">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div><span class="modal-tag green">Verified Organization</span>
+          <h3 class="modal-title">Register / Connect Organization</h3>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('quick-org-dialog').close()">✕</button>
+      </div>
+      <form action="/api/organizations" method="POST">
+        <div class="form-group"><label class="form-label">Organization Name *</label><input type="text" name="name"
+            required placeholder="e.g. XYZ Pharmacy &amp; Community Health" class="form-input"></div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Industry Category</label><select name="category"
+              class="form-select">
+              <option value="Healthcare &amp; Pharmacy" selected>🩺 Healthcare &amp; Pharmacy</option>
+              <option value="Accounting &amp; Financial Services">💰 Accounting &amp; Financial Services</option>
+              <option value="Software &amp; Systems Engineering">💻 Software &amp; Systems Engineering</option>
+              <option value="Business Operations &amp; Consulting">📊 Business Operations &amp; Consulting</option>
+              <option value="Education &amp; Academic Research">🎓 Education &amp; Academic Research</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">Your Role in Org</label><input type="text" name="memberRole"
+              placeholder="e.g. Founder, Director, or Pharmacist" class="form-input"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Tagline</label><input type="text" name="tagline"
+            placeholder="e.g. Certified community pharmacy dispensary" class="form-input"></div>
+        <div class="form-group"><label class="form-label">About the Organization</label><textarea name="about" rows="3"
+            placeholder="Mission, background, and operational description..."
+            class="form-input form-textarea"></textarea></div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Physical Location</label><input type="text" name="location"
+              placeholder="e.g. Sinza Kwaremi, Dar es Salaam" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Official Website</label><input type="text" name="website"
+              placeholder="e.g. https://xyzpharmacy.co.tz" class="form-input"></div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-lbl">Official Business Compliance</div>
+          <div class="form-grid" style="margin-bottom:8px;"><input type="text" name="registrationNo"
+              placeholder="Business Reg No (e.g. BRELA #512891)" class="form-input" style="font-size:.79rem;"><input
+              type="text" name="taxId" placeholder="Tax ID / TIN" class="form-input" style="font-size:.79rem;"></div>
+          <div class="form-grid"><input type="text" name="foundedYear" placeholder="Founded Year (e.g. 2023)"
+              class="form-input" style="font-size:.79rem;"><input type="text" name="licenseStatus"
+              placeholder="License (e.g. Pharmacy Board Class-A)" class="form-input" style="font-size:.79rem;"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Contact Email</label><input type="email" name="contactEmail"
+              placeholder="dispensary@xyzpharmacy.co.tz" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Contact Phone</label><input type="text" name="contactPhone"
+              placeholder="+255 784 112 233" class="form-input"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="document.getElementById('quick-org-dialog').close()"
+            class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-submit">Register &amp; Connect</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ═══ MODAL: Create Project ═══ -->
+  <dialog id="project-dialog" class="modal-dialog">
+    <div class="modal-box" style="max-width:580px;">
+      <div class="modal-header">
+        <div><span class="modal-tag green">Verifiable Proof of Work</span>
+          <h3 class="modal-title">Add Verified Portfolio Project</h3>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('project-dialog').close()">✕</button>
+      </div>
+      <form action="/api/projects" method="POST">
+        <div class="form-group"><label class="form-label">Project Title *</label><input type="text" name="title"
+            required placeholder="e.g. Distributed Inventory Verification System" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Associate with Professional Role</label><select name="roleId"
+            class="form-select">
+            <option value="">General Proof (All Roles)</option>{{range .Roles}}<option value="{{.ID}}">{{.Title}} ({{if
+              .OrganizationName}}{{.OrganizationName}}{{else}}{{.RoleType}}{{end}})</option>{{end}}
+          </select></div>
+        <div class="form-group"><label class="form-label">Brief Description *</label><textarea name="description"
+            required rows="3" placeholder="What problem did you solve, and what verifiable outcome did it produce?"
+            class="form-input form-textarea"></textarea></div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Live URL / Verified Document</label><input type="url"
+              name="link" placeholder="https://github.com/..." class="form-input"></div>
+          <div class="form-group"><label class="form-label">Repository / Source</label><input type="url" name="repoUrl"
+              placeholder="https://github.com/..." class="form-input"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Skills / Tech Tags (comma-separated)</label><input type="text"
+            name="tags" placeholder="Go, PostgreSQL, Inventory Control, FIFO" class="form-input"></div>
+        <div class="modal-footer">
+          <button type="button" onclick="document.getElementById('project-dialog').close()"
+            class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-submit">Publish Verified Proof</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ═══ SCRIPTS ═══ -->
   <script>
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('proofolio_theme', next);
+    var _sbCollapsed = false;
+
+    function toggleSidebar() {
+      var sb = document.getElementById('sidebar');
+      var tb = document.getElementById('topbar');
+      var sh = document.getElementById('app-shell');
+      if (window.innerWidth <= 900) {
+        sb.classList.toggle('mob-open');
+        document.getElementById('sb-overlay').classList.toggle('active');
+        return;
+      }
+      _sbCollapsed = !_sbCollapsed;
+      sb.classList.toggle('collapsed', _sbCollapsed);
+      tb.classList.toggle('sb-col', _sbCollapsed);
+      sh.classList.toggle('sb-col', _sbCollapsed);
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('mob-open');
+      document.getElementById('sb-overlay').classList.remove('active');
     }
 
-    /* Instant Hot / Live Reload SSE Client */
+    function toggleUserPopup() {
+      document.getElementById('user-popup').classList.toggle('open');
+    }
+    function closeUserPopup() {
+      document.getElementById('user-popup').classList.remove('open');
+    }
+    document.addEventListener('click', function (e) {
+      var footer = document.getElementById('sb-footer');
+      var popup = document.getElementById('user-popup');
+      if (footer && popup && !footer.contains(e.target)) closeUserPopup();
+    });
+
+    function toggleAddMenu() {
+      document.getElementById('add-menu').classList.toggle('open');
+    }
+    function closeAddMenu() {
+      document.getElementById('add-menu').classList.remove('open');
+    }
+    document.addEventListener('click', function (e) {
+      var btn = document.getElementById('add-btn');
+      var menu = document.getElementById('add-menu');
+      if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) closeAddMenu();
+    });
+
+    function toggleTheme() {
+      var c = document.documentElement.getAttribute('data-theme') || 'light';
+      var n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('proofolio_theme', n);
+    }
+
+    window.openQrShareModal = function (opts) {
+      opts = opts || {};
+      var dialog = document.getElementById('qr-share-modal'); if (!dialog) return;
+      var tEl = document.getElementById('qr-modal-title');
+      var sEl = document.getElementById('qr-modal-subtitle');
+      var inp = document.getElementById('qr-modal-link-input');
+      var bEl = document.getElementById('qr-modal-badge');
+      var qrB = document.getElementById('qr-modal-canvas-box');
+      var url = opts.url || window.location.pathname;
+      var full = url.startsWith('http') ? url : window.location.origin + url;
+      if (tEl) tEl.textContent = opts.title || 'Share & Verify';
+      if (sEl) sEl.textContent = opts.subtitle || 'Instant cryptographic verification link';
+      if (inp) inp.value = full;
+      if (bEl) { bEl.textContent = opts.badgeText || 'VERIFIED PROOF'; bEl.className = 'modal-tag ' + (opts.type === 'idea' ? 'amber' : opts.type === 'org' ? 'green' : ''); }
+      if (qrB) {
+        qrB.innerHTML = '';
+        if (window.QRCode) new QRCode(qrB, { text: full, width: 180, height: 180, colorDark: '#1C1917', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.H });
+      }
+      var cb = document.getElementById('qr-modal-copy-btn'); if (cb) cb.textContent = '📋 Copy';
+      dialog.showModal();
+    };
+    window.copyQrModalLink = function () {
+      var i = document.getElementById('qr-modal-link-input');
+      var b = document.getElementById('qr-modal-copy-btn');
+      if (!i) return;
+      navigator.clipboard.writeText(i.value).then(function () {
+        if (b) { b.textContent = '✓ Copied!'; setTimeout(function () { b.textContent = '📋 Copy'; }, 2500); }
+      }).catch(function () { i.select(); document.execCommand('copy'); });
+    };
+    window.downloadQrCodeImage = function () {
+      var img = document.querySelector('#qr-modal-canvas-box img');
+      var can = document.querySelector('#qr-modal-canvas-box canvas');
+      var src = (img && img.src) ? img.src : (can ? can.toDataURL('image/png') : null);
+      if (src) { var a = document.createElement('a'); a.href = src; a.download = 'proofolio-qr.png'; a.click(); }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var p = location.pathname + location.search + location.hash;
+      if (p && p !== '/' && !p.startsWith('/login') && !p.startsWith('/register') && !p.startsWith('/auth')) {
+        document.querySelectorAll('a[href="/login"],a[href^="/login?"]').forEach(function (a) {
+          if (!a.href.includes('redirect=')) a.href = '/login?redirect=' + encodeURIComponent(p);
+        });
+      }
+    });
+
     if (window.EventSource) {
-      let reconnectDelay = 1000;
-      function connectLiveReload() {
-        const es = new EventSource('/dev/live-reload');
+      var _d = 1000;
+      function _lr() {
+        var es = new EventSource('/dev/live-reload');
         es.onmessage = function (e) {
           try {
-            const data = JSON.parse(e.data);
+            var data = JSON.parse(e.data);
             if (data.type === 'css') {
-              document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-                const url = new URL(link.href, window.location.origin);
-                url.searchParams.set('_v', Date.now());
-                link.href = url.toString();
+              document.querySelectorAll('link[rel="stylesheet"]').forEach(function (l) {
+                var u = new URL(l.href, location.origin); u.searchParams.set('_v', Date.now()); l.href = u.toString();
               });
-            } else {
-              window.location.reload();
-            }
-          } catch (err) {
-            window.location.reload();
-          }
+            } else { location.reload(); }
+          } catch (err) { location.reload(); }
         };
-        es.onerror = function () {
-          es.close();
-          setTimeout(connectLiveReload, reconnectDelay);
-          reconnectDelay = Math.min(reconnectDelay * 1.5, 5000);
-        };
+        es.onerror = function () { es.close(); setTimeout(_lr, _d); _d = Math.min(_d * 1.5, 5000); };
       }
-      connectLiveReload();
+      _lr();
     }
   </script>
 </body>
+
 </html>

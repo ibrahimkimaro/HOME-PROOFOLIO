@@ -1,0 +1,114 @@
+{{define "content"}}
+<style>@media(max-width:600px){.lifecycle-bar .lc-step{font-size:.58rem;padding:2px 6px;}.lifecycle-bar .lc-arrow{display:none;}}</style>
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+    <div>
+      <span class="sec-tag">Cognitive Evolution Engine</span>
+      <h1 class="sec-h" style="margin-top:6px;">Ideas &amp; Learning Journal</h1>
+      <p style="font-size:.88rem;color:var(--text-3);margin-top:5px;max-width:680px;">
+        Fast-capture tool tracking ideas across their full evolution:
+        <strong style="color:var(--text-2);">Idea → Learning → Problem → Experiment → Project → Evidence</strong>
+      </p>
+    </div>
+    <button onclick="document.getElementById('quick-idea-dialog').showModal()" class="a-btn prim">💡 Fast Capture Idea</button>
+  </div>
+
+  <!-- Lifecycle bar -->
+  <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+    <div style="font-size:.62rem;font-weight:700;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:8px;">6-Stage Evolution Path</div>
+    <div class="lifecycle-bar" style="max-width:100%;overflow:hidden;">
+      <span class="lc-step {{if eq .ActiveFilter "NEW"}}active{{end}}">⚡ NEW</span><span class="lc-arrow">→</span>
+      <span class="lc-step {{if eq .ActiveFilter "EXPLORING"}}active{{end}}">🔍 EXPLORING</span><span class="lc-arrow">→</span>
+      <span class="lc-step {{if eq .ActiveFilter "LEARNING"}}active{{end}}">📖 LEARNING</span><span class="lc-arrow">→</span>
+      <span class="lc-step {{if eq .ActiveFilter "UNDERSTANDING"}}active{{end}}">💡 UNDERSTANDING</span><span class="lc-arrow">→</span>
+      <span class="lc-step {{if eq .ActiveFilter "TESTING"}}active{{end}}">🧪 TESTING</span><span class="lc-arrow">→</span>
+      <span class="lc-step {{if eq .ActiveFilter "PROJECT"}}active{{end}}">🏆 PROJECT</span>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+  <a href="/ideas" class="ftab {{if or (not .ActiveFilter) (eq .ActiveFilter "ALL")}}active{{end}}">All Ideas</a>
+  <a href="/ideas?stage=NEW" class="ftab {{if eq .ActiveFilter "NEW"}}active{{end}}">⚡ NEW</a>
+  <a href="/ideas?stage=EXPLORING" class="ftab {{if eq .ActiveFilter "EXPLORING"}}active{{end}}">🔍 EXPLORING</a>
+  <a href="/ideas?stage=LEARNING" class="ftab {{if eq .ActiveFilter "LEARNING"}}active{{end}}">📖 LEARNING</a>
+  <a href="/ideas?stage=UNDERSTANDING" class="ftab {{if eq .ActiveFilter "UNDERSTANDING"}}active{{end}}">💡 UNDERSTANDING</a>
+  <a href="/ideas?stage=TESTING" class="ftab {{if eq .ActiveFilter "TESTING"}}active{{end}}">🧪 TESTING</a>
+  <a href="/ideas?stage=PROJECT" class="ftab {{if eq .ActiveFilter "PROJECT"}}active{{end}}">🏆 PROJECT</a>
+</div>
+
+<!-- Ideas Grid -->
+<div class="cards-grid">
+  {{range .Ideas}}
+  <div class="mc" style="display:flex;flex-direction:column;">
+    <div class="mc-p" style="flex:1;display:flex;flex-direction:column;">
+
+      <!-- Top row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:7px;">
+          <span class="mc-tag {{if eq .Stage "NEW"}}purple{{else if eq .Stage "EXPLORING"}}cyan{{else if eq .Stage "LEARNING"}}amber{{else if eq .Stage "UNDERSTANDING"}}green{{else if eq .Stage "TESTING"}}red{{else}}purple{{end}}" style="margin-bottom:0;">
+            {{if eq .Stage "NEW"}}⚡ NEW{{else if eq .Stage "EXPLORING"}}🔍 EXPLORING{{else if eq .Stage "LEARNING"}}📖 LEARNING{{else if eq .Stage "UNDERSTANDING"}}💡 UNDERSTANDING{{else if eq .Stage "TESTING"}}🧪 TESTING{{else}}🏆 PROJECT{{end}}
+          </span>
+          <button type="button" onclick="window.openQrShareModal({title:'{{.Title}}',subtitle:'Learning Lifecycle Log — Stage: {{.Stage}}',url:'/ideas/{{.ID}}',type:'idea',badgeText:'IDEA: {{.Stage}}'})" class="icon-btn" style="width:26px;height:26px;font-size:.75rem;" title="Share QR">💡</button>
+        </div>
+        <span style="font-family:var(--mono);font-size:.69rem;color:var(--text-3);">{{.UpdatedAt.Format "Jan 02, 2006"}}</span>
+      </div>
+
+      <!-- Title -->
+      <a href="/ideas/{{.ID}}" class="mc-title" style="display:block;margin-bottom:10px;">{{.Title}}</a>
+
+      <!-- What Learned -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:11px;margin-bottom:11px;">
+        <div style="font-size:.59rem;font-weight:700;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px;">What Was Learned</div>
+        <p style="font-size:.82rem;color:var(--text-2);line-height:1.5;">{{.WhatLearned}}</p>
+      </div>
+
+      <!-- Source -->
+      <div style="font-size:.78rem;color:var(--text-3);margin-bottom:10px;">
+        <strong>Source:</strong> <em>{{if .Source}}{{.Source}}{{else}}Field observation / practice{{end}}</em>
+      </div>
+
+      {{if .CurrentUnderstanding}}
+      <div style="font-size:.8rem;color:var(--text-2);line-height:1.5;margin-bottom:11px;border-left:2px solid var(--accent);padding-left:10px;">
+        <strong style="color:var(--text-1);">Understanding:</strong> {{.CurrentUnderstanding}}
+      </div>
+      {{end}}
+
+      <!-- Tags -->
+      {{if .Tags}}
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        {{range .Tags}}<span class="skill-pill amber">{{.}}</span>{{end}}
+      </div>
+      {{end}}
+
+      <!-- Footer -->
+      <div class="mc-footer" style="margin-top:auto;">
+        <span style="font-size:.72rem;color:var(--text-3);font-family:var(--mono);">📝 {{len .TimelineEntries}} updates</span>
+        <div style="display:flex;gap:6px;">
+          {{if eq .Stage "PROJECT"}}
+          <span class="mc-tag green" style="margin-bottom:0;">✓ Verified Project</span>
+          {{else}}
+          <form action="/api/ideas/{{.ID}}/promote" method="POST" style="display:inline;">
+            <input type="hidden" name="ideaId" value="{{.ID}}">
+            <button type="submit" class="a-btn grn sm" title="Promote to next stage">Promote →</button>
+          </form>
+          {{end}}
+          <a href="/ideas/{{.ID}}" class="a-btn sec sm">Timeline →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {{else}}
+  <div class="empty-state">
+    <div style="font-size:2rem;margin-bottom:8px;">💡</div>
+    <strong style="color:var(--text-2);">No ideas in this stage</strong>
+    <p>Click "Fast Capture Idea" to log your first discovery!</p>
+  </div>
+  {{end}}
+</div>
+
+{{end}}

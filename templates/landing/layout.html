@@ -274,6 +274,20 @@
         }
         connectLiveReload();
       }
+      /* Preserve Current Page URL on Sign In / Register Links */
+      const currentPath = window.location.pathname + window.location.search + window.location.hash;
+      if (currentPath && currentPath !== '/' && !currentPath.startsWith('/login') && !currentPath.startsWith('/register') && !currentPath.startsWith('/auth')) {
+        document.querySelectorAll('a[href="/login"], a[href^="/login?"]').forEach(a => {
+          if (!a.href.includes('redirect=')) {
+            a.href = '/login?redirect=' + encodeURIComponent(currentPath);
+          }
+        });
+        document.querySelectorAll('a[href="/register"], a[href^="/register?"]').forEach(a => {
+          if (!a.href.includes('redirect=')) {
+            a.href = '/register?redirect=' + encodeURIComponent(currentPath);
+          }
+        });
+      }
     })();
   </script>
 </body>
