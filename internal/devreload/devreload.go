@@ -87,14 +87,25 @@ func HandleSSE(w http.ResponseWriter, r *http.Request) {
 	flusher.Flush()
 
 	notify := r.Context().Done()
+	ticker := time.NewTicker(15 * time.Second)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-notify:
 			return
+		case <-ticker.C:
+			// Periodic comment ping to keep connection alive and detect dropped/closed sockets immediately
+			if _, err := fmt.Fprintf(w, ": ping\n\n"); err != nil {
+				return
+			}
+			flusher.Flush()
 		case event := <-clientChan:
 			data, err := json.Marshal(event)
 			if err == nil {
-				fmt.Fprintf(w, "data: %s\n\n", data)
+				if _, err := fmt.Fprintf(w, "data: %s\n\n", data); err != nil {
+					return
+				}
 				flusher.Flush()
 			}
 		}

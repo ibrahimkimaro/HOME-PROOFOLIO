@@ -1,8 +1,102 @@
 package models
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"sort"
+	"strings"
 	"time"
 )
+
+// AttributeItem represents a displayable dynamic attribute
+type AttributeItem struct {
+	Key    string
+	Label  string
+	Value  string
+	Values []string
+	IsURL  bool
+}
+
+func humanizeKey(k string) string {
+	parts := strings.Split(k, "_")
+	for i, p := range parts {
+		if len(p) > 0 {
+			parts[i] = strings.ToUpper(p[:1]) + strings.ToLower(p[1:])
+		}
+	}
+	return strings.Join(parts, " ")
+}
+
+// JSONB is a polymorphic map type that implements sql.Scanner and driver.Valuer for PostgreSQL JSONB
+type JSONB map[string]interface{}
+
+// Value implements driver.Valuer for PostgreSQL JSONB
+func (j JSONB) Value() (driver.Value, error) {
+	if j == nil {
+		return "{}", nil
+	}
+	return json.Marshal(j)
+}
+
+// Scan implements sql.Scanner for PostgreSQL JSONB
+func (j *JSONB) Scan(value interface{}) error {
+	if value == nil {
+		*j = make(JSONB)
+		return nil
+	}
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New("cannot scan type into JSONB")
+	}
+	if len(bytes) == 0 {
+		*j = make(JSONB)
+		return nil
+	}
+	return json.Unmarshal(bytes, j)
+}
+
+// TemplateField defines an individual dynamic input specification
+type TemplateField struct {
+	Key         string   `json:"key"`
+	Label       string   `json:"label"`
+	InputType   string   `json:"inputType"` // "text", "number", "select", "multi-select", "textarea", "url", "date"
+	Placeholder string   `json:"placeholder,omitempty"`
+	Options     []string `json:"options,omitempty"`
+	HelpText    string   `json:"helpText,omitempty"`
+	Section     string   `json:"section,omitempty"`
+}
+
+// DomainTemplate defines an adaptable blueprint for profile roles (Developer, Footballer, Musician/Singer, Designer, etc.)
+type DomainTemplate struct {
+	ID            string          `json:"id"`
+	DomainKey     string          `json:"domainKey"`
+	DisplayName   string          `json:"displayName"`
+	Description   string          `json:"description"`
+	Icon          string          `json:"icon"`
+	CategoryGroup string          `json:"categoryGroup"`
+	Fields        []TemplateField `json:"fields"`
+	CreatedAt     time.Time       `json:"createdAt"`
+	UpdatedAt     time.Time       `json:"updatedAt"`
+}
+
+// PortfolioTemplate defines an adaptable blueprint for project/work items (Software Project, Music Release, Match Performance, etc.)
+type PortfolioTemplate struct {
+	ID          string          `json:"id"`
+	TemplateKey string          `json:"templateKey"`
+	DisplayName string          `json:"displayName"`
+	Description string          `json:"description"`
+	Icon        string          `json:"icon"`
+	Fields      []TemplateField `json:"fields"`
+	CreatedAt   time.Time       `json:"createdAt"`
+	UpdatedAt   time.Time       `json:"updatedAt"`
+}
 
 type User struct {
 	ID           string    `json:"id"`
@@ -40,7 +134,57 @@ type Profile struct {
 	Theme               string      `json:"theme"`
 	FontStyle           string      `json:"fontStyle"`
 	AccentColor         string      `json:"accentColor"`
+	Attributes          JSONB       `json:"attributes"`
 	UpdatedAt           time.Time   `json:"updatedAt"`
+}
+
+// GetFormattedAttributes formats non-empty, non-private dynamic attributes for UI cards
+func (p *Profile) GetFormattedAttributes() []AttributeItem {
+	if p == nil || len(p.Attributes) == 0 {
+		return nil
+	}
+	var items []AttributeItem
+	for k, v := range p.Attributes {
+		if strings.HasPrefix(k, "_") {
+			continue
+		}
+		strVal := strings.TrimSpace(fmt.Sprintf("%v", v))
+		if strVal == "" || strVal == "<nil>" {
+			continue
+		}
+		label := humanizeKey(k)
+		isURL := strings.HasPrefix(strVal, "http://") || strings.HasPrefix(strVal, "https://")
+		var values []string
+		if strings.Contains(strVal, ",") && !isURL {
+			for _, part := range strings.Split(strVal, ",") {
+				part = strings.TrimSpace(part)
+				if part != "" {
+					values = append(values, part)
+				}
+			}
+		}
+		items = append(items, AttributeItem{
+			Key:    k,
+			Label:  label,
+			Value:  strVal,
+			Values: values,
+			IsURL:  isURL,
+		})
+	}
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Label < items[j].Label
+	})
+	return items
+}
+
+func (p *Profile) GetDomainKey() string {
+	if p == nil || p.Attributes == nil {
+		return ""
+	}
+	if dk, ok := p.Attributes["_domain_key"].(string); ok {
+		return dk
+	}
+	return ""
 }
 
 type Project struct {
@@ -59,8 +203,48 @@ type Project struct {
 	Featured          bool      `json:"featured"`
 	AccentColor       string    `json:"accentColor"`
 	BannerGradient    string    `json:"bannerGradient"`
+	Attributes        JSONB     `json:"attributes"`
 	CreatedAt         time.Time `json:"createdAt"`
 	UpdatedAt         time.Time `json:"updatedAt"`
+}
+
+// GetFormattedAttributes formats non-empty, non-private dynamic attributes for UI cards
+func (prj *Project) GetFormattedAttributes() []AttributeItem {
+	if prj == nil || len(prj.Attributes) == 0 {
+		return nil
+	}
+	var items []AttributeItem
+	for k, v := range prj.Attributes {
+		if strings.HasPrefix(k, "_") {
+			continue
+		}
+		strVal := strings.TrimSpace(fmt.Sprintf("%v", v))
+		if strVal == "" || strVal == "<nil>" {
+			continue
+		}
+		label := humanizeKey(k)
+		isURL := strings.HasPrefix(strVal, "http://") || strings.HasPrefix(strVal, "https://")
+		var values []string
+		if strings.Contains(strVal, ",") && !isURL {
+			for _, part := range strings.Split(strVal, ",") {
+				part = strings.TrimSpace(part)
+				if part != "" {
+					values = append(values, part)
+				}
+			}
+		}
+		items = append(items, AttributeItem{
+			Key:    k,
+			Label:  label,
+			Value:  strVal,
+			Values: values,
+			IsURL:  isURL,
+		})
+	}
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Label < items[j].Label
+	})
+	return items
 }
 
 type ProblemCase struct {
@@ -121,24 +305,105 @@ type DiscussionPost struct {
 }
 
 type ArticlePost struct {
-	ID             string    `json:"id"`
-	UserID         string    `json:"userId"`
-	AuthorName     string    `json:"authorName"`
-	AuthorUsername string    `json:"authorUsername"`
-	AuthorRole     string    `json:"authorRole"`
-	Title          string    `json:"title"`
-	Category       string    `json:"category"`
-	ReadTime       string    `json:"readTime"`
-	Summary        string    `json:"summary"`
-	Content        string    `json:"content"`
-	Upvotes        int       `json:"upvotes"`
-	Upvoters       []string  `json:"upvoters"`
-	Tags           []string  `json:"tags"`
-	ReadingTheme   string    `json:"readingTheme"`
-	FontStyle      string    `json:"fontStyle"`
-	AccentColor    string    `json:"accentColor"`
-	CreatedAt      time.Time `json:"createdAt"`
-	UpdatedAt      time.Time `json:"updatedAt"`
+	ID              string    `json:"id"`
+	UserID          string    `json:"userId"`
+	AuthorName      string    `json:"authorName"`
+	AuthorUsername  string    `json:"authorUsername"`
+	AuthorRole      string    `json:"authorRole"`
+	Title           string    `json:"title"`
+	Slug            string    `json:"slug"`
+	Excerpt         string    `json:"excerpt"`
+	Category        string    `json:"category"`
+	ReadTime        string    `json:"readTime"`
+	Summary         string    `json:"summary"`
+	Content         string    `json:"content"`
+	BannerImage     string    `json:"bannerImage"`
+	LinkedProjectID string    `json:"linkedProjectId"`
+	AuthorPrompt    string    `json:"authorPrompt"`
+	HeaderStyle     string    `json:"headerStyle"`
+	Upvotes         int       `json:"upvotes"`
+	Upvoters        []string  `json:"upvoters"`
+	Tags            []string  `json:"tags"`
+	KeyTakeaways    []string  `json:"keyTakeaways"`
+	ReadingTheme    string    `json:"readingTheme"`
+	FontStyle       string    `json:"fontStyle"`
+	AccentColor     string    `json:"accentColor"`
+	Attributes      JSONB     `json:"attributes"`
+	CreatedAt       time.Time `json:"createdAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
+}
+
+func (a ArticlePost) GetKeyTakeaways() []string {
+	if len(a.KeyTakeaways) > 0 {
+		return a.KeyTakeaways
+	}
+	return []string{}
+}
+
+func (a ArticlePost) GetCustomTheme() string {
+	if a.ReadingTheme != "" {
+		return a.ReadingTheme
+	}
+	return "paper"
+}
+
+func (a ArticlePost) GetHeaderStyle() string {
+	if a.HeaderStyle != "" {
+		return a.HeaderStyle
+	}
+	return "gradient"
+}
+
+func (a ArticlePost) IsUpvotedBy(userID string) bool {
+	for _, u := range a.Upvoters {
+		if u == userID {
+			return true
+		}
+	}
+	return false
+}
+
+func (a ArticlePost) GenerateSlug() string {
+	s := strings.ToLower(a.Title)
+	s = strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' || r == ' ' {
+			return r
+		}
+		return -1
+	}, s)
+	s = strings.ReplaceAll(s, " ", "-")
+	for strings.Contains(s, "--") {
+		s = strings.ReplaceAll(s, "--", "-")
+	}
+	s = strings.Trim(s, "-")
+	if len(a.ID) >= 6 {
+		s = s + "-" + a.ID[:6]
+	}
+	return s
+}
+
+func (a ArticlePost) CalcReadTime() string {
+	words := len(strings.Fields(a.Content))
+	minutes := words / 200
+	if minutes < 1 {
+		minutes = 1
+	}
+	return fmt.Sprintf("%d min read", minutes)
+}
+
+func (a ArticlePost) CategoryColor() string {
+	switch strings.ToLower(a.Category) {
+	case "architecture", "systems":
+		return "terracotta"
+	case "databases", "data":
+		return "amber"
+	case "frontend", "ui/ux", "design":
+		return "emerald"
+	case "devops", "cloud", "infrastructure":
+		return "blue"
+	default:
+		return "terracotta"
+	}
 }
 
 type Inquiry struct {

@@ -82,6 +82,11 @@ func GetUserFromRequest(r *http.Request) (*models.User, *models.Profile) {
 		return nil, nil
 	}
 
+	// Rolling session extension: keep active users in long, uninterrupted sessions
+	if time.Until(session.ExpiresAt) < 6*24*time.Hour {
+		_ = db.TouchSession(cookie.Value, time.Now().Add(7*24*time.Hour))
+	}
+
 	user, err := db.GetUserByID(session.UserID)
 	if err != nil || user == nil || user.Status == "disabled" {
 		return nil, nil

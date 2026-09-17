@@ -326,6 +326,56 @@ func migrateSchema() error {
 			return fmt.Errorf("failed executing query [%s]: %w", q, err)
 		}
 	}
+
+	// Dynamic Template Architecture & GIN Index Migrations
+	alterQueries := []string{
+		`CREATE TABLE IF NOT EXISTS domain_templates (
+			id VARCHAR(64) PRIMARY KEY,
+			domain_key VARCHAR(64) UNIQUE NOT NULL,
+			display_name VARCHAR(128) NOT NULL,
+			description TEXT DEFAULT '',
+			icon VARCHAR(32) DEFAULT '💼',
+			category_group VARCHAR(64) DEFAULT 'General',
+			fields JSONB NOT NULL DEFAULT '[]'::jsonb,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+		);`,
+		`CREATE TABLE IF NOT EXISTS portfolio_templates (
+			id VARCHAR(64) PRIMARY KEY,
+			template_key VARCHAR(64) UNIQUE NOT NULL,
+			display_name VARCHAR(128) NOT NULL,
+			description TEXT DEFAULT '',
+			icon VARCHAR(32) DEFAULT '📁',
+			fields JSONB NOT NULL DEFAULT '[]'::jsonb,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+		);`,
+		`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS attributes JSONB DEFAULT '{}'::jsonb;`,
+		`ALTER TABLE projects ADD COLUMN IF NOT EXISTS attributes JSONB DEFAULT '{}'::jsonb;`,
+		`CREATE INDEX IF NOT EXISTS idx_profiles_attributes_gin ON profiles USING GIN (attributes);`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_attributes_gin ON projects USING GIN (attributes);`,
+		// Article module enrichment migrations
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS slug TEXT;`,
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS excerpt TEXT DEFAULT '';`,
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS banner_image TEXT DEFAULT '';`,
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS linked_project_id TEXT DEFAULT '';`,
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS key_takeaways JSONB DEFAULT '[]'::jsonb;`,
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS author_prompt TEXT DEFAULT '';`,
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS header_style VARCHAR(32) DEFAULT 'gradient';`,
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS attributes JSONB DEFAULT '{}'::jsonb;`,
+		`UPDATE articles SET slug = LOWER(REGEXP_REPLACE(REGEXP_REPLACE(title, '[^a-zA-Z0-9\s\-]', '', 'g'), '\s+', '-', 'g')) || '-' || SUBSTRING(id, 1, 6) WHERE slug IS NULL OR slug = '';`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);`,
+		`CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category);`,
+		`CREATE INDEX IF NOT EXISTS idx_articles_attributes_gin ON articles USING GIN (attributes);`,
+	}
+	for _, q := range alterQueries {
+		if _, err := DB.Exec(q); err != nil {
+			log.Printf("Migration notice on query [%s]: %v", q, err)
+		}
+	}
+
+	_ = seedDomainAndPortfolioTemplates()
+
 	log.Println("PostgreSQL tables migrated successfully.")
 	return nil
 }
@@ -1002,5 +1052,267 @@ func seedNewFeatures() error {
 		log.Println("Seeded Idea for Ibrahim.")
 	}
 
+	return nil
+}
+
+func seedDomainAndPortfolioTemplates() error {
+	now := time.Now()
+
+	// 1. Domain Templates for Profiles (Accommodating Developers, Musicians/Singers, Designers, Footballers, Students, Researchers, Founders, Children, Doctors)
+	domainTmpls := []models.DomainTemplate{
+		{
+			ID:            "dt_developer",
+			DomainKey:     "developer",
+			DisplayName:   "Software Engineer & Developer",
+			Description:   "Code repositories, architecture focus, tech stack, and cloud infra.",
+			Icon:          "💻",
+			CategoryGroup: "Technology",
+			Fields: []models.TemplateField{
+				{Key: "github_url", Label: "GitHub Profile / Code Repository URL", InputType: "url", Placeholder: "https://github.com/username", HelpText: "Public code profile"},
+				{Key: "primary_languages", Label: "Primary Programming Languages", InputType: "text", Placeholder: "Go, TypeScript, Rust, Python"},
+				{Key: "frameworks_libraries", Label: "Frameworks & Core Libraries", InputType: "text", Placeholder: "HTMX, React, Next.js, Gin, Echo"},
+				{Key: "cloud_infrastructure", Label: "Cloud & Database Stack", InputType: "text", Placeholder: "PostgreSQL, Docker, AWS, Kubernetes, Redis"},
+				{Key: "architecture_focus", Label: "Architecture Specialization", InputType: "select", Options: []string{"Distributed Systems", "Full-Stack Web", "Microservices & APIs", "Event-Driven Architecture", "Embedded & IoT", "AI & Machine Learning"}},
+				{Key: "years_experience", Label: "Years of Engineering Experience", InputType: "number", Placeholder: "e.g. 5"},
+			},
+		},
+		{
+			ID:            "dt_musician_singer",
+			DomainKey:     "musician_singer",
+			DisplayName:   "Musician, Singer & Vocalist",
+			Description:   "Musical genres (R&B, Hip-Hop, Afrobeats, etc.), vocal range, discography, streaming profiles.",
+			Icon:          "🎤",
+			CategoryGroup: "Creative Arts",
+			Fields: []models.TemplateField{
+				{Key: "primary_genre", Label: "Primary Musical Genre(s)", InputType: "text", Placeholder: "R&B, Hip-Hop, Afrobeats, Pop, Jazz, Gospel, Soul"},
+				{Key: "vocal_or_instrument", Label: "Vocal Range / Instruments Played", InputType: "text", Placeholder: "Tenor, Alto, Soprano / Acoustic Guitar, Piano, Synth"},
+				{Key: "label_affiliation", Label: "Record Label / Representation", InputType: "select", Options: []string{"Independent / Self-Released", "Signed to Major Label", "Signed to Indie Label", "Collective / Band Member"}},
+				{Key: "streaming_profile_url", Label: "Streaming Profile URL (Spotify / Apple Music / YouTube)", InputType: "url", Placeholder: "https://open.spotify.com/artist/..."},
+				{Key: "notable_releases", Label: "Notable Releases & Discography", InputType: "textarea", Placeholder: "EP: 'Midnight Reflections' (2025), Single: 'Echoes' (over 50k streams)"},
+				{Key: "booking_contact", Label: "Booking & Management Contact", InputType: "text", Placeholder: "booking@artistteam.com"},
+			},
+		},
+		{
+			ID:            "dt_designer",
+			DomainKey:     "designer",
+			DisplayName:   "Product, UI/UX & Brand Designer",
+			Description:   "Design portfolios, tools, design systems, and visual craft.",
+			Icon:          "🎨",
+			CategoryGroup: "Creative Arts",
+			Fields: []models.TemplateField{
+				{Key: "portfolio_url", Label: "Design Portfolio URL (Dribbble / Behance / Web)", InputType: "url", Placeholder: "https://behance.net/username"},
+				{Key: "specialization", Label: "Design Specialization", InputType: "select", Options: []string{"Product & UI/UX Design", "Brand & Visual Identity", "3D Modeling & Motion", "Design Systems & Tokens", "Graphic & Editorial"}},
+				{Key: "primary_tools", Label: "Primary Design Tools", InputType: "text", Placeholder: "Figma, Blender, Framer, After Effects, Illustrator"},
+				{Key: "design_system_exp", Label: "Design System Expertise", InputType: "select", Options: []string{"Architect & Maintainer", "Active Contributor", "Intermediate Consumer", "Exploring"}},
+			},
+		},
+		{
+			ID:            "dt_footballer",
+			DomainKey:     "footballer",
+			DisplayName:   "Professional Footballer & Athlete",
+			Description:   "Playing position, club/academy, match stats, preferred foot, and physical attributes.",
+			Icon:          "⚽",
+			CategoryGroup: "Sports & Athletics",
+			Fields: []models.TemplateField{
+				{Key: "playing_position", Label: "Playing Position", InputType: "select", Options: []string{"Goalkeeper (GK)", "Centre-Back (CB)", "Full-Back (LB/RB)", "Defensive Midfielder (CDM)", "Central Midfielder (CM)", "Attacking Midfielder (CAM)", "Winger (LW/RW)", "Striker / Centre-Forward (ST/CF)"}},
+				{Key: "preferred_foot", Label: "Preferred Foot", InputType: "select", Options: []string{"Right", "Left", "Both / Ambidextrous"}},
+				{Key: "current_club", Label: "Current Club / Academy", InputType: "text", Placeholder: "e.g. Young Africans SC / Academy"},
+				{Key: "shirt_number", Label: "Shirt / Squad Number", InputType: "number", Placeholder: "10"},
+				{Key: "height_weight", Label: "Height & Weight", InputType: "text", Placeholder: "184 cm / 76 kg"},
+				{Key: "career_stats", Label: "Key Match Stats (Appearances, Goals, Assists)", InputType: "text", Placeholder: "42 matches, 18 goals, 9 assists (Season 2024/25)"},
+				{Key: "agency_rep", Label: "Sports Agency / Representative", InputType: "text", Placeholder: "e.g. Elite Pro Football Agency"},
+			},
+		},
+		{
+			ID:            "dt_student",
+			DomainKey:     "student",
+			DisplayName:   "Student & Academic Scholar",
+			Description:   "University, field of study, GPA/standing, and expected graduation.",
+			Icon:          "🎓",
+			CategoryGroup: "Academic & Education",
+			Fields: []models.TemplateField{
+				{Key: "institution_name", Label: "Institution / University", InputType: "text", Placeholder: "University of Dar es Salaam"},
+				{Key: "degree_program", Label: "Degree / Program of Study", InputType: "text", Placeholder: "B.Sc. in Applied Accounting & Finance"},
+				{Key: "graduation_year", Label: "Expected Graduation Year", InputType: "text", Placeholder: "2026"},
+				{Key: "academic_standing", Label: "Academic Honors / Standing", InputType: "text", Placeholder: "Dean's Honor List (GPA: 3.85 / 4.0)"},
+				{Key: "key_coursework", Label: "Key Coursework & Electives", InputType: "text", Placeholder: "Cost Accounting, Auditing Standards, Financial Modeling"},
+			},
+		},
+		{
+			ID:            "dt_researcher",
+			DomainKey:     "researcher",
+			DisplayName:   "Academic Researcher & Scientist",
+			Description:   "Research field, publications count, ORCID iD, and laboratory affiliation.",
+			Icon:          "🔬",
+			CategoryGroup: "Academic & Education",
+			Fields: []models.TemplateField{
+				{Key: "research_discipline", Label: "Discipline / Specialization", InputType: "text", Placeholder: "Molecular Epidemiology, Distributed Consensus"},
+				{Key: "lab_affiliation", Label: "Institute / Research Laboratory", InputType: "text", Placeholder: "National Institute for Medical Research (NIMR)"},
+				{Key: "orcid_id", Label: "ORCID iD", InputType: "text", Placeholder: "0000-0002-1825-0097"},
+				{Key: "publications_count", Label: "Peer-Reviewed Publications Count", InputType: "number", Placeholder: "12"},
+				{Key: "core_methodology", Label: "Primary Research Methodology", InputType: "text", Placeholder: "Genomic Sequencing, Bayesian Econometrics"},
+			},
+		},
+		{
+			ID:            "dt_founder",
+			DomainKey:     "founder",
+			DisplayName:   "Startup Founder & Executive",
+			Description:   "Venture name, funding stage, industry, scale metrics, and elevator pitch.",
+			Icon:          "🚀",
+			CategoryGroup: "Business & Entrepreneurship",
+			Fields: []models.TemplateField{
+				{Key: "venture_name", Label: "Company / Venture Name", InputType: "text", Placeholder: "XYZ Pharmacy Logistics"},
+				{Key: "industry_sector", Label: "Industry Sector", InputType: "text", Placeholder: "HealthTech, Supply Chain Logistics"},
+				{Key: "funding_stage", Label: "Funding Stage", InputType: "select", Options: []string{"Bootstrapped / Profitable", "Pre-Seed", "Seed Round", "Series A", "Series B+", "Acquired"}},
+				{Key: "scale_metric", Label: "Scale Metric (MRR / Users / GMV)", InputType: "text", Placeholder: "$45K MRR, 30+ regional pharmacies served"},
+				{Key: "elevator_pitch", Label: "Company Mission / Elevator Pitch", InputType: "textarea", Placeholder: "Zero-waste inventory tracking for community dispensaries."},
+			},
+		},
+		{
+			ID:            "dt_child",
+			DomainKey:     "child",
+			DisplayName:   "Young Learner & Prodigy",
+			Description:   "Grade level, favorite subjects, creative talents, hobbies, and sports.",
+			Icon:          "⭐",
+			CategoryGroup: "Youth & Learners",
+			Fields: []models.TemplateField{
+				{Key: "grade_level", Label: "Grade Level / Age Group", InputType: "text", Placeholder: "Grade 5 (Age 10)"},
+				{Key: "favorite_subjects", Label: "Favorite Subjects", InputType: "text", Placeholder: "Science, Mathematics, Art & Design"},
+				{Key: "hobbies_talents", Label: "Hobbies & Creative Talents", InputType: "text", Placeholder: "Robotics building, Chess champion, Piano"},
+				{Key: "dream_goal", Label: "Future Dream / Goal", InputType: "text", Placeholder: "Astronomer and Aerospace Engineer"},
+				{Key: "guardian_contact", Label: "Parent / Guardian Contact (Optional)", InputType: "text", Placeholder: "guardian@familymail.org"},
+			},
+		},
+		{
+			ID:            "dt_doctor",
+			DomainKey:     "doctor",
+			DisplayName:   "Medical Doctor & Healthcare Specialist",
+			Description:   "Medical specialty, board license, hospital affiliation, and residency training.",
+			Icon:          "🩺",
+			CategoryGroup: "Healthcare",
+			Fields: []models.TemplateField{
+				{Key: "medical_specialty", Label: "Medical Specialty", InputType: "select", Options: []string{"General Surgery", "Internal Medicine", "Pediatrics", "Cardiology", "Neurology", "Obstetrics & Gynecology", "Orthopedics", "Emergency Medicine"}},
+				{Key: "board_license_no", Label: "Medical Board License / Registration No.", InputType: "text", Placeholder: "MCT-MED-84920"},
+				{Key: "hospital_affiliation", Label: "Primary Hospital / Health Center", InputType: "text", Placeholder: "Muhimbili National Hospital"},
+				{Key: "subspecialty_focus", Label: "Subspecialty Focus", InputType: "text", Placeholder: "Minimally Invasive Surgery, Neonatal Intensive Care"},
+			},
+		},
+	}
+
+	for _, dt := range domainTmpls {
+		fieldsJSON, _ := json.Marshal(dt.Fields)
+		_, _ = DB.Exec(`INSERT INTO domain_templates (id, domain_key, display_name, description, icon, category_group, fields, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
+			ON CONFLICT (domain_key) DO UPDATE SET
+				display_name = EXCLUDED.display_name,
+				description = EXCLUDED.description,
+				icon = EXCLUDED.icon,
+				category_group = EXCLUDED.category_group,
+				fields = EXCLUDED.fields,
+				updated_at = EXCLUDED.updated_at`,
+			dt.ID, dt.DomainKey, dt.DisplayName, dt.Description, dt.Icon, dt.CategoryGroup, string(fieldsJSON), now)
+	}
+
+	// 2. Portfolio Templates for Work / Projects
+	portfolioTmpls := []models.PortfolioTemplate{
+		{
+			ID:          "pt_software_project",
+			TemplateKey: "software_project",
+			DisplayName: "Software Engineering Project",
+			Description: "Source code, tech stack, architecture notes, and live demo link.",
+			Icon:        "💻",
+			Fields: []models.TemplateField{
+				{Key: "repo_url", Label: "Source Code Repository", InputType: "url", Placeholder: "https://github.com/..."},
+				{Key: "tech_stack", Label: "Technologies Used", InputType: "text", Placeholder: "Go, PostgreSQL, Docker, HTMX"},
+				{Key: "architecture_style", Label: "Architecture Pattern", InputType: "text", Placeholder: "Modular Monolith, Event-Driven"},
+				{Key: "live_demo_url", Label: "Production / Live Demo Link", InputType: "url", Placeholder: "https://..."},
+				{Key: "impact_metrics", Label: "System Metrics & Performance", InputType: "text", Placeholder: "Sub-10ms P99 latency, 99.98% uptime"},
+			},
+		},
+		{
+			ID:          "pt_music_release",
+			TemplateKey: "music_release",
+			DisplayName: "Music Release & Track Case",
+			Description: "Audio release, genre (R&B, Hip-Hop...), stream links, and production credits.",
+			Icon:        "🎵",
+			Fields: []models.TemplateField{
+				{Key: "release_type", Label: "Release Format", InputType: "select", Options: []string{"Single", "EP", "Full Studio Album", "Mixtape", "Live Session"}},
+				{Key: "genre_style", Label: "Genre Style", InputType: "text", Placeholder: "Contemporary R&B, Trap Soul, Afrobeats"},
+				{Key: "stream_link", Label: "Audio Stream / Music Video Link", InputType: "url", Placeholder: "https://spotify.com/... or https://youtube.com/..."},
+				{Key: "release_date", Label: "Release Date", InputType: "text", Placeholder: "March 2025"},
+				{Key: "production_credits", Label: "Production / Songwriting Credits", InputType: "text", Placeholder: "Produced by XYZ Beats, Mixed at SoundLab"},
+			},
+		},
+		{
+			ID:          "pt_match_performance",
+			TemplateKey: "match_performance",
+			DisplayName: "Match Performance & Game Record",
+			Description: "Fixture, opponent, match rating, stats, and match highlights video.",
+			Icon:        "🏆",
+			Fields: []models.TemplateField{
+				{Key: "opponent_match", Label: "Match / Fixture", InputType: "text", Placeholder: "e.g. League Cup Final vs Simba SC"},
+				{Key: "match_date", Label: "Match Date", InputType: "text", Placeholder: "2025-05-14"},
+				{Key: "result", Label: "Match Result", InputType: "text", Placeholder: "3 - 1 (Win)"},
+				{Key: "performance_stats", Label: "Personal Stats (Goals, Assists, Minutes)", InputType: "text", Placeholder: "90 mins played, 1 Goal, 2 Assists, Man of the Match"},
+				{Key: "match_video_url", Label: "Match Highlights / Footage Link", InputType: "url", Placeholder: "https://youtube.com/watch?v=..."},
+			},
+		},
+		{
+			ID:          "pt_design_case_study",
+			TemplateKey: "design_case_study",
+			DisplayName: "Design Case Study & Prototype",
+			Description: "Figma links, design problem, research methods, and design system deliverables.",
+			Icon:        "✨",
+			Fields: []models.TemplateField{
+				{Key: "figma_url", Label: "Figma Prototype / Case Study Link", InputType: "url", Placeholder: "https://figma.com/file/..."},
+				{Key: "client_or_brand", Label: "Client / Project Brand", InputType: "text", Placeholder: "e.g. Apex Health Mobile App"},
+				{Key: "problem_statement", Label: "Design Problem & Objective", InputType: "textarea", Placeholder: "Redesigning the patient intake flow to cut onboarding drop-off."},
+				{Key: "user_research_method", Label: "Research & Testing Methods", InputType: "text", Placeholder: "Usability tests with 30 patients, card sorting"},
+				{Key: "deliverables", Label: "Core Deliverables", InputType: "text", Placeholder: "Design system tokens, high-fidelity interactive prototype"},
+			},
+		},
+		{
+			ID:          "pt_research_paper",
+			TemplateKey: "research_paper",
+			DisplayName: "Research Paper & Scientific Case",
+			Description: "DOI/ArXiv, journal venue, peer-review status, and scientific abstract.",
+			Icon:        "📄",
+			Fields: []models.TemplateField{
+				{Key: "paper_title", Label: "Publication / Preprint Title", InputType: "text", Placeholder: "Longitudinal Efficacy of Cold-Chain Vaccines"},
+				{Key: "doi_or_arxiv", Label: "DOI or ArXiv Identifier", InputType: "text", Placeholder: "10.1016/j.vaccine.2025.04.012"},
+				{Key: "publication_venue", Label: "Journal / Conference Venue", InputType: "text", Placeholder: "The Lancet Global Health (Peer-Reviewed)"},
+				{Key: "co_authors", Label: "Co-Authors & Contributors", InputType: "text", Placeholder: "Dr. S. Kazi, Prof. M. Ndunguru"},
+				{Key: "abstract_summary", Label: "Paper Abstract", InputType: "textarea", Placeholder: "Synthesizing cold-chain sensor data across 45 rural dispensaries..."},
+			},
+		},
+		{
+			ID:          "pt_general_work",
+			TemplateKey: "general_work",
+			DisplayName: "Professional Work & Milestone",
+			Description: "Deliverables, client/stakeholder, impact summary, and verified evidence.",
+			Icon:        "📌",
+			Fields: []models.TemplateField{
+				{Key: "work_type", Label: "Category of Work", InputType: "text", Placeholder: "Consulting, Architecture Audit, Product Launch"},
+				{Key: "client_or_org", Label: "Client or Organization", InputType: "text", Placeholder: "XYZ Health Network"},
+				{Key: "key_deliverables", Label: "Key Deliverables", InputType: "textarea", Placeholder: "Forensic audit report, ERP reconciliation pipeline"},
+				{Key: "evidence_url", Label: "Evidence / Live Artifact Link", InputType: "url", Placeholder: "https://..."},
+			},
+		},
+	}
+
+	for _, pt := range portfolioTmpls {
+		fieldsJSON, _ := json.Marshal(pt.Fields)
+		_, _ = DB.Exec(`INSERT INTO portfolio_templates (id, template_key, display_name, description, icon, fields, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
+			ON CONFLICT (template_key) DO UPDATE SET
+				display_name = EXCLUDED.display_name,
+				description = EXCLUDED.description,
+				icon = EXCLUDED.icon,
+				fields = EXCLUDED.fields,
+				updated_at = EXCLUDED.updated_at`,
+			pt.ID, pt.TemplateKey, pt.DisplayName, pt.Description, pt.Icon, string(fieldsJSON), now)
+	}
+
+	log.Println("Seeded Domain Templates and Portfolio Templates successfully.")
 	return nil
 }

@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime/debug"
 	"strings"
+	"time"
 
 	"home_proofolio/internal/db"
 	"home_proofolio/internal/devreload"
@@ -25,7 +27,8 @@ func main() {
 	// 2. Live Reload SSE Endpoint for instant Hot Reload
 	mux.HandleFunc("/dev/live-reload", devreload.HandleSSE)
 
-	// 3. Static Asset Server (CSS, JS, Generated Visuals)
+	// 3. Static Asset Server (CSS, JS, Uploaded Avatars, Generated Visuals)
+	_ = os.MkdirAll("static/uploads/avatars", 0755)
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
@@ -70,14 +73,24 @@ func main() {
 		case "/register":
 			handlers.HandleRegisterView(w, r)
 		default:
+			// Handle /articles/{slug} reader view
+			if strings.HasPrefix(path, "/articles/") {
+				handlers.HandleArticleReader(w, r)
+				return
+			}
 			http.NotFound(w, r)
 		}
 	})
 
-	// 4. Auth Routes
+	// 4. Auth & Profile Routes
 	mux.HandleFunc("/auth/login", handlers.HandleLogin)
 	mux.HandleFunc("/auth/register", handlers.HandleRegister)
 	mux.HandleFunc("/auth/logout", handlers.HandleLogout)
+	mux.HandleFunc("/api/session/keepalive", handlers.HandleSessionKeepalive)
+	mux.HandleFunc("/api/profile", handlers.HandleUpdateProfile)
+	mux.HandleFunc("/api/profile/template-fields", handlers.HandleGetTemplateFields)
+	mux.HandleFunc("/api/profile/custom-field-row", handlers.HandleCustomFieldRow)
+	mux.HandleFunc("/api/profile/avatar", handlers.HandleUploadAvatar)
 
 	// 5. API Routes (HTMX Hypermedia Actions)
 	mux.HandleFunc("/api/inquiries", handlers.HandleCreateInquiry)
@@ -160,7 +173,51 @@ func main() {
 	}
 
 	log.Printf("Proofolio server live on http://localhost:%s", port)
-	if err := http.ListenAndServe(":"+port, mux); err != nil {
+	if err := http.ListenAndServe(":"+port, loggingAndRecoveryMiddleware(mux)); err != nil {
 		log.Fatalf("Server exited: %v", err)
 	}
+}
+
+type statusWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (w *statusWriter) WriteHeader(code int) {
+	w.statusCode = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+// Flush delegates to the underlying ResponseWriter so that SSE / streaming
+// connections work even when the response is wrapped by this middleware.
+func (w *statusWriter) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+// Hijack delegates hijacking (WebSocket / keep-alive) to the underlying writer.
+func (w *statusWriter) Unwrap() http.ResponseWriter {
+	return w.ResponseWriter
+}
+
+func loggingAndRecoveryMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		sw := &statusWriter{ResponseWriter: w, statusCode: http.StatusOK}
+
+		defer func() {
+			if rec := recover(); rec != nil {
+				log.Printf("[PANIC RECOVERED] %s %s: %v\nStack: %s", r.Method, r.URL.Path, rec, debug.Stack())
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
+		}()
+
+		next.ServeHTTP(sw, r)
+		duration := time.Since(start)
+
+		if r.URL.Path != "/dev/live-reload" && r.URL.Path != "/api/session/keepalive" {
+			log.Printf("[%s] %s %d %v", r.Method, r.URL.Path, sw.statusCode, duration)
+		}
+	})
 }

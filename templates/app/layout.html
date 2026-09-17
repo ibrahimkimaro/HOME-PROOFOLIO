@@ -3,17 +3,14 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title>{{.Title}} — Proofolio</title>
-  <meta name="description"
-    content="Proofolio Multi-Role Living Console — Verified evidence, multi-role professional identity, organizations, and evolving ideas journal.">
+  <meta name="description" content="Proofolio Multi-Role Living Console — Verified evidence, multi-role professional identity, organizations, and evolving ideas journal.">
   <link rel="icon" type="image/jpeg" href="/static/images/home-profolio-logo.jpeg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <script src="/static/js/htmx.min.js"></script>
   <script src="/static/js/qrcode.min.js"></script>
@@ -29,44 +26,136 @@
   </script>
 
   <style>
-    /* ── Tokens ── */
+    /* ── Tokens: Dual-Theme (Light / Dark) & User Specifications ── */
     :root {
-      --accent: #7C3AED;
-      --accent-2: #06B6D4;
-      --accent-glow: rgba(124, 58, 237, .25);
-      --green: #10B981;
-      --amber: #F59E0B;
-      --red: #EF4444;
-      --bg: #F1F4FB;
-      --bg-card: #FFFFFF;
-      --bg-sidebar: #16192B;
-      --border: #E2E6F0;
-      --text-1: #0C0F1A;
+      /* User Palette: Canvas & Cards */
+      --bg: #FFFFFF;
+      /* Crisp white background */
+      --bg-paper: #FAF7F2;
+      /* Canvas paper */
+      --bg-card: #F9FAFB;
+      /* Light gray surfaces for cards */
+      --bg-card-alt: #F0EBE3;
+      /* Structural card surface */
+      --bg-card-solid: #FFFFFF;
+      --bg-glass: rgba(249, 250, 251, 0.85);
+      --bg-glass-hover: rgba(240, 235, 227, 0.95);
+      --border: #D8D0C5;
+      /* border-stone-300 */
+      --border-subtle: #E5E7EB;
+      --border-glass: rgba(216, 208, 197, 0.7);
+
+      /* Typography */
+      --text-1: #111827;
+      /* Deep slate for primary text */
       --text-2: #374151;
+      /* Body text */
       --text-3: #6B7280;
-      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      /* Muted text */
+      --text-muted: #9CA3AF;
+
+      /* Status Badges & Proof Highlights */
+      --accent: #C25932;
+      /* Terracotta highlights */
+      --accent-hover: #A74522;
+      --accent-glow: rgba(194, 89, 50, 0.22);
+      --color-terracotta: #C25932;
+      --color-terracotta-bg: rgba(194, 89, 50, 0.1);
+
+      --amber-tag-bg: #FEF3C7;
+      /* amber-100 */
+      --amber-tag-text: #78350F;
+      /* amber-900 */
+      --amber: #78350F;
+      --accent-amber: #78350F;
+
+      --emerald-proof-bg: #D1FAE5;
+      /* emerald-100 */
+      --emerald-proof-text: #065F46;
+      /* emerald-800 */
+      --green: #065F46;
+      --accent-2: #065F46;
+      --accent-mint: #065F46;
+      --accent-coral: #C25932;
+      --red: #DC2626;
+      --indigo: #4F46E5;
+
+      /* Sidebar (sleek, high-contrast dark charcoal) */
+      --bg-sidebar: #444749;
+
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --mono: 'JetBrains Mono', monospace;
+
       --r-sm: 8px;
       --r-md: 14px;
       --r-lg: 20px;
-      --r-xl: 26px;
-      --sidebar-w: 244px;
-      --topbar-h: 58px;
-      --sidebar-col: 70px;
-      --sh-card: 0 1px 3px rgba(15, 17, 23, .05), 0 6px 20px rgba(15, 17, 23, .06);
-      --sh-pop: 0 12px 40px rgba(15, 17, 23, .16);
+      --r-xl: 28px;
+      --r-full: 9999px;
+
+      --sidebar-w: 256px;
+      --topbar-h: 62px;
+      --sidebar-col: 72px;
+
+      --sh-sm: 0 1px 3px rgba(17, 24, 39, 0.04), 0 1px 2px rgba(17, 24, 39, 0.02);
+      --sh-card: 0 4px 18px -2px rgba(17, 24, 39, 0.06), 0 2px 6px -1px rgba(17, 24, 39, 0.03);
+      --sh-hover: 0 12px 30px -4px rgba(17, 24, 39, 0.1), 0 4px 10px -2px rgba(17, 24, 39, 0.04);
+      --sh-pop: 0 20px 40px -8px rgba(17, 24, 39, 0.16);
+
+      --blur-glass: blur(14px) saturate(160%);
     }
 
     [data-theme="dark"] {
-      --bg: #0B0D1A;
-      --bg-card: #111424;
-      --bg-sidebar: #080A15;
-      --border: #1C1F35;
-      --text-1: #EEF2FF;
-      --text-2: #B0BCDE;
-      --text-3: #5C6A8A;
-      --sh-card: 0 1px 3px rgba(0, 0, 0, .5), 0 6px 24px rgba(0, 0, 0, .4);
-      --sh-pop: 0 12px 48px rgba(0, 0, 0, .7);
+      /* Dark Mode: Deep charcoal base with elevated lighter panels */
+      --bg: #121212;
+      /* Deep charcoal base */
+      --bg-paper: #121212;
+      --bg-card: #1E1E1E;
+      /* Elevated slightly lighter panels */
+      --bg-card-alt: #1E1E1E;
+      --bg-card-solid: #1E1E1E;
+      --bg-glass: rgba(30, 30, 30, 0.85);
+      --bg-glass-hover: rgba(42, 42, 42, 0.95);
+      --border: #2E2E2E;
+      --border-subtle: #242424;
+      --border-glass: rgba(255, 255, 255, 0.09);
+
+      /* Typography */
+      --text-1: #F9FAFB;
+      --text-2: #D1D5DB;
+      --text-3: #9CA3AF;
+      --text-muted: #6B7280;
+
+      /* Status Badges & Proof Highlights */
+      --accent: #E06D44;
+      /* Terracotta for dark mode */
+      --accent-hover: #F07E55;
+      --accent-glow: rgba(224, 109, 68, 0.25);
+      --color-terracotta: #E06D44;
+      --color-terracotta-bg: rgba(224, 109, 68, 0.18);
+
+      --amber-tag-bg: rgba(254, 243, 199, 0.12);
+      --amber-tag-text: #FDE68A;
+      --amber: #FDE68A;
+      --accent-amber: #FDE68A;
+
+      --emerald-proof-bg: rgba(209, 250, 229, 0.14);
+      --emerald-proof-text: #6EE7B7;
+      --green: #6EE7B7;
+      --accent-2: #6EE7B7;
+      --accent-mint: #6EE7B7;
+      --accent-coral: #FB7185;
+      --red: #F87171;
+      --indigo: #818CF8;
+
+      /* Sidebar in Dark Mode */
+      --bg-sidebar: #0D0D12;
+
+      --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+      --sh-card: 0 4px 24px -2px rgba(0, 0, 0, 0.55), 0 2px 6px -1px rgba(0, 0, 0, 0.4);
+      --sh-hover: 0 14px 34px -4px rgba(0, 0, 0, 0.75);
+      --sh-pop: 0 24px 52px -8px rgba(0, 0, 0, 0.85);
+
+      --blur-glass: blur(16px) saturate(170%);
     }
 
     *,
@@ -85,6 +174,9 @@
       scroll-behavior: smooth;
       overflow-x: hidden;
       max-width: 100vw;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      touch-action: manipulation;
     }
 
     body {
@@ -94,6 +186,13 @@
       max-width: 100vw;
       background: var(--bg);
       transition: background .25s, color .25s;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
+    body.modal-open {
+      overflow: hidden !important;
     }
 
     a {
@@ -109,8 +208,13 @@
     /* ── Sidebar ── */
     .sidebar {
       position: fixed;
-      inset: 0 auto 0 0;
+      top: 0;
+      left: 0;
+      bottom: 0;
       width: var(--sidebar-w);
+      height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
       background: var(--bg-sidebar);
       display: flex;
       flex-direction: column;
@@ -167,7 +271,7 @@
       border-radius: 9px;
       object-fit: cover;
       flex-shrink: 0;
-      box-shadow: 0 0 0 2px rgba(124, 58, 237, .55);
+      box-shadow: 0 0 0 2px rgba(194, 89, 50, .45);
     }
 
     .sb-brand-name {
@@ -183,33 +287,6 @@
       color: var(--accent);
     }
 
-    .live-dot {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: .58rem;
-      font-family: var(--mono);
-      font-weight: 700;
-      color: var(--green);
-      letter-spacing: .07em;
-      padding: 2px 7px;
-      border-radius: 99px;
-      background: rgba(16, 185, 129, .12);
-      border: 1px solid rgba(16, 185, 129, .22);
-      margin-left: auto;
-      white-space: nowrap;
-      transition: opacity .2s;
-    }
-
-    .live-dot::before {
-      content: '';
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: blink 2s infinite;
-    }
-
     @keyframes blink {
 
       0%,
@@ -223,10 +300,12 @@
     }
 
     .sb-nav {
-      flex: 1;
+      flex: 1 1 auto;
+      min-height: 0;
       padding: 10px 0;
       overflow-y: auto;
       overflow-x: hidden;
+      overscroll-behavior: contain;
     }
 
     .sb-nav::-webkit-scrollbar {
@@ -254,7 +333,7 @@
       align-items: center;
       gap: 10px;
       padding: 9px 16px 9px 20px;
-      color: rgba(255, 255, 255, .42);
+      color: rgba(255, 255, 255, .72);
       font-size: .83rem;
       font-weight: 500;
       transition: background .14s, color .14s, padding .28s;
@@ -264,14 +343,14 @@
     }
 
     .nav-link:hover {
-      background: rgba(255, 255, 255, .05);
-      color: rgba(255, 255, 255, .82);
+      background: rgba(255, 255, 255, .08);
+      color: #ffffff;
     }
 
     .nav-link.active {
       color: #fff;
       font-weight: 600;
-      background: linear-gradient(90deg, rgba(124, 58, 237, .2), rgba(124, 58, 237, .03));
+      background: linear-gradient(90deg, rgba(194, 89, 50, .25), rgba(194, 89, 50, .04));
     }
 
     .nav-link.active::before {
@@ -280,10 +359,10 @@
       left: 0;
       top: 8px;
       bottom: 8px;
-      width: 3px;
-      border-radius: 0 3px 3px 0;
+      width: 3.5px;
+      border-radius: 0 4px 4px 0;
       background: var(--accent);
-      box-shadow: 0 0 12px rgba(124, 58, 237, .55);
+      box-shadow: 0 0 10px var(--accent-glow);
     }
 
     .nav-icon {
@@ -310,22 +389,27 @@
       font-family: var(--mono);
       padding: 1px 6px;
       border-radius: 99px;
-      background: rgba(124, 58, 237, .18);
-      color: #C4B5FD;
+      background: var(--color-terracotta-bg);
+      color: var(--color-terracotta);
       transition: opacity .2s;
     }
 
     /* Sidebar footer — avatar clickable area */
     .sb-footer {
+      flex-shrink: 0;
+      margin-top: auto;
+      position: sticky;
+      bottom: 0;
       padding: 12px 14px;
-      border-top: 1px solid rgba(255, 255, 255, .06);
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+      border-top: 1px solid rgba(255, 255, 255, .08);
+      background: var(--bg-sidebar);
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-shrink: 0;
-      transition: padding .28s;
       cursor: pointer;
-      position: relative;
+      z-index: 10;
+      transition: padding .28s, background .2s;
     }
 
     .sb-footer:hover {
@@ -460,7 +544,7 @@
     }
 
     .popup-item:hover {
-      background: rgba(124, 58, 237, .07);
+      background: var(--color-terracotta-bg);
       color: var(--accent);
     }
 
@@ -582,7 +666,7 @@
     .btn-ghost:hover {
       border-color: var(--accent);
       color: var(--accent);
-      background: rgba(124, 58, 237, .05);
+      background: var(--color-terracotta-bg);
     }
 
     .icon-btn {
@@ -603,7 +687,7 @@
     .icon-btn:hover {
       border-color: var(--accent);
       color: var(--accent);
-      background: rgba(124, 58, 237, .05);
+      background: var(--color-terracotta-bg);
     }
 
     .role-pills {
@@ -646,9 +730,9 @@
     }
 
     .role-pill.other {
-      background: rgba(124, 58, 237, .1);
+      background: var(--color-terracotta-bg);
       color: var(--accent);
-      border-color: rgba(124, 58, 237, .28);
+      border-color: rgba(194, 89, 50, .28);
     }
 
     .add-dropdown {
@@ -712,7 +796,7 @@
     }
 
     .add-item:hover {
-      background: rgba(124, 58, 237, .07);
+      background: var(--color-terracotta-bg);
       color: var(--accent);
     }
 
@@ -753,11 +837,23 @@
     @media(max-width:900px) {
       .sidebar {
         transform: translateX(-100%);
-        width: var(--sidebar-w) !important;
+        width: min(var(--sidebar-w), 85vw) !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        z-index: 999 !important;
       }
 
       .sidebar.mob-open {
         transform: translateX(0);
+      }
+
+      .sb-footer {
+        flex-shrink: 0 !important;
+        margin-top: auto !important;
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
       }
 
       .sb-overlay.active {
@@ -908,17 +1004,26 @@
     }
 
     /* ── Modals ── */
-    dialog.modal-dialog {
+    dialog:not([open]),
+    dialog.modal-dialog:not([open]) {
+      display: none !important;
+    }
+
+    dialog.modal-dialog[open],
+    dialog[open] {
       border: none;
       padding: 0;
       background: transparent;
       max-width: 100vw;
       width: 100%;
+      z-index: 100000 !important;
     }
 
-    dialog.modal-dialog::backdrop {
+    dialog.modal-dialog::backdrop,
+    dialog::backdrop {
       background: rgba(5, 8, 18, .74);
-      backdrop-filter: blur(7px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .modal-box {
@@ -932,59 +1037,200 @@
       box-shadow: var(--sh-pop);
     }
 
-    /* ── Modal mobile: bottom-sheet style ── */
-    @media(max-width:640px){
-      /* position dialog at bottom of screen */
-      dialog.modal-dialog{
-        display:flex;
-        flex-direction:column;
-        justify-content:flex-end;
-        align-items:stretch;
-        padding:0;
-        height:100%;
-        max-height:100%;
-      }
-      .modal-box{
-        width:100%;
-        max-width:100%;
-        border-radius:var(--r-xl) var(--r-xl) 0 0;
-        padding:16px 14px calc(env(safe-area-inset-bottom,0px) + 16px);
-        max-height:88vh;
-        overflow-y:auto;
-        -webkit-overflow-scrolling:touch;
-        margin:0;
-        border-left:none;
-        border-right:none;
-        border-bottom:none;
-      }
-      /* drag handle pill at top */
-      .modal-box::before{
-        content:'';
-        display:block;
-        width:36px;height:4px;
-        border-radius:99px;
-        background:var(--border);
-        margin:0 auto 16px;
-      }
-      .modal-title{font-size:1rem;}
-      .form-grid{grid-template-columns:1fr;}
-      .modal-footer{
-        flex-direction:column-reverse;gap:8px;
-        position:sticky;bottom:0;
-        background:var(--bg-card);
-        padding-top:10px;
-        margin-top:10px;
-      }
-      .modal-footer .btn-cancel,
-      .modal-footer .btn-submit{
-        width:100%;text-align:center;justify-content:center;
-        padding:10px;
-      }
-      .btn-submit{font-size:.85rem;}
-      .btn-cancel{font-size:.82rem;}
+    /* Hide mobile bottom navigation whenever any modal is open */
+    body:has(dialog[open]) .mob-nav,
+    body.modal-open .mob-nav {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
-    @media(max-width:380px){
-      .modal-box{padding:12px 12px calc(env(safe-area-inset-bottom,0px) + 12px);}
+
+    /* ── Modal mobile: bottom-sheet style (≤900px) ── */
+    @media(max-width:900px) {
+
+      /* ensure closed dialogs are strictly hidden */
+      dialog:not([open]),
+      dialog.modal-dialog:not([open]) {
+        display: none !important;
+      }
+
+      /* position open dialog as bottom-sheet */
+      dialog.modal-dialog[open],
+      dialog[open] {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: stretch;
+        padding: 0;
+        position: fixed;
+        inset: 0;
+        margin: 0;
+        width: 100vw;
+        max-width: 100vw;
+        height: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        border: none;
+        background: rgba(5, 8, 18, 0.72);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 100000 !important;
+        overflow: hidden;
+      }
+
+      .modal-box,
+      dialog[open]>div {
+        width: 100%;
+        max-width: 100% !important;
+        border-radius: 20px 20px 0 0;
+        padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+        max-height: 90vh;
+        max-height: 90dvh;
+        max-height: calc(100% - 24px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        background: var(--bg-card);
+        box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.45);
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* drag handle pill at top */
+      .modal-box::before,
+      dialog[open]>div::before {
+        content: '';
+        display: block;
+        width: 44px;
+        height: 5px;
+        border-radius: 99px;
+        background: var(--border);
+        margin: 0 auto 14px;
+        flex-shrink: 0;
+      }
+
+      .modal-header {
+        position: relative;
+        background: transparent;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .modal-close {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bg-paper);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .modal-title {
+        font-size: 1.15rem;
+      }
+
+      /* CRITICAL: Enforce >= 16px font-size on all form inputs to completely stop mobile Safari/Chrome auto-zoom */
+      input,
+      textarea,
+      select,
+      .form-input,
+      .form-select,
+      .form-textarea,
+      .qr-link-input {
+        font-size: 16px !important;
+        font-size: 1rem !important;
+        min-height: 46px;
+        line-height: 1.4 !important;
+        box-sizing: border-box !important;
+        padding: 11px 13px !important;
+        border-radius: var(--r-md) !important;
+      }
+
+      textarea.form-textarea,
+      textarea.form-input {
+        min-height: 84px;
+      }
+
+      .form-group {
+        margin-bottom: 14px;
+      }
+
+      .form-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .modal-footer {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        position: relative;
+        background: transparent;
+        padding-top: 16px;
+        margin-top: 20px;
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .modal-footer .btn-cancel {
+        flex: 1;
+        min-height: 44px;
+        padding: 10px 14px;
+        border-radius: var(--r-md);
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .modal-footer .btn-submit,
+      .modal-footer button[type="submit"] {
+        flex: 2;
+        min-height: 44px;
+        padding: 10px 16px;
+        border-radius: var(--r-md);
+        font-size: 0.95rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .btn-submit {
+        font-weight: 700;
+      }
+
+      .btn-cancel {
+        font-weight: 600;
+      }
+    }
+
+    @media(max-width:380px) {
+
+      .modal-box,
+      dialog[open]>div {
+        padding: 14px 12px calc(env(safe-area-inset-bottom, 0px) + 16px);
+      }
     }
 
     .modal-header {
@@ -1005,9 +1251,9 @@
       padding: 2px 9px;
       border-radius: 99px;
       margin-bottom: 5px;
-      background: rgba(124, 58, 237, .1);
+      background: var(--color-terracotta-bg);
       color: var(--accent);
-      border: 1px solid rgba(124, 58, 237, .2);
+      border: 1px solid rgba(194, 89, 50, .22);
     }
 
     .modal-tag.green {
@@ -1082,7 +1328,7 @@
     .form-select:focus,
     .form-textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, .15);
+      box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
     .form-textarea {
@@ -1199,24 +1445,179 @@
       margin-top: 12px;
     }
 
+    /* ── Glassmorphism & Elevated Components ── */
+    .glass-card {
+      background: var(--bg-glass);
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--r-lg);
+      box-shadow: var(--sh-card);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+      min-width: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--sh-hover);
+      border-color: rgba(99, 102, 241, 0.35);
+    }
+
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      box-shadow: var(--sh-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Trust & Reputation System ── */
+    .trust-sidebar-widget {
+      margin: 12px 14px;
+      padding: 14px;
+      border-radius: var(--r-md);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .sidebar.collapsed .trust-sidebar-widget {
+      display: none;
+    }
+
+    .trust-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .trust-badge-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .trust-score {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--accent-mint);
+      font-family: var(--mono);
+    }
+
+    .trust-progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .trust-progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent-mint), #3B82F6);
+      transition: width 0.6s ease;
+    }
+
+    .trust-metrics {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: var(--mono);
+    }
+
+    .verification-shield {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      background: var(--emerald-proof-bg);
+      color: var(--emerald-proof-text);
+      border: 1px solid rgba(6, 95, 70, 0.25);
+    }
+
+    .badge-terracotta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      background: var(--color-terracotta-bg);
+      color: var(--color-terracotta);
+      border: 1px solid rgba(194, 89, 50, 0.25);
+    }
+
+    .badge-amber {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      background: var(--amber-tag-bg);
+      color: var(--amber-tag-text);
+      border: 1px solid rgba(120, 53, 15, 0.25);
+    }
+
+    .badge-emerald {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      background: var(--emerald-proof-bg);
+      color: var(--emerald-proof-text);
+      border: 1px solid rgba(6, 95, 70, 0.25);
+    }
+
     /* ── Modern Card system (used by pages) ── */
     .mc {
       background: var(--bg-card);
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
       border: 1px solid var(--border);
       border-radius: var(--r-lg);
       box-shadow: var(--sh-card);
-      transition: box-shadow .2s, transform .2s;
+      transition: box-shadow .25s cubic-bezier(0.16, 1, 0.3, 1), transform .25s cubic-bezier(0.16, 1, 0.3, 1), border-color .2s;
       min-width: 0;
       overflow: hidden;
     }
 
     .mc:hover {
-      box-shadow: 0 6px 28px rgba(15, 17, 23, .1);
-      transform: translateY(-1px);
+      box-shadow: var(--sh-hover);
+      transform: translateY(-2px);
     }
 
     .mc-p {
-      padding: 22px 24px;
+      padding: 24px;
     }
 
     .mc-header {
@@ -1242,9 +1643,9 @@
     }
 
     .mc-tag.purple {
-      background: rgba(124, 58, 237, .1);
+      background: var(--color-terracotta-bg);
       color: var(--accent);
-      border: 1px solid rgba(124, 58, 237, .2);
+      border: 1px solid rgba(194, 89, 50, .22);
     }
 
     .mc-tag.green {
@@ -1326,7 +1727,7 @@
       position: absolute;
       inset: 0;
       border-radius: var(--r-md);
-      background: linear-gradient(135deg, rgba(124, 58, 237, .04), transparent 60%);
+      background: linear-gradient(135deg, rgba(194, 89, 50, .05), transparent 60%);
       pointer-events: none;
     }
 
@@ -1372,9 +1773,9 @@
       letter-spacing: .1em;
       padding: 2px 8px;
       border-radius: 99px;
-      background: rgba(124, 58, 237, .1);
+      background: var(--color-terracotta-bg);
       color: var(--accent);
-      border: 1px solid rgba(124, 58, 237, .2);
+      border: 1px solid rgba(194, 89, 50, .22);
       margin-bottom: 6px;
     }
 
@@ -1414,7 +1815,7 @@
     }
 
     .a-btn.prim:hover {
-      background: #6D28D9;
+      background: var(--accent-hover);
       transform: translateY(-1px);
       box-shadow: 0 4px 18px var(--accent-glow);
     }
@@ -1428,7 +1829,7 @@
     .a-btn.sec:hover {
       border-color: var(--accent);
       color: var(--accent);
-      background: rgba(124, 58, 237, .05);
+      background: var(--color-terracotta-bg);
     }
 
     .a-btn.grn {
@@ -1464,9 +1865,9 @@
     }
 
     .skill-pill.purple {
-      background: rgba(124, 58, 237, .1);
+      background: var(--color-terracotta-bg);
       color: var(--accent);
-      border: 1px solid rgba(124, 58, 237, .22);
+      border: 1px solid rgba(194, 89, 50, .22);
     }
 
     .skill-pill.green {
@@ -1521,7 +1922,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(124, 58, 237, .04) 0%, transparent 60%);
+      background: linear-gradient(135deg, rgba(194, 89, 50, .05) 0%, transparent 60%);
       pointer-events: none;
     }
 
@@ -1548,8 +1949,8 @@
     }
 
     .lc-step.active {
-      background: rgba(124, 58, 237, .12);
-      border-color: rgba(124, 58, 237, .3);
+      background: var(--color-terracotta-bg);
+      border-color: rgba(194, 89, 50, .3);
       color: var(--accent);
     }
 
@@ -1741,7 +2142,7 @@
   </style>
 </head>
 
-<body hx-boost="true">
+<body>
 
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="sidebar" id="sidebar" aria-label="Main navigation">
@@ -1750,51 +2151,64 @@
         <img src="/static/images/home-profolio-logo.jpeg" alt="Proofolio" class="sb-logo">
         <span class="sb-brand-name">Proof<span>olio</span></span>
       </a>
-      <span class="live-dot">LIVE</span>
     </div>
 
     <nav class="sb-nav" aria-label="Console navigation">
       <div class="nav-sec">Workspace</div>
-      <a href="/dashboard" class="nav-link {{if eq .ActiveNav "dashboard"}}active{{end}}" title="Overview">
-        <span class="nav-icon">⚡</span><span class="nav-label">Overview</span>
+      <a href="/dashboard" class="nav-link {{if eq .ActiveNav " dashboard"}}active{{end}}" title="Overview">
+        <span class="nav-label">Overview</span>
       </a>
-      <a href="/portfolio" class="nav-link {{if eq .ActiveNav "portfolio"}}active{{end}}" title="Profile & Proofs">
-        <span class="nav-icon">👤</span><span class="nav-label">Profile &amp; Proofs</span>
+      <a href="/portfolio" class="nav-link {{if eq .ActiveNav " portfolio"}}active{{end}}" title="Profile & Proofs">
+        <span class="nav-label">Profile &amp; Proofs</span>
       </a>
-      <a href="/ideas" class="nav-link {{if eq .ActiveNav "ideas"}}active{{end}}" title="Ideas Journal">
-        <span class="nav-icon">💡</span><span class="nav-label">Ideas Journal</span>
+      <a href="/ideas" class="nav-link {{if eq .ActiveNav " ideas"}}active{{end}}" title="Ideas Journal">
+        <span class="nav-label">Ideas Journal</span>
         {{if .Ideas}}<span class="nav-badge">{{len .Ideas}}</span>{{end}}
       </a>
-      <a href="/organizations" class="nav-link {{if eq .ActiveNav "organizations"}}active{{end}}"
-        title="Organizations">
-        <span class="nav-icon">🏢</span><span class="nav-label">Organizations</span>
+      <a href="/organizations" class="nav-link {{if eq .ActiveNav " organizations"}}active{{end}}" title="Organizations">
+        <span class="nav-label">Organizations</span>
         {{if .Organizations}}<span class="nav-badge">{{len .Organizations}}</span>{{end}}
       </a>
       <div class="nav-sec">Network</div>
-      <a href="/inquiries" class="nav-link {{if eq .ActiveNav "inquiries"}}active{{end}}" title="Inquiries">
-        <span class="nav-icon">📬</span><span class="nav-label">Inquiries</span>
+      <a href="/inquiries" class="nav-link {{if eq .ActiveNav " inquiries"}}active{{end}}" title="Inquiries">
+        <span class="nav-label">Inquiries</span>
         {{if .Inquiries}}<span class="nav-badge">{{len .Inquiries}}</span>{{end}}
       </a>
-      <a href="/discussions" class="nav-link {{if eq .ActiveNav "discussions"}}active{{end}}" title="Discussions">
-        <span class="nav-icon">💬</span><span class="nav-label">Discussions</span>
+      <a href="/discussions" class="nav-link {{if eq .ActiveNav " discussions"}}active{{end}}" title="Discussions">
+        <span class="nav-label">Discussions</span>
       </a>
-      <a href="/opportunities" class="nav-link {{if eq .ActiveNav "opportunities"}}active{{end}}"
-        title="Opportunities">
-        <span class="nav-icon">💼</span><span class="nav-label">Opportunities</span>
+      <a href="/opportunities" class="nav-link {{if eq .ActiveNav " opportunities"}}active{{end}}" title="Opportunities">
+        <span class="nav-label">Opportunities</span>
       </a>
-      <a href="/discover" class="nav-link {{if eq .ActiveNav "discover"}}active{{end}}" title="Explore">
-        <span class="nav-icon">🌐</span><span class="nav-label">Explore</span>
+      <a href="/articles" class="nav-link {{if eq .ActiveNav " articles"}}active{{end}}" title="Articles">
+        <span class="nav-label">articles</span>
       </a>
+      <a href="/discover" class="nav-link {{if eq .ActiveNav " discover"}}active{{end}}" title="Explore">
+        <span class="nav-label">Explore</span>
+      </a>
+
+
+      </div>
     </nav>
 
-    <!-- Profile strip — click to open user popup -->
+    <!-- Profile strip — permanently pinned at the bottom of sidebar -->
     <div class="sb-footer" id="sb-footer" onclick="toggleUserPopup()" aria-label="User menu" role="button" tabindex="0">
-      <div class="sb-avatar">
-        {{if .Profile}}{{if .Profile.DisplayName}}{{slice .Profile.DisplayName 0 2}}{{else}}US{{end}}{{else}}US{{end}}
+      <div class="sb-avatar" style="position:relative; overflow:hidden;">
+        {{if and .Profile .Profile.AvatarURL}}
+        <img src="{{.Profile.AvatarURL}}" alt="{{.Profile.DisplayName}}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />
+        {{else}}
+        {{if .Profile}}{{if .Profile.DisplayName}}{{if ge (len .Profile.DisplayName) 2}}{{slice .Profile.DisplayName 0
+        2}}{{else}}{{.Profile.DisplayName}}{{end}}{{else if .User}}{{if ge (len .User.Username) 2}}{{slice
+        .User.Username 0 2}}{{else}}{{.User.Username}}{{end}}{{else}}US{{end}}{{else if .User}}{{if ge (len
+        .User.Username) 2}}{{slice .User.Username 0 2}}{{else}}{{.User.Username}}{{end}}{{else}}US{{end}}
+        {{end}}
+        <span style="position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:var(--accent-mint);border:2px solid var(--bg-sidebar);display:flex;align-items:center;justify-content:center;font-size:7px;color:#fff;" title="Cryptographically Verified Identity">✓</span>
       </div>
       <div class="sb-profile-info">
-        <div class="sb-profile-name">{{if .Profile}}{{.Profile.DisplayName}}{{else}}{{.User.Username}}{{end}}</div>
-        <div class="sb-profile-handle">@{{if .Profile}}{{.Profile.Username}}{{else}}{{.User.Username}}{{end}}</div>
+        <div class="sb-profile-name">{{if .Profile}}{{.Profile.DisplayName}}{{else if
+          .User}}{{.User.Username}}{{else}}Explorer{{end}}</div>
+        <div class="sb-profile-handle">@{{if .Profile}}{{.Profile.Username}}{{else if
+          .User}}{{.User.Username}}{{else}}guest{{end}}</div>
       </div>
       <span class="sb-footer-caret">▲</span>
 
@@ -1814,8 +2228,7 @@
         <button class="popup-item" onclick="document.getElementById('quick-role-dialog').showModal();closeUserPopup()">
           <span class="popup-item-icon">🎭</span> Manage Roles
         </button>
-        <button class="popup-item"
-          onclick="window.openQrShareModal({title:'My Verified Profile',subtitle:'Multi-Role Professional Identity',url:'/portfolio?u={{if .Profile}}{{.Profile.Username}}{{else}}{{.User.Username}}{{end}}',type:'profile',badgeText:'VERIFIED PROFILE'});closeUserPopup()">
+        <button class="popup-item" data-qr-title="My Verified Profile" data-qr-subtitle="Multi-Role Professional Identity" data-qr-url="/portfolio?u={{if .Profile}}{{.Profile.Username}}{{else}}{{.User.Username}}{{end}}" data-qr-type="profile" data-qr-badge="VERIFIED PROFILE" onclick="window.openQrShareBtn(this);closeUserPopup()">
           <span class="popup-item-icon">📇</span> Share Profile QR
         </button>
         <a href="/about" class="popup-item">
@@ -1843,8 +2256,7 @@
     <div class="topbar-title" style="font-size:small;">{{if .Profile}}{{.Profile.DisplayName}}{{else}}{{end}}</div>
     <div class="topbar-actions">
 
-      <button class="btn-primary" onclick="document.getElementById('quick-idea-dialog').showModal()">💡 <span
-          class="btn-text">Quick Idea</span></button>
+      <button class="btn-primary" style="background-color: #1E1E1E;" onclick="document.getElementById('quick-idea-dialog').showModal()">💡 <span class="btn-text">Quick Idea</span></button>
       <div class="add-dropdown">
         <button class="btn-ghost" id="add-btn" onclick="toggleAddMenu()">
           ＋ <span class="btn-text">Add</span>
@@ -1874,21 +2286,24 @@
 
   <!-- ═══ MOBILE BOTTOM NAV (≤900px only) ═══ -->
   <nav class="mob-nav" aria-label="Mobile navigation">
-    <a href="/dashboard" class="mob-nav-item {{if eq .ActiveNav "dashboard"}}mob-active{{end}}">
+    <a href="/dashboard" class="mob-nav-item {{if eq .ActiveNav " dashboard"}}mob-active{{end}}">
       <span class="mob-nav-icon">⚡</span>
       <span class="mob-nav-lbl">Home</span>
     </a>
-    <a href="/portfolio" class="mob-nav-item {{if eq .ActiveNav "portfolio"}}mob-active{{end}}">
+    <a href="/portfolio" class="mob-nav-item {{if eq .ActiveNav " portfolio"}}mob-active{{end}}">
       <span class="mob-nav-icon">👤</span>
       <span class="mob-nav-lbl">Profile</span>
     </a>
-    <button class="mob-nav-item mob-nav-fab" onclick="document.getElementById('quick-idea-dialog').showModal()"
-      aria-label="Capture idea">
+    <button class="mob-nav-item mob-nav-fab" onclick="document.getElementById('quick-idea-dialog').showModal()" aria-label="Capture idea">
       <span style="font-size:1.3rem;line-height:1;">💡</span>
     </button>
-    <a href="/ideas" class="mob-nav-item {{if eq .ActiveNav "ideas"}}mob-active{{end}}">
+    <a href="/ideas" class="mob-nav-item {{if eq .ActiveNav " ideas"}}mob-active{{end}}">
       <span class="mob-nav-icon">📝</span>
       <span class="mob-nav-lbl">Ideas</span>
+    </a>
+    <a href="/articles" class="mob-nav-item {{if eq .ActiveNav " articles"}}mob-active{{end}}">
+      <span class="mob-nav-icon">✍</span>
+      <span class="mob-nav-lbl">Articles</span>
     </a>
     <button class="mob-nav-item" onclick="toggleSidebar()" aria-label="Open menu">
       <span class="mob-nav-icon">☰</span>
@@ -1913,8 +2328,7 @@
       </div>
       <div class="qr-link-row">
         <input type="text" id="qr-modal-link-input" class="qr-link-input" readonly>
-        <button type="button" id="qr-modal-copy-btn" onclick="copyQrModalLink()" class="btn-submit"
-          style="white-space:nowrap;font-size:.74rem;padding:7px 13px;">📋 Copy</button>
+        <button type="button" id="qr-modal-copy-btn" onclick="copyQrModalLink()" class="btn-submit" style="white-space:nowrap;font-size:.74rem;padding:7px 13px;">📋 Copy</button>
       </div>
       <div class="qr-utils">
         <button type="button" onclick="downloadQrCodeImage()" class="btn-cancel" style="font-size:.74rem;">📥 Download
@@ -1928,47 +2342,36 @@
   <dialog id="quick-idea-dialog" class="modal-dialog">
     <div class="modal-box">
       <div class="modal-header">
-        <div><span class="modal-tag amber">⚡ Fast Capture</span>
+        <div>
           <h3 class="modal-title">Capture Idea / Discovery</h3>
         </div>
         <button class="modal-close" onclick="document.getElementById('quick-idea-dialog').close()">✕</button>
       </div>
-      <form action="/api/ideas" method="POST">
-        <div class="form-group"><label class="form-label">Idea / Learning Title *</label><input type="text" name="title"
-            required placeholder="e.g. Predictive FIFO batch inventory for hospital dispensaries" class="form-input">
+      <form hx-post="/api/ideas" hx-target="body" hx-push-url="true">
+        <div class="form-group"><label class="form-label">Idea / Learning Title *</label><input type="text" name="title" required placeholder="e.g. Predictive FIFO batch inventory for hospital dispensaries" class="form-input">
         </div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Initial Stage</label><select name="stage"
-              class="form-select">
+          <div class="form-group"><label class="form-label">Initial Stage</label><select name="stage" class="form-select">
               <option value="NEW" selected>NEW · Initial Spark</option>
               <option value="EXPLORING">EXPLORING · Gathering Questions</option>
               <option value="LEARNING">LEARNING · Active Research</option>
               <option value="UNDERSTANDING">UNDERSTANDING · Synthesizing</option>
               <option value="TESTING">TESTING · Prototype Validation</option>
             </select></div>
-          <div class="form-group"><label class="form-label">Source / Inspiration</label><input type="text" name="source"
-              placeholder="e.g. Pharmacy inventory audit log" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Source / Inspiration</label><input type="text" name="source" placeholder="e.g. Pharmacy inventory audit log" class="form-input"></div>
         </div>
-        <div class="form-group"><label class="form-label">What did you learn or discover? *</label><textarea
-            name="whatLearned" required rows="3"
-            placeholder="Core discovery, insight, or operational problem observed..."
-            class="form-input form-textarea"></textarea></div>
-        <div class="form-group"><label class="form-label">Initial Questions / Next Steps</label><textarea
-            name="thoughtsQuestions" rows="2" placeholder="What doubts, trade-offs, or open tests remain?"
-            class="form-input form-textarea"></textarea></div>
+        <div class="form-group"><label class="form-label">What did you learn or discover? *</label><textarea name="whatLearned" required rows="3" placeholder="Core discovery, insight, or operational problem observed..." class="form-input form-textarea"></textarea></div>
+        <div class="form-group"><label class="form-label">Initial Questions / Next Steps</label><textarea name="thoughtsQuestions" rows="2" placeholder="What doubts, trade-offs, or open tests remain?" class="form-input form-textarea"></textarea></div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Tags (comma separated)</label><input type="text" name="tags"
-              placeholder="healthcare, inventory, fifo" class="form-input"></div>
-          <div class="form-group"><label class="form-label">Visibility</label><select name="visibility"
-              class="form-select">
+          <div class="form-group"><label class="form-label">Tags (comma separated)</label><input type="text" name="tags" placeholder="healthcare, inventory, fifo" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Visibility</label><select name="visibility" class="form-select">
               <option value="private" selected>Private · My Workspace</option>
               <option value="public">Public · Verifiable by Anyone</option>
             </select></div>
         </div>
         <div class="modal-footer">
-          <button type="button" onclick="document.getElementById('quick-idea-dialog').close()"
-            class="btn-cancel">Cancel</button>
-          <button type="submit" class="btn-submit">Capture to Journal →</button>
+          <button type="button" onclick="document.getElementById('quick-idea-dialog').close()" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-submit" style="background-color: #574e44">Capture to Journal →</button>
         </div>
       </form>
     </div>
@@ -1978,34 +2381,27 @@
   <dialog id="quick-role-dialog" class="modal-dialog">
     <div class="modal-box" style="max-width:560px;">
       <div class="modal-header">
-        <div><span class="modal-tag">Multi-Role Identity</span>
+        <div>
           <h3 class="modal-title">Add Concurrent Role</h3>
         </div>
         <button class="modal-close" onclick="document.getElementById('quick-role-dialog').close()">✕</button>
       </div>
-      <form action="/api/roles" method="POST">
-        <div class="form-group"><label class="form-label">Role Title *</label><input type="text" name="title" required
-            placeholder="e.g. Accounting Student, Pharmacy Manager, or Systems Lead" class="form-input"></div>
+      <form hx-post="/api/roles" hx-target="body" hx-push-url="true">
+        <div class="form-group"><label class="form-label">Role Title *</label><input type="text" name="title" required placeholder="e.g. Accounting Student, Pharmacy Manager, or Systems Lead" class="form-input"></div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Role Type *</label><select name="roleType"
-              class="form-select">
+          <div class="form-group"><label class="form-label">Role Type *</label><select name="roleType" class="form-select">
               <option value="student">🎓 Student / Education</option>
               <option value="founder">🚀 Founder / Entrepreneur</option>
               <option value="manager" selected>📋 Operations / Manager</option>
               <option value="other">💼 Specialist / Consultant</option>
             </select></div>
-          <div class="form-group"><label class="form-label">Organization / University</label><input type="text"
-              name="organizationName" placeholder="e.g. XYZ Pharmacy or Institute of Finance" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Organization / University</label><input type="text" name="organizationName" placeholder="e.g. XYZ Pharmacy or Institute of Finance" class="form-input"></div>
         </div>
-        <div class="form-group"><label class="form-label">Core Responsibilities &amp; Focus</label><textarea
-            name="description" rows="3" placeholder="Describe the scope, operational authority, or academic research..."
-            class="form-input form-textarea"></textarea></div>
-        <div class="form-group"><label class="form-label">Skills Applied (comma-separated)</label><input type="text"
-            name="skills" placeholder="Financial Auditing, Inventory Control, FIFO Batching" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Core Responsibilities &amp; Focus</label><textarea name="description" rows="3" placeholder="Describe the scope, operational authority, or academic research..." class="form-input form-textarea"></textarea></div>
+        <div class="form-group"><label class="form-label">Skills Applied (comma-separated)</label><input type="text" name="skills" placeholder="Financial Auditing, Inventory Control, FIFO Batching" class="form-input"></div>
         <div class="modal-footer">
-          <button type="button" onclick="document.getElementById('quick-role-dialog').close()"
-            class="btn-cancel">Cancel</button>
-          <button type="submit" class="btn-submit">Save Role to Profile</button>
+          <button type="button" onclick="document.getElementById('quick-role-dialog').close()" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-submit" style="background-color: #574e44">Save Role to Profile</button>
         </div>
       </form>
     </div>
@@ -2021,50 +2417,35 @@
         <button class="modal-close" onclick="document.getElementById('quick-org-dialog').close()">✕</button>
       </div>
       <form action="/api/organizations" method="POST">
-        <div class="form-group"><label class="form-label">Organization Name *</label><input type="text" name="name"
-            required placeholder="e.g. XYZ Pharmacy &amp; Community Health" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Organization Name *</label><input type="text" name="name" required placeholder="e.g. XYZ Pharmacy &amp; Community Health" class="form-input"></div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Industry Category</label><select name="category"
-              class="form-select">
+          <div class="form-group"><label class="form-label">Industry Category</label><select name="category" class="form-select">
               <option value="Healthcare &amp; Pharmacy" selected>🩺 Healthcare &amp; Pharmacy</option>
               <option value="Accounting &amp; Financial Services">💰 Accounting &amp; Financial Services</option>
               <option value="Software &amp; Systems Engineering">💻 Software &amp; Systems Engineering</option>
               <option value="Business Operations &amp; Consulting">📊 Business Operations &amp; Consulting</option>
               <option value="Education &amp; Academic Research">🎓 Education &amp; Academic Research</option>
             </select></div>
-          <div class="form-group"><label class="form-label">Your Role in Org</label><input type="text" name="memberRole"
-              placeholder="e.g. Founder, Director, or Pharmacist" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Your Role in Org</label><input type="text" name="memberRole" placeholder="e.g. Founder, Director, or Pharmacist" class="form-input"></div>
         </div>
-        <div class="form-group"><label class="form-label">Tagline</label><input type="text" name="tagline"
-            placeholder="e.g. Certified community pharmacy dispensary" class="form-input"></div>
-        <div class="form-group"><label class="form-label">About the Organization</label><textarea name="about" rows="3"
-            placeholder="Mission, background, and operational description..."
-            class="form-input form-textarea"></textarea></div>
+        <div class="form-group"><label class="form-label">Tagline</label><input type="text" name="tagline" placeholder="e.g. Certified community pharmacy dispensary" class="form-input"></div>
+        <div class="form-group"><label class="form-label">About the Organization</label><textarea name="about" rows="3" placeholder="Mission, background, and operational description..." class="form-input form-textarea"></textarea></div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Physical Location</label><input type="text" name="location"
-              placeholder="e.g. Sinza Kwaremi, Dar es Salaam" class="form-input"></div>
-          <div class="form-group"><label class="form-label">Official Website</label><input type="text" name="website"
-              placeholder="e.g. https://xyzpharmacy.co.tz" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Physical Location</label><input type="text" name="location" placeholder="e.g. Sinza Kwaremi, Dar es Salaam" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Official Website</label><input type="text" name="website" placeholder="e.g. https://xyzpharmacy.co.tz" class="form-input"></div>
         </div>
         <div class="form-section">
           <div class="form-section-lbl">Official Business Compliance</div>
-          <div class="form-grid" style="margin-bottom:8px;"><input type="text" name="registrationNo"
-              placeholder="Business Reg No (e.g. BRELA #512891)" class="form-input" style="font-size:.79rem;"><input
-              type="text" name="taxId" placeholder="Tax ID / TIN" class="form-input" style="font-size:.79rem;"></div>
-          <div class="form-grid"><input type="text" name="foundedYear" placeholder="Founded Year (e.g. 2023)"
-              class="form-input" style="font-size:.79rem;"><input type="text" name="licenseStatus"
-              placeholder="License (e.g. Pharmacy Board Class-A)" class="form-input" style="font-size:.79rem;"></div>
+          <div class="form-grid" style="margin-bottom:8px;"><input type="text" name="registrationNo" placeholder="Business Reg No (e.g. BRELA #512891)" class="form-input" style="font-size:.79rem;"><input type="text" name="taxId" placeholder="Tax ID / TIN" class="form-input" style="font-size:.79rem;"></div>
+          <div class="form-grid"><input type="text" name="foundedYear" placeholder="Founded Year (e.g. 2023)" class="form-input" style="font-size:.79rem;"><input type="text" name="licenseStatus" placeholder="License (e.g. Pharmacy Board Class-A)" class="form-input" style="font-size:.79rem;"></div>
         </div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Contact Email</label><input type="email" name="contactEmail"
-              placeholder="dispensary@xyzpharmacy.co.tz" class="form-input"></div>
-          <div class="form-group"><label class="form-label">Contact Phone</label><input type="text" name="contactPhone"
-              placeholder="+255 784 112 233" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Contact Email</label><input type="email" name="contactEmail" placeholder="dispensary@xyzpharmacy.co.tz" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Contact Phone</label><input type="text" name="contactPhone" placeholder="+255 784 112 233" class="form-input"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" onclick="document.getElementById('quick-org-dialog').close()"
-            class="btn-cancel">Cancel</button>
-          <button type="submit" class="btn-submit">Register &amp; Connect</button>
+          <button type="button" onclick="document.getElementById('quick-org-dialog').close()" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-submit" style="background-color: #574e44">Register &amp; Connect</button>
         </div>
       </form>
     </div>
@@ -2080,28 +2461,75 @@
         <button class="modal-close" onclick="document.getElementById('project-dialog').close()">✕</button>
       </div>
       <form action="/api/projects" method="POST">
-        <div class="form-group"><label class="form-label">Project Title *</label><input type="text" name="title"
-            required placeholder="e.g. Distributed Inventory Verification System" class="form-input"></div>
-        <div class="form-group"><label class="form-label">Associate with Professional Role</label><select name="roleId"
-            class="form-select">
-            <option value="">General Proof (All Roles)</option>{{range .Roles}}<option value="{{.ID}}">{{.Title}} ({{if
-              .OrganizationName}}{{.OrganizationName}}{{else}}{{.RoleType}}{{end}})</option>{{end}}
-          </select></div>
-        <div class="form-group"><label class="form-label">Brief Description *</label><textarea name="description"
-            required rows="3" placeholder="What problem did you solve, and what verifiable outcome did it produce?"
-            class="form-input form-textarea"></textarea></div>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">Live URL / Verified Document</label><input type="url"
-              name="link" placeholder="https://github.com/..." class="form-input"></div>
-          <div class="form-group"><label class="form-label">Repository / Source</label><input type="url" name="repoUrl"
-              placeholder="https://github.com/..." class="form-input"></div>
+        <div class="form-group">
+          <label class="form-label">Project Title *</label>
+          <input type="text" name="title" required placeholder="e.g. Distributed Inventory Verification System" class="form-input">
         </div>
-        <div class="form-group"><label class="form-label">Skills / Tech Tags (comma-separated)</label><input type="text"
-            name="tags" placeholder="Go, PostgreSQL, Inventory Control, FIFO" class="form-input"></div>
+
+        <!-- Work Category + Dynamic Template Fields -->
+        <div style="background:var(--bg); border:1px solid var(--border-stone); border-radius:var(--r-md); padding:12px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:4px;">
+            <label class="form-label" style="font-weight:700; color:var(--color-terracotta); margin-bottom:0;">📁 Work
+              Category &amp; Template</label>
+            <span style="font-size:0.72rem; color:var(--text-3); font-family:var(--mono);">Determines dynamic
+              fields</span>
+          </div>
+          <select name="category" id="project-category-select" class="form-input form-select" style="font-size:14px; margin-bottom:4px;" hx-get="/api/profile/template-fields" hx-vals='{"type":"project"}' hx-include="[name='category']" hx-target="#project-template-fields" hx-trigger="change">
+            <option value="Verified Proof">📌 General Verified Proof</option>
+            {{range .PortfolioTemplates}}
+            <option value="{{.DisplayName}}">{{.Icon}} {{.DisplayName}}</option>
+            {{end}}
+          </select>
+          <!-- Dynamic portfolio template fields -->
+          <div id="project-template-fields" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Associate with Professional Role</label>
+          <select name="roleId" class="form-input form-select" style="font-size:14px;">
+            <option value="">General Proof (All Roles)</option>
+            {{range .Roles}}
+            <option value="{{.ID}}">{{.Title}} ({{if
+              .OrganizationName}}{{.OrganizationName}}{{else}}{{.RoleType}}{{end}})</option>
+            {{end}}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Brief Description / Problem Solved *</label>
+          <textarea name="problemSolved" required rows="3" placeholder="What problem did you solve, and what verifiable outcome did it produce?" class="form-input form-textarea"></textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Live URL / Verified Document</label>
+            <input type="url" name="liveUrl" placeholder="https://..." class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Repository / Source</label>
+            <input type="url" name="repoUrl" placeholder="https://github.com/..." class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Skills / Tech Tags (comma-separated)</label>
+          <input type="text" name="techStack" placeholder="Go, PostgreSQL, R&amp;B Production, Match Analysis" class="form-input">
+        </div>
+
+        <!-- Custom Fields for Projects -->
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--r-md); padding:12px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+            <label class="form-label" style="font-weight:700; margin-bottom:0; font-size:0.82rem;">✦ Extra Custom Fields
+              (Optional)</label>
+            <button type="button" hx-get="/api/profile/custom-field-row" hx-target="#project-custom-fields" hx-swap="beforeend" class="btn-ghost" style="padding:4px 10px; font-size:0.75rem; font-weight:700;background-color: #574e44; border-color:var(--accent);">＋
+              Add Field</button>
+          </div>
+          <div id="project-custom-fields"></div>
+        </div>
+
         <div class="modal-footer">
-          <button type="button" onclick="document.getElementById('project-dialog').close()"
-            class="btn-cancel">Cancel</button>
-          <button type="submit" class="btn-submit">Publish Verified Proof</button>
+          <button type="button" onclick="document.getElementById('project-dialog').close()" class="btn btn-secondary btn-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-submit" style="background-color: #574e44">Publish Verified Proof</button>
         </div>
       </form>
     </div>
@@ -2182,6 +2610,23 @@
       var cb = document.getElementById('qr-modal-copy-btn'); if (cb) cb.textContent = '📋 Copy';
       dialog.showModal();
     };
+
+    window.openQrShareBtn = function (btn) {
+      if (!btn) return;
+      var title = btn.getAttribute('data-qr-title') || '';
+      var subtitle = btn.getAttribute('data-qr-subtitle') || '';
+      var url = btn.getAttribute('data-qr-url') || '';
+      var type = btn.getAttribute('data-qr-type') || '';
+      var badge = btn.getAttribute('data-qr-badge') || '';
+      window.openQrShareModal({
+        title: title,
+        subtitle: subtitle,
+        url: url,
+        type: type,
+        badgeText: badge
+      });
+    };
+
     window.copyQrModalLink = function () {
       var i = document.getElementById('qr-modal-link-input');
       var b = document.getElementById('qr-modal-copy-btn');
@@ -2198,6 +2643,48 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
+      // Auto-close native dialogs when user taps backdrop outside modal box
+      document.querySelectorAll('dialog').forEach(function (d) {
+        d.addEventListener('click', function (e) {
+          if (e.target === d) {
+            d.close();
+          }
+        });
+        d.addEventListener('close', function () {
+          if (!document.querySelector('dialog[open]')) {
+            document.body.classList.remove('modal-open');
+          }
+        });
+      });
+
+      if (window.HTMLDialogElement) {
+        var _origShow = HTMLDialogElement.prototype.showModal;
+        HTMLDialogElement.prototype.showModal = function () {
+          document.body.classList.add('modal-open');
+          return _origShow.apply(this, arguments);
+        };
+        var _origClose = HTMLDialogElement.prototype.close;
+        HTMLDialogElement.prototype.close = function () {
+          var res = _origClose.apply(this, arguments);
+          if (!document.querySelector('dialog[open]')) {
+            document.body.classList.remove('modal-open');
+          }
+          return res;
+        };
+      }
+
+      // Prevent mobile virtual keyboard from occluding inputs inside dialogs
+      document.addEventListener('focusin', function (e) {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
+          var modalBox = e.target.closest('.modal-box, dialog > div');
+          if (modalBox) {
+            setTimeout(function () {
+              e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 250);
+          }
+        }
+      });
+
       var p = location.pathname + location.search + location.hash;
       if (p && p !== '/' && !p.startsWith('/login') && !p.startsWith('/register') && !p.startsWith('/auth')) {
         document.querySelectorAll('a[href="/login"],a[href^="/login?"]').forEach(function (a) {
@@ -2206,10 +2693,34 @@
       }
     });
 
+    // Rolling session renewal & timeout watcher (every 4 minutes, non-intrusive, no cursor/scroll noise)
+    if (!window.__keepaliveActive) {
+      window.__keepaliveActive = true;
+      var intervalMs = 4 * 60 * 1000;
+      setInterval(function () {
+        var currentPath = encodeURIComponent(window.location.pathname + window.location.search);
+        fetch('/api/session/keepalive?current=' + currentPath, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        }).then(function (res) {
+          if (res.status === 401) {
+            console.warn('Session expired or invalidated. Smoothly redirecting to sign-in...');
+            window.location.href = '/login?redirect=' + currentPath;
+          }
+        }).catch(function () {
+          // Gracefully suppress transient network drops without interrupting active session
+        });
+      }, intervalMs);
+    }
+
     if (window.EventSource) {
+      if (window.__proofolioEventSource) {
+        try { window.__proofolioEventSource.close(); } catch (e) { }
+      }
       var _d = 1000;
       function _lr() {
         var es = new EventSource('/dev/live-reload');
+        window.__proofolioEventSource = es;
         es.onmessage = function (e) {
           try {
             var data = JSON.parse(e.data);
@@ -2220,9 +2731,19 @@
             } else { location.reload(); }
           } catch (err) { location.reload(); }
         };
-        es.onerror = function () { es.close(); setTimeout(_lr, _d); _d = Math.min(_d * 1.5, 5000); };
+        es.onerror = function () {
+          try { es.close(); } catch (e) { }
+          setTimeout(_lr, _d);
+          _d = Math.min(_d * 1.5, 5000);
+        };
       }
       _lr();
+
+      window.addEventListener('beforeunload', function () {
+        if (window.__proofolioEventSource) {
+          try { window.__proofolioEventSource.close(); } catch (e) { }
+        }
+      });
     }
   </script>
 </body>

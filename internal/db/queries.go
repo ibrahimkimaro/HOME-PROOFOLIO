@@ -74,16 +74,21 @@ func DeleteSession(token string) error {
 	return err
 }
 
+func TouchSession(token string, newExpiry time.Time) error {
+	_, err := DB.Exec(`UPDATE sessions SET expires_at = $1 WHERE token = $2`, newExpiry, token)
+	return err
+}
+
 // --- Profile Queries ---
 
 func GetProfileByUserID(userID string) (*models.Profile, error) {
 	var p models.Profile
 	var skillsRaw, socialRaw []byte
 	err := DB.QueryRow(`SELECT user_id, username, display_name, headline, bio, avatar_url, location, category,
-		education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, updated_at
+		education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, COALESCE(attributes, '{}'::jsonb), updated_at
 		FROM profiles WHERE user_id = $1`, userID).
 		Scan(&p.UserID, &p.Username, &p.DisplayName, &p.Headline, &p.Bio, &p.AvatarURL, &p.Location, &p.Category,
-			&p.EducationSummary, &p.ProfessionalSummary, &skillsRaw, &socialRaw, &p.Visibility, &p.Theme, &p.FontStyle, &p.AccentColor, &p.UpdatedAt)
+			&p.EducationSummary, &p.ProfessionalSummary, &skillsRaw, &socialRaw, &p.Visibility, &p.Theme, &p.FontStyle, &p.AccentColor, &p.Attributes, &p.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -96,10 +101,10 @@ func GetProfileByUsername(username string) (*models.Profile, error) {
 	var p models.Profile
 	var skillsRaw, socialRaw []byte
 	err := DB.QueryRow(`SELECT user_id, username, display_name, headline, bio, avatar_url, location, category,
-		education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, updated_at
+		education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, COALESCE(attributes, '{}'::jsonb), updated_at
 		FROM profiles WHERE LOWER(username) = LOWER($1)`, username).
 		Scan(&p.UserID, &p.Username, &p.DisplayName, &p.Headline, &p.Bio, &p.AvatarURL, &p.Location, &p.Category,
-			&p.EducationSummary, &p.ProfessionalSummary, &skillsRaw, &socialRaw, &p.Visibility, &p.Theme, &p.FontStyle, &p.AccentColor, &p.UpdatedAt)
+			&p.EducationSummary, &p.ProfessionalSummary, &skillsRaw, &socialRaw, &p.Visibility, &p.Theme, &p.FontStyle, &p.AccentColor, &p.Attributes, &p.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +115,7 @@ func GetProfileByUsername(username string) (*models.Profile, error) {
 
 func GetAllProfiles() ([]models.Profile, error) {
 	rows, err := DB.Query(`SELECT user_id, username, display_name, headline, bio, avatar_url, location, category,
-		education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, updated_at
+		education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, COALESCE(attributes, '{}'::jsonb), updated_at
 		FROM profiles ORDER BY updated_at DESC`)
 	if err != nil {
 		return nil, err
@@ -122,7 +127,7 @@ func GetAllProfiles() ([]models.Profile, error) {
 		var p models.Profile
 		var skillsRaw, socialRaw []byte
 		if err := rows.Scan(&p.UserID, &p.Username, &p.DisplayName, &p.Headline, &p.Bio, &p.AvatarURL, &p.Location, &p.Category,
-			&p.EducationSummary, &p.ProfessionalSummary, &skillsRaw, &socialRaw, &p.Visibility, &p.Theme, &p.FontStyle, &p.AccentColor, &p.UpdatedAt); err == nil {
+			&p.EducationSummary, &p.ProfessionalSummary, &skillsRaw, &socialRaw, &p.Visibility, &p.Theme, &p.FontStyle, &p.AccentColor, &p.Attributes, &p.UpdatedAt); err == nil {
 			_ = json.Unmarshal(skillsRaw, &p.Skills)
 			_ = json.Unmarshal(socialRaw, &p.SocialLinks)
 			list = append(list, p)
@@ -134,8 +139,11 @@ func GetAllProfiles() ([]models.Profile, error) {
 func CreateOrUpdateProfile(p *models.Profile) error {
 	skillsRaw, _ := json.Marshal(p.Skills)
 	socialRaw, _ := json.Marshal(p.SocialLinks)
-	_, err := DB.Exec(`INSERT INTO profiles (user_id, username, display_name, headline, bio, avatar_url, location, category, education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+	if p.Attributes == nil {
+		p.Attributes = make(models.JSONB)
+	}
+	_, err := DB.Exec(`INSERT INTO profiles (user_id, username, display_name, headline, bio, avatar_url, location, category, education_summary, professional_summary, skills, social_links, visibility, theme, font_style, accent_color, attributes, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 		ON CONFLICT (user_id) DO UPDATE SET
 			username = EXCLUDED.username,
 			display_name = EXCLUDED.display_name,
@@ -152,9 +160,10 @@ func CreateOrUpdateProfile(p *models.Profile) error {
 			theme = EXCLUDED.theme,
 			font_style = EXCLUDED.font_style,
 			accent_color = EXCLUDED.accent_color,
+			attributes = EXCLUDED.attributes,
 			updated_at = CURRENT_TIMESTAMP`,
 		p.UserID, p.Username, p.DisplayName, p.Headline, p.Bio, p.AvatarURL, p.Location, p.Category,
-		p.EducationSummary, p.ProfessionalSummary, string(skillsRaw), string(socialRaw), p.Visibility, p.Theme, p.FontStyle, p.AccentColor, time.Now())
+		p.EducationSummary, p.ProfessionalSummary, string(skillsRaw), string(socialRaw), p.Visibility, p.Theme, p.FontStyle, p.AccentColor, p.Attributes, time.Now())
 	return err
 }
 
@@ -162,7 +171,7 @@ func CreateOrUpdateProfile(p *models.Profile) error {
 
 func GetProjectsByUserID(userID string) ([]models.Project, error) {
 	rows, err := DB.Query(`SELECT id, user_id, title, category, headline, problem_solved, architecture_notes,
-		live_url, repo_url, tech_stack, metrics, status, featured, accent_color, banner_gradient, created_at, updated_at
+		live_url, repo_url, tech_stack, metrics, status, featured, accent_color, banner_gradient, COALESCE(attributes, '{}'::jsonb), created_at, updated_at
 		FROM projects WHERE user_id = $1 ORDER BY featured DESC, created_at DESC`, userID)
 	if err != nil {
 		return nil, err
@@ -175,7 +184,7 @@ func GetProjectsByUserID(userID string) ([]models.Project, error) {
 		var techRaw []byte
 		if err := rows.Scan(&prj.ID, &prj.UserID, &prj.Title, &prj.Category, &prj.Headline, &prj.ProblemSolved,
 			&prj.ArchitectureNotes, &prj.LiveURL, &prj.RepoURL, &techRaw, &prj.Metrics, &prj.Status, &prj.Featured,
-			&prj.AccentColor, &prj.BannerGradient, &prj.CreatedAt, &prj.UpdatedAt); err == nil {
+			&prj.AccentColor, &prj.BannerGradient, &prj.Attributes, &prj.CreatedAt, &prj.UpdatedAt); err == nil {
 			_ = json.Unmarshal(techRaw, &prj.TechStack)
 			list = append(list, prj)
 		}
@@ -185,7 +194,7 @@ func GetProjectsByUserID(userID string) ([]models.Project, error) {
 
 func GetAllProjects() ([]models.Project, error) {
 	rows, err := DB.Query(`SELECT id, user_id, title, category, headline, problem_solved, architecture_notes,
-		live_url, repo_url, tech_stack, metrics, status, featured, accent_color, banner_gradient, created_at, updated_at
+		live_url, repo_url, tech_stack, metrics, status, featured, accent_color, banner_gradient, COALESCE(attributes, '{}'::jsonb), created_at, updated_at
 		FROM projects ORDER BY featured DESC, created_at DESC`)
 	if err != nil {
 		return nil, err
@@ -198,7 +207,7 @@ func GetAllProjects() ([]models.Project, error) {
 		var techRaw []byte
 		if err := rows.Scan(&prj.ID, &prj.UserID, &prj.Title, &prj.Category, &prj.Headline, &prj.ProblemSolved,
 			&prj.ArchitectureNotes, &prj.LiveURL, &prj.RepoURL, &techRaw, &prj.Metrics, &prj.Status, &prj.Featured,
-			&prj.AccentColor, &prj.BannerGradient, &prj.CreatedAt, &prj.UpdatedAt); err == nil {
+			&prj.AccentColor, &prj.BannerGradient, &prj.Attributes, &prj.CreatedAt, &prj.UpdatedAt); err == nil {
 			_ = json.Unmarshal(techRaw, &prj.TechStack)
 			list = append(list, prj)
 		}
@@ -209,10 +218,81 @@ func GetAllProjects() ([]models.Project, error) {
 func CreateProject(prj *models.Project) error {
 	techRaw, _ := json.Marshal(prj.TechStack)
 	now := time.Now()
-	_, err := DB.Exec(`INSERT INTO projects (id, user_id, title, category, headline, problem_solved, architecture_notes, live_url, repo_url, tech_stack, metrics, status, featured, accent_color, banner_gradient, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
-		prj.ID, prj.UserID, prj.Title, prj.Category, prj.Headline, prj.ProblemSolved, prj.ArchitectureNotes, prj.LiveURL, prj.RepoURL, string(techRaw), prj.Metrics, prj.Status, prj.Featured, prj.AccentColor, prj.BannerGradient, now, now)
+	if prj.Attributes == nil {
+		prj.Attributes = make(models.JSONB)
+	}
+	_, err := DB.Exec(`INSERT INTO projects (id, user_id, title, category, headline, problem_solved, architecture_notes, live_url, repo_url, tech_stack, metrics, status, featured, accent_color, banner_gradient, attributes, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+		prj.ID, prj.UserID, prj.Title, prj.Category, prj.Headline, prj.ProblemSolved, prj.ArchitectureNotes, prj.LiveURL, prj.RepoURL, string(techRaw), prj.Metrics, prj.Status, prj.Featured, prj.AccentColor, prj.BannerGradient, prj.Attributes, now, now)
 	return err
+}
+
+// --- Domain & Portfolio Template Queries ---
+
+func GetDomainTemplateByKey(key string) (*models.DomainTemplate, error) {
+	var dt models.DomainTemplate
+	var fieldsRaw []byte
+	err := DB.QueryRow(`SELECT id, domain_key, display_name, description, icon, category_group, fields, created_at, updated_at
+		FROM domain_templates WHERE LOWER(domain_key) = LOWER($1)`, key).
+		Scan(&dt.ID, &dt.DomainKey, &dt.DisplayName, &dt.Description, &dt.Icon, &dt.CategoryGroup, &fieldsRaw, &dt.CreatedAt, &dt.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	_ = json.Unmarshal(fieldsRaw, &dt.Fields)
+	return &dt, nil
+}
+
+func GetAllDomainTemplates() ([]models.DomainTemplate, error) {
+	rows, err := DB.Query(`SELECT id, domain_key, display_name, description, icon, category_group, fields, created_at, updated_at
+		FROM domain_templates ORDER BY category_group ASC, display_name ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list []models.DomainTemplate
+	for rows.Next() {
+		var dt models.DomainTemplate
+		var fieldsRaw []byte
+		if err := rows.Scan(&dt.ID, &dt.DomainKey, &dt.DisplayName, &dt.Description, &dt.Icon, &dt.CategoryGroup, &fieldsRaw, &dt.CreatedAt, &dt.UpdatedAt); err == nil {
+			_ = json.Unmarshal(fieldsRaw, &dt.Fields)
+			list = append(list, dt)
+		}
+	}
+	return list, nil
+}
+
+func GetPortfolioTemplateByKey(key string) (*models.PortfolioTemplate, error) {
+	var pt models.PortfolioTemplate
+	var fieldsRaw []byte
+	err := DB.QueryRow(`SELECT id, template_key, display_name, description, icon, fields, created_at, updated_at
+		FROM portfolio_templates WHERE LOWER(template_key) = LOWER($1)`, key).
+		Scan(&pt.ID, &pt.TemplateKey, &pt.DisplayName, &pt.Description, &pt.Icon, &fieldsRaw, &pt.CreatedAt, &pt.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	_ = json.Unmarshal(fieldsRaw, &pt.Fields)
+	return &pt, nil
+}
+
+func GetAllPortfolioTemplates() ([]models.PortfolioTemplate, error) {
+	rows, err := DB.Query(`SELECT id, template_key, display_name, description, icon, fields, created_at, updated_at
+		FROM portfolio_templates ORDER BY display_name ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list []models.PortfolioTemplate
+	for rows.Next() {
+		var pt models.PortfolioTemplate
+		var fieldsRaw []byte
+		if err := rows.Scan(&pt.ID, &pt.TemplateKey, &pt.DisplayName, &pt.Description, &pt.Icon, &fieldsRaw, &pt.CreatedAt, &pt.UpdatedAt); err == nil {
+			_ = json.Unmarshal(fieldsRaw, &pt.Fields)
+			list = append(list, pt)
+		}
+	}
+	return list, nil
 }
 
 // --- Problem Case Queries ---
@@ -403,9 +483,37 @@ func UpvoteDiscussion(id, userID string) (int, error) {
 
 // --- Articles Queries ---
 
+func scanArticle(a *models.ArticlePost, rows interface{ Scan(...interface{}) error }) error {
+	var upvotersRaw, tagsRaw, keyTakeawaysRaw []byte
+	var attrRaw []byte
+	err := rows.Scan(
+		&a.ID, &a.UserID, &a.AuthorName, &a.AuthorUsername, &a.AuthorRole,
+		&a.Title, &a.Slug, &a.Excerpt, &a.Category, &a.ReadTime, &a.Summary, &a.Content,
+		&a.BannerImage, &a.LinkedProjectID, &a.AuthorPrompt, &a.HeaderStyle,
+		&a.Upvotes, &upvotersRaw, &tagsRaw, &keyTakeawaysRaw,
+		&a.ReadingTheme, &a.FontStyle, &a.AccentColor, &attrRaw,
+		&a.CreatedAt, &a.UpdatedAt,
+	)
+	if err != nil {
+		return err
+	}
+	_ = json.Unmarshal(upvotersRaw, &a.Upvoters)
+	_ = json.Unmarshal(tagsRaw, &a.Tags)
+	_ = json.Unmarshal(keyTakeawaysRaw, &a.KeyTakeaways)
+	_ = json.Unmarshal(attrRaw, &a.Attributes)
+	return nil
+}
+
+const articleSelectCols = `id, user_id, author_name, author_username, author_role,
+	title, COALESCE(slug, id) as slug, COALESCE(excerpt, summary) as excerpt, category, read_time, summary, content,
+	COALESCE(banner_image, '') as banner_image, COALESCE(linked_project_id, '') as linked_project_id,
+	COALESCE(author_prompt, '') as author_prompt, COALESCE(header_style, 'gradient') as header_style,
+	upvotes, upvoters, tags, COALESCE(key_takeaways, '[]'::jsonb) as key_takeaways,
+	reading_theme, font_style, accent_color, COALESCE(attributes, '{}'::jsonb) as attributes,
+	created_at, updated_at`
+
 func GetAllArticles() ([]models.ArticlePost, error) {
-	rows, err := DB.Query(`SELECT id, user_id, author_name, author_username, author_role, title, category, read_time, summary, content, upvotes, upvoters, tags, reading_theme, font_style, accent_color, created_at, updated_at
-		FROM articles ORDER BY created_at DESC`)
+	rows, err := DB.Query(`SELECT ` + articleSelectCols + ` FROM articles ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -414,10 +522,7 @@ func GetAllArticles() ([]models.ArticlePost, error) {
 	var list []models.ArticlePost
 	for rows.Next() {
 		var a models.ArticlePost
-		var upvotersRaw, tagsRaw []byte
-		if err := rows.Scan(&a.ID, &a.UserID, &a.AuthorName, &a.AuthorUsername, &a.AuthorRole, &a.Title, &a.Category, &a.ReadTime, &a.Summary, &a.Content, &a.Upvotes, &upvotersRaw, &tagsRaw, &a.ReadingTheme, &a.FontStyle, &a.AccentColor, &a.CreatedAt, &a.UpdatedAt); err == nil {
-			_ = json.Unmarshal(upvotersRaw, &a.Upvoters)
-			_ = json.Unmarshal(tagsRaw, &a.Tags)
+		if err := scanArticle(&a, rows); err == nil {
 			list = append(list, a)
 		}
 	}
@@ -426,25 +531,36 @@ func GetAllArticles() ([]models.ArticlePost, error) {
 
 func GetArticleByID(id string) (*models.ArticlePost, error) {
 	var a models.ArticlePost
-	var upvotersRaw, tagsRaw []byte
-	err := DB.QueryRow(`SELECT id, user_id, author_name, author_username, author_role, title, category, read_time, summary, content, upvotes, upvoters, tags, reading_theme, font_style, accent_color, created_at, updated_at
-		FROM articles WHERE id = $1`, id).
-		Scan(&a.ID, &a.UserID, &a.AuthorName, &a.AuthorUsername, &a.AuthorRole, &a.Title, &a.Category, &a.ReadTime, &a.Summary, &a.Content, &a.Upvotes, &upvotersRaw, &tagsRaw, &a.ReadingTheme, &a.FontStyle, &a.AccentColor, &a.CreatedAt, &a.UpdatedAt)
+	err := scanArticle(&a, DB.QueryRow(`SELECT `+articleSelectCols+` FROM articles WHERE id = $1`, id))
 	if err != nil {
 		return nil, err
 	}
-	_ = json.Unmarshal(upvotersRaw, &a.Upvoters)
-	_ = json.Unmarshal(tagsRaw, &a.Tags)
+	return &a, nil
+}
+
+func GetArticleBySlug(slug string) (*models.ArticlePost, error) {
+	var a models.ArticlePost
+	err := scanArticle(&a, DB.QueryRow(`SELECT `+articleSelectCols+` FROM articles WHERE slug = $1 OR id = $1`, slug))
+	if err != nil {
+		return nil, err
+	}
 	return &a, nil
 }
 
 func CreateArticle(a *models.ArticlePost) error {
 	upvotersRaw, _ := json.Marshal(a.Upvoters)
 	tagsRaw, _ := json.Marshal(a.Tags)
+	keyTakeawaysRaw, _ := json.Marshal(a.KeyTakeaways)
+	attrRaw, _ := json.Marshal(a.Attributes)
 	now := time.Now()
-	_, err := DB.Exec(`INSERT INTO articles (id, user_id, author_name, author_username, author_role, title, category, read_time, summary, content, upvotes, upvoters, tags, reading_theme, font_style, accent_color, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
-		a.ID, a.UserID, a.AuthorName, a.AuthorUsername, a.AuthorRole, a.Title, a.Category, a.ReadTime, a.Summary, a.Content, a.Upvotes, string(upvotersRaw), string(tagsRaw), a.ReadingTheme, a.FontStyle, a.AccentColor, now, now)
+	_, err := DB.Exec(`INSERT INTO articles
+		(id, user_id, author_name, author_username, author_role, title, slug, excerpt, category, read_time, summary, content,
+		 banner_image, linked_project_id, author_prompt, header_style,
+		 upvotes, upvoters, tags, key_takeaways, reading_theme, font_style, accent_color, attributes, created_at, updated_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)`,
+		a.ID, a.UserID, a.AuthorName, a.AuthorUsername, a.AuthorRole, a.Title, a.Slug, a.Excerpt, a.Category, a.ReadTime, a.Summary, a.Content,
+		a.BannerImage, a.LinkedProjectID, a.AuthorPrompt, a.HeaderStyle,
+		0, string(upvotersRaw), string(tagsRaw), string(keyTakeawaysRaw), a.ReadingTheme, a.FontStyle, a.AccentColor, string(attrRaw), now, now)
 	return err
 }
 
@@ -832,6 +948,34 @@ func GetIdeasForUser(userID string) ([]models.Idea, error) {
 		JOIN users u ON i.user_id = u.id
 		LEFT JOIN profiles p ON i.user_id = p.user_id
 		WHERE i.user_id = $1 ORDER BY i.updated_at DESC`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ideas []models.Idea
+	for rows.Next() {
+		var idea models.Idea
+		var tagsRaw []byte
+		if err := rows.Scan(&idea.ID, &idea.UserID, &idea.AuthorName, &idea.AuthorUsername,
+			&idea.Title, &idea.WhatLearned, &idea.Source, &idea.ThoughtsQuestions, &idea.CurrentUnderstanding,
+			&idea.Stage, &idea.Visibility, &tagsRaw, &idea.LinkedProjectID, &idea.LinkedProblemID, &idea.CreatedAt, &idea.UpdatedAt); err == nil {
+			_ = json.Unmarshal(tagsRaw, &idea.Tags)
+			idea.TimelineEntries = getIdeaTimelineEntries(idea.ID)
+			ideas = append(ideas, idea)
+		}
+	}
+	return ideas, nil
+}
+
+func GetAllIdeas() ([]models.Idea, error) {
+	rows, err := DB.Query(`SELECT i.id, i.user_id, COALESCE(p.display_name, u.username), u.username,
+		i.title, i.what_learned, i.source, i.thoughts_questions, i.current_understanding,
+		i.stage, i.visibility, i.tags, i.linked_project_id, i.linked_problem_id, i.created_at, i.updated_at
+		FROM ideas i
+		JOIN users u ON i.user_id = u.id
+		LEFT JOIN profiles p ON i.user_id = p.user_id
+		ORDER BY i.updated_at DESC`)
 	if err != nil {
 		return nil, err
 	}
